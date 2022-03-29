@@ -4,10 +4,11 @@
   "description": "",
   "main": ".eslintrc.js",
   "scripts": {
-    "build-client": "webpack --config webpack_conf/webpack.prod.js",
+    "client-build-fast": "webpack --config webpack_conf/webpack.prod.js",
+    "client-dev": "webpack --watch --config webpack_conf/webpack.dev.js",
+    "server-dev": "nodemon index.mjs",
     "debug": "nodemon --inspect index.mjs",
-    "start": "node index.mjs",
-    "watch": "webpack --watch --config webpack_conf/webpack.dev.js"
+    "start": "node index.mjs"
   },
   "repository": {
     "type": "git",
