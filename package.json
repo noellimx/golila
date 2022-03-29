@@ -1,8 +1,7 @@
 {
-  "name": "webpack-mvc-base-bootcamp",
+  "name": "miniminiclip",
   "version": "1.0.0",
-  "description": "",
-  "main": ".eslintrc.js",
+  "description": "Project 3",
   "scripts": {
     "client-build-fast": "webpack --config webpack_conf/webpack.prod.js",
     "client-dev": "webpack --watch --config webpack_conf/webpack.dev.js",
