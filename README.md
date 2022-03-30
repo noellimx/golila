@@ -1,1 +1,10 @@
-# Rocket Academy Coding Bootcamp: Webpack MVC Base
+# Development Nodes
+
+## This is a mono repo.
+
+
+### Database
+
+using PostgreSQL with Sequelize
+
+

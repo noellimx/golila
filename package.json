@@ -9,6 +9,7 @@
     "debug": "nodemon --inspect index.mjs",
     "start": "node index.mjs"
   },
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rocketacademy/webpack-mvc-base-bootcamp.git"
