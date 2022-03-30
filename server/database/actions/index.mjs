@@ -1,5 +1,3 @@
-
-
 import db from "../index.js";
 
 const { sequel, Sequelize } = db;

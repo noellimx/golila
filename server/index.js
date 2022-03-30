@@ -1,13 +1,8 @@
-import express from 'express';
-import bindRoutes from './routes.js';
-
+import express from "express";
+import bindRoutes from "./routes.js";
 
 const app = express();
 
+bindRoutes(app);
 
-bindRoutes(app)
-
-
-app.listen(3004)
-
-
+app.listen(3004);
