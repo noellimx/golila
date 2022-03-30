@@ -1,9 +1,16 @@
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const path = require("path");
-const { merge } = require("webpack-merge");
-const common = require("./webpack.common.js");
+import HtmlWebpackPlugin from "html-webpack-plugin";
 
-module.exports = merge(common, {
+import { merge } from "webpack-merge";
+
+import common from "./webpack.common.js";
+
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+
+export default merge(common, {
   mode: "development",
   devtool: "inline-source-map",
   watch: true,
@@ -11,7 +18,7 @@ module.exports = merge(common, {
     new HtmlWebpackPlugin({
       // name this file main, so that it does not get automatically requested as a static file
       filename: "main.html",
-      template: path.resolve(__dirname, "..", "src", "main.html"),
+      template: path.resolve(__dirname, "..", "client", "main.html"),
     }),
   ].filter(Boolean),
   module: {
@@ -20,7 +27,7 @@ module.exports = merge(common, {
         test: /\.(js|mjs|jsx)$/, // regex to see which files to run babel on
         exclude: /node_modules/,
         use: {
-          loader: require.resolve("babel-loader"),
+          loader: "babel-loader",
           options: {
             presets: ["@babel/preset-env"],
           },

@@ -1,7 +1,12 @@
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const path = require("path");
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import path from "path";
 
-module.exports = {
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+export default {
   entry: {
     main: "./client/index.js",
   },
