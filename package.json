@@ -5,9 +5,9 @@
   "scripts": {
     "client-build-fast": "webpack --config webpack_conf/webpack.prod.js",
     "client-dev": "webpack --watch --config webpack_conf/webpack.dev.js",
-    "server-dev": "nodemon index.mjs",
-    "debug": "nodemon --inspect index.mjs",
-    "start": "node index.mjs"
+    "server-dev": "nodemon server/index.js",
+    "debug": "nodemon --inspect index.js",
+    "start": "node server/index.js"
   },
   "type": "module",
   "repository": {

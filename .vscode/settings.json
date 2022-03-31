@@ -7,5 +7,6 @@
   "editor.minimap.enabled": false,
   "editor.tabSize": 2,
   "editor.wordWrap": "on",
-  "typescript.format.enable": false
+  "typescript.format.enable": false,
+  "html.format.contentUnformatted": ""
 }
