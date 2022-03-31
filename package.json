@@ -4,7 +4,7 @@
   "description": "Project 3",
   "scripts": {
     "client-build-fast": "webpack --config webpack_conf/webpack.prod.js",
-    "client-dev": "webpack --watch --config webpack_conf/webpack.dev.js",
+    "client-dev": "webpack --config webpack_conf/webpack.dev.js",
     "server-dev": "nodemon server/index.js",
     "debug": "nodemon --inspect index.js",
     "start": "node server/index.js"
