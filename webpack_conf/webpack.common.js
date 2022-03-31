@@ -15,6 +15,8 @@ export default {
     path: path.resolve(__dirname, "../dist"),
     clean: true,
   },
+  target: "web",
+
   plugins: [new MiniCssExtractPlugin()],
   module: {
     rules: [
