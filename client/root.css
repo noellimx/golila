@@ -1,0 +1,8 @@
+
+#root {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  flex-direction: column;
+  background-color: pink;
+}

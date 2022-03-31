@@ -20,14 +20,8 @@ export default {
   module: {
     rules: [
       {
-        test: /\.scss$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: "css-loader",
-          },
-          "sass-loader",
-        ],
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
       },
     ],
   },

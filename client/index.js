@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
-console.log(io)
-console.log("helslsssssssdfsdfsdsdafsssssso");
+
+import "./root.css";
 
 
 const root_div = document.getElementById("root");
