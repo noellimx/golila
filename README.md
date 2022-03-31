@@ -14,6 +14,4 @@ using PostgreSQL with Sequelize
 
 `npm run server-dev` run hot.
 
-
-
 [ ] remove package CleanWebpackPlugin
