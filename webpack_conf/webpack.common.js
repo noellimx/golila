@@ -13,9 +13,7 @@ export default {
   output: {
     filename: "[name]-[contenthash].bundle.js",
     path: path.resolve(__dirname, "../dist"),
-    clean: true,
   },
-  target: "web",
 
   plugins: [new MiniCssExtractPlugin()],
   module: {

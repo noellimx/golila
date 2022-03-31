@@ -1,5 +1,5 @@
 import HtmlWebpackPlugin from "html-webpack-plugin";
-
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import { merge } from "webpack-merge";
 
 import common from "./webpack.common.js";
@@ -15,15 +15,14 @@ export default merge(common, {
   watch: true,
   plugins: [
     new HtmlWebpackPlugin({
-      // name this file main, so that it does not get automatically requested as a static file
       filename: "main.html",
       template: path.resolve(__dirname, "..", "client", "main.html"),
-    }),
-  ].filter(Boolean),
+    })
+  ],
   module: {
     rules: [
       {
-        test: /\.(js|mjs|jsx)$/, // regex to see which files to run babel on
+        test: /\.(js|mjs|jsx)$/,
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
