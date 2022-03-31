@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-import "./root.css";
+import scene from "./sceneCaster.js";
 
 
-const root_div = document.getElementById("root");
+scene.commence()
