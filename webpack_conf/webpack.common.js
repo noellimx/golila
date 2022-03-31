@@ -1,8 +1,8 @@
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
 
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -13,7 +13,7 @@ export default {
   output: {
     filename: "[name]-[contenthash].bundle.js",
     path: path.resolve(__dirname, "../dist"),
-    clean: true
+    clean: true,
   },
   plugins: [new MiniCssExtractPlugin()],
   module: {
