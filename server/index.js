@@ -22,7 +22,11 @@ const bindEvents = (io) => {
     socket.handshake.headers.cookie = { ...parseCookie(cookie), froms: "aaa" };
     console.log("aa");
 
-    socket.emit("client-token", { potato: "kontroller" });
+    socket.on("login-request", (credentials, resCb) => {
+      const { username, password } = credentials;
+
+      resCb({ securityToken: null, msg: "failure... cos of some reason" });
+    });
   });
 };
 

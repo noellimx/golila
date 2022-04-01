@@ -1,12 +1,6 @@
-import { io as socketio } from "socket.io-client";
+import io from "./connection/connection.js";
 
-import scene from "./sceneCaster.js";
-import clientAuth from "./auth.js";
+import Scene from "./sceneCaster.js";
 
-const io = socketio();
-
-io.on("client-token", (data) => {
-  const { securityToken } = data;
-  clientAuth.setAuth(securityToken);
-});
+const scene = new Scene(io);
 scene.commence();
