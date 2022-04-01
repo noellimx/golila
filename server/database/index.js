@@ -1,15 +1,7 @@
-import sequel from "./connection/index.mjs";
-import { Sequelize } from "sequelize";
+import sequelize from "./connection/index.js";
 
-import initModels from "./models/init/index.mjs";
+import initModels from "./models/init/index.js";
 
-/**
- *
- * @typedef {Object} AppDatabase Namespace for application database.
- * @property {function(new:Sequelize)} Sequelize Library class reference for static methods.
- * @property {Sequelize} sequel Connection
- */
-const db = { sequel, Sequelize };
-initModels(db);
+initModels(sequelize);
 
-export default db;
+export default sequelize;

@@ -30,11 +30,9 @@ const env = process.env.NODE_ENV || "development";
 
 const dbCredentials = getDbCredentials(env, configs);
 
+console.log("Creating sequelize");
 const sequelize = new Sequelize(...dbCredentials);
 
-const db = {
-  sequelize,
-  Sequelize,
-};
+console.log(`Connected. Database Name: ${sequelize.getDatabaseName()}`);
 
-export default db;
+export default sequelize;
