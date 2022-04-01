@@ -1,6 +1,6 @@
 import sequelize from "./server/database/index.js";
 
-import { hashPassword } from "./server/auth/index.js";
+import { hashPassword } from "./server/auth/crypt.js";
 const { user: User } = sequelize.models;
 
 try {
