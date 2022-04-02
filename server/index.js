@@ -2,8 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import bindRoutes from "./routes/routes.js";
 import { Server } from "socket.io";
-import { parse as parseCookie } from "cookie";
-
+import { getSecurityToken } from "./auth/auth.js";
 import http from "http";
 const SERVER_LISTENING_PORT = 3004;
 const app = express(); // framework
@@ -17,15 +16,22 @@ bindRoutes(app);
 
 const bindEvents = (io) => {
   io.on("connection", (socket) => {
-    console.log("new socket connected");
+    console.log("[io.on connection] new socket connected");
     const cookie = socket.handshake.headers.cookie;
-    socket.handshake.headers.cookie = { ...parseCookie(cookie), froms: "aaa" };
-    console.log("aa");
 
-    socket.on("login-request", (credentials, resCb) => {
+    socket.on("login-request", async (credentials, resCb) => {
       const { username, password } = credentials;
+      console.log("[socket.on login - request] Getting security token. . . ");
 
-      resCb({ securityToken: null, msg: "failure... cos of some reason" });
+      const { securityToken, msg } = await getSecurityToken({
+        username,
+        password,
+      });
+
+      console.log(
+        `[socket.on login - request] securityToken ${securityToken} msg ${msg}`
+      );
+      resCb({ securityToken, msg });
     });
   });
 };

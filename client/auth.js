@@ -19,10 +19,7 @@ const clientAuth = ((Cookies) => {
   };
   const getStatus = () => status_msg;
 
-  const hasToken = () => {
-    console.log(`[hasToken] ${getAuthToken() === "null"}`);
-    return !!getAuthToken();
-  };
+  const hasToken = () => !!getAuthToken();
   return {
     hasToken,
     setAuth,
