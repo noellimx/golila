@@ -14,16 +14,12 @@ const ClientGame = (io) => {
     const iWantToCreateRoom = (roomName) => {
       console.log(`[iWantToCreateRoom]`);
       return new Promise((resolve) => {
-        io.emit("create-room", roomName, () => {
+        io.emit("create-room", roomName, (response) => {
           console.log(
             `[iWantToCreateRoom] create room request sent: ${roomName}`
           );
 
-          io.emit("which-room", (roomId) => {
-            console.log(`[iWantToCreateRoom] which room ${roomId}`);
-
-            resolve(roomId);
-          });
+          resolve(response)
         });
       });
     };

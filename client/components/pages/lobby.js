@@ -1,11 +1,17 @@
 import { newTextInput, newDivTag, newButton } from "../elements/index.js";
-import { NO_OP, ADD_CLASS } from "../helpers.js";
+import { NO_OP, ADD_CLASS, UPDATE_TEXT } from "../helpers.js";
 
 const getRoomCreationRequestDiv = () => {
   const frame = newDivTag();
   ADD_CLASS(frame, "frame-room-create");
+
+  // ELEMENT - fieldRoomName
   const fieldRoomName = newTextInput();
+
+  // ELEMENT - button
+
   const button = newButton();
+  UPDATE_TEXT(button, "+ and -> Room")
 
   let onCreateRoomRequest = NO_OP;
   button.addEventListener("click", () => {
@@ -14,14 +20,33 @@ const getRoomCreationRequestDiv = () => {
     onCreateRoomRequest(roomName);
   });
 
+  // ELEMENT - descript
+
+  const descDiv = newDivTag()
+
+
   const whenCreateRoomRequest = (fn) => {
     onCreateRoomRequest = fn;
-  };
-  frame.replaceChildren(fieldRoomName, button);
+  };;;
+
+  const roomCreation = (result) => {
+
+    console.log(`roomCreation ${JSON.stringify(result)}`)
+    const { roomId, msg } = result
+    if (roomId){
+      UPDATE_TEXT(descDiv,"")
+    }else{
+      UPDATE_TEXT(descDiv, `${msg}`)
+
+    }
+
+  }
+  frame.replaceChildren(fieldRoomName, button, descDiv);
 
   return {
     frame,
     whenCreateRoomRequest,
+    roomCreation
   };
 };
 
@@ -40,9 +65,11 @@ const getLobbyPage = (clientGame) => {
       mainFrame.replaceChildren(roomCreationRequestDiv.frame);
     }
   };
+
+  
   return {
     frame: mainFrame,
-    iAmInRoom,
+    iAmInRoom, roomCreation: fn => roomCreationRequestDiv.roomCreation(fn),
     whenCreateRoomRequest: (fn) =>
       roomCreationRequestDiv.whenCreateRoomRequest(fn),
   };

@@ -66,7 +66,10 @@ const bindSocketEvents = (socket) => {
     console.log(
       `[create-room] ${userId} requesting to create room ${roomName}`
     );
-    cb();
+    cb({
+      roomId: null,
+      msg: "No empty room name...."
+    });
   });
 };
 
