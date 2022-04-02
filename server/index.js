@@ -19,6 +19,13 @@ bindRoutes(app);
 
 const _getCookies = (socket) => socket.handshake.headers.cookie;
 
+const _getDbUserIdOfSocket = (socket) => {
+  const cookieString = _getCookies(socket);
+  const cookie = cookier.parse(cookieString);
+  const concealedUser = cookie["s-token"];
+  const userId = decodeUserId(concealedUser);
+  return userId;
+};
 const bindSocketEvents = (socket) => {
   socket.on("login-request", async (credentials, resCb) => {
     const { username, password } = credentials;
@@ -48,14 +55,18 @@ const bindSocketEvents = (socket) => {
     });
   });
   socket.on("which-room", async (cb) => {
-    const cookieString = _getCookies(socket);
-    const cookie = cookier.parse(cookieString);
-
-    const concealedUser = cookie["s-token"];
-
-    const userId = decodeUserId(concealedUser);
+    const userId = _getDbUserIdOfSocket(socket);
 
     cb(null);
+  });
+
+  socket.on("create-room", (roomName, cb) => {
+    const userId = _getDbUserIdOfSocket(socket);
+
+    console.log(
+      `[create-room] ${userId} requesting to create room ${roomName}`
+    );
+    cb();
   });
 };
 

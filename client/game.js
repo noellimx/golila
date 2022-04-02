@@ -15,7 +15,9 @@ const ClientGame = (io) => {
       console.log(`[iWantToCreateRoom]`);
       return new Promise((resolve) => {
         io.emit("create-room", roomName, () => {
-          console.log(`[iWantToCreateRoom] create room ${roomName}`);
+          console.log(
+            `[iWantToCreateRoom] create room request sent: ${roomName}`
+          );
 
           io.emit("which-room", (roomId) => {
             console.log(`[iWantToCreateRoom] which room ${roomId}`);

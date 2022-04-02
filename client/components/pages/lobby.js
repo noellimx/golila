@@ -25,7 +25,7 @@ const getRoomCreationRequestDiv = () => {
   };
 };
 
-const getLobbyPage = () => {
+const getLobbyPage = (clientGame) => {
   const mainFrame = newDivTag();
   ADD_CLASS(mainFrame, "page-lobby");
 
@@ -33,6 +33,9 @@ const getLobbyPage = () => {
 
   const iAmInRoom = (roomId) => {
     if (roomId) {
+      const roomDiv = newDivTag(roomId);
+
+      mainFrame.replaceChildren(roomDiv);
     } else {
       mainFrame.replaceChildren(roomCreationRequestDiv.frame);
     }
