@@ -1,15 +1,13 @@
-const NO_OP = () => {};
+import { newTextInput, newDivTag, newButton } from "../elements/index.js";
+import { NO_OP, ADD_CLASS } from "../helpers.js";
 
 const getLoginPage = () => {
   const wrap = document.createElement("div");
+  ADD_CLASS(wrap, "page-login");
+  const username = newTextInput();
+  const password = newTextInput();
 
-  const username = document.createElement("input");
-  username.setAttribute("type", "text");
-  const password = document.createElement("input");
-  password.setAttribute("type", "text");
-
-  const button = document.createElement("button");
-  button.innerHTML = "LOGIN";
+  const button = newButton({ desc: "LOGIN" });
 
   let onloginrequest = NO_OP;
   button.addEventListener("click", () => {
@@ -18,7 +16,7 @@ const getLoginPage = () => {
     onloginrequest(username_val, password_val);
   });
 
-  const desc = document.createElement("div");
+  const desc = newDivTag();
 
   const loginFailed = (why) => {
     desc.innerHTML = `${why}`;
@@ -35,6 +33,4 @@ const getLoginPage = () => {
   };
 };
 
-const loginPage = getLoginPage();
-
-export default loginPage;
+export default getLoginPage;

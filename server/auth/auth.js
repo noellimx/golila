@@ -1,6 +1,7 @@
 import { getUserByUsername } from "../database/api/user.js";
 import { hashPassword, UserDoor } from "./crypt.js";
 
+const newSecurityToken = (userId) => ({ securityToken: userId });
 const getSecurityToken = async ({ username, password: clearPassword }) => {
   if (!username) {
     return {
@@ -20,13 +21,17 @@ const getSecurityToken = async ({ username, password: clearPassword }) => {
 
   const user_id = details.getDataValue("id");
   const isMatch = passwordReceivedHashed === passwordDatabaseHashed;
-  const securityToken = isMatch ? UserDoor.conceal(`${user_id}`) : null;
+
+  const exposed_user_id = isMatch ? UserDoor.conceal(`${user_id}`) : null;
+  const securityToken = newSecurityToken(exposed_user_id);
   return {
     securityToken,
     msg: isMatch ? "ok" : "Credentials mismatch.",
   };
 };
+const decodeUserId = (concealed) => UserDoor.reveal(concealed);
 
+const useIdOfToken = (token) => token;
 const validateToken = (token) => {
   if (!token) {
     return {
@@ -34,13 +39,15 @@ const validateToken = (token) => {
       msg: "Server did not receive target token to verify",
     };
   }
+  const userId = useIdOfToken(token);
+  const id = decodeUserId(userId);
 
-  const id = UserDoor.reveal(token);
+  // TODO #asdfk124avdsfv verify id....
   console.log(`[validateToken] id is ${id}`);
   return {
     securityToken: token,
-    msg: "Server did not receive target token to verify",
+    msg: "Verified.",
   };
 };
 
-export { getSecurityToken, validateToken };
+export { getSecurityToken, validateToken, decodeUserId };

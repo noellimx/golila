@@ -1,7 +1,9 @@
 import "./root.css";
 
-import loginFrame from "./components/pages/unauthenticated.js";
-
+import getLoginPage from "./components/pages/unauthenticated.js";
+import getLobbyPage from "./components/pages/lobby.js";
+import ClientAuth from "./auth.js";
+import ClientGame from "./game.js";
 class Scene {
   toggleDisplayOnValidation = (is) => {
     if (is) {
@@ -11,16 +13,26 @@ class Scene {
       this.loginFrame.loginFailed(this.clientAuth.getStatus());
     }
   };
-  constructor(io, clientAuth) {
+  constructor(io) {
     this.root = document.getElementById("root");
-    this.loginFrame = loginFrame;
-    this.clientAuth = clientAuth;
-    this.io = io;
+
+    this.clientAuth = new ClientAuth(io);
+    this.clientGame = new ClientGame(io);
+
+    this.loginFrame = getLoginPage();
+
     this.loginFrame.whenLoginRequest((username, password) => {
       this.clientAuth.hiServerIsMyCredentialsValid(
         { username, password },
         this.toggleDisplayOnValidation
       );
+    });
+
+    this.lobbyFrame = getLobbyPage();
+
+    this.lobbyFrame.whenCreateRoomRequest((roomName) => {
+      console.log(`[whenCreateRoomRequest] ${roomName}`);
+      this.clientGame.iWantToCreateRoom(roomName).then(this.commence);
     });
   }
 
@@ -34,12 +46,20 @@ class Scene {
     });
   }
   loginPage() {
+    console.log("[loginPage] flashing");
     this.root.replaceChildren(this.loginFrame.frame);
   }
   lobby() {
-    const div = document.createElement("div");
-    div.innerHTML = "lobby";
-    this.root.replaceChildren(div);
+    console.log("[lobby] flashing");
+
+    this.clientGame.whichRoomAmI().then((roomId) => {
+      console.log(
+        `[Scene lobby whichRoomAmI] Server responded: ${roomId ?? ""}`
+      );
+      this.lobbyFrame.iAmInRoom(roomId);
+    });
+
+    this.root.replaceChildren(this.lobbyFrame.frame);
   }
 }
 
