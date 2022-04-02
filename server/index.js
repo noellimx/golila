@@ -2,8 +2,10 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import bindRoutes from "./routes/routes.js";
 import { Server } from "socket.io";
-import { getSecurityToken } from "./auth/auth.js";
+import { getSecurityToken, validateToken } from "./auth/auth.js";
 import http from "http";
+
+import { UserDoor } from "./auth/crypt.js";
 const SERVER_LISTENING_PORT = 3004;
 const app = express(); // framework
 const server = http.createServer(app); // communications
@@ -16,7 +18,7 @@ bindRoutes(app);
 
 const bindEvents = (io) => {
   io.on("connection", (socket) => {
-    console.log("[io.on connection] new socket connected");
+    console.log(`[io.on connection] new socket connected ${socket.id}`);
     const cookie = socket.handshake.headers.cookie;
 
     socket.on("login-request", async (credentials, resCb) => {
@@ -32,6 +34,19 @@ const bindEvents = (io) => {
         `[socket.on login - request] securityToken ${securityToken} msg ${msg}`
       );
       resCb({ securityToken, msg });
+    });
+
+    socket.on("verify-token", async (securityToken, resCb) => {
+      console.log(`[verify-token] Verifying ${securityToken}`);
+
+      const { securityToken: validToken, msg } = await validateToken(
+        securityToken
+      );
+
+      resCb({
+        securityToken: validToken,
+        msg,
+      });
     });
   });
 };
