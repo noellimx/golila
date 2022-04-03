@@ -11,44 +11,57 @@ const wipe = async () => {
   await Participant.truncate({ cascade: true });
 }
 
-const tearDown = async () => {
+const tearDown = async (teardown) => {
 
-  await wipe()
+  if (teardown){
+    await wipe()
+  }
   sequelize.close();
 }
-try {
-  // remove all records
-  
-  await wipe()
-  const user1Created = await User.create({
-    username: "user",
-    password: hashPassword("user"),
-  });
 
-  const user1Retrieved = await getUserByUsername("user");
+const seed = async(teardown=true) => {
 
-  if (user1Retrieved.getDataValue("id") !== user1Created.getDataValue("id")) {
-    throw new Error("[seed] user mismatch");
+  try {
+    // remove all records
+
+    await wipe()
+    const user1Created = await User.create({
+      username: "user",
+      password: hashPassword("user"),
+    });
+
+    const user1Retrieved = await getUserByUsername("user");
+
+    if (user1Retrieved.getDataValue("id") !== user1Created.getDataValue("id")) {
+      throw new Error("[seed] user mismatch");
+    }
+    const idUser1 = user1Created.getDataValue("id");
+    const room1 = await Room.create({
+      name: "room-abc",
+      creatorId: idUser1,
+    });
+
+    const idRoom1 = room1.getDataValue("id")
+
+    await Participant.create({
+      participantId: idUser1,
+      roomId: idRoom1,
+      teamNo: 1,
+    })
+
+
+  } catch (err) {
+    await tearDown()
+    console.log(err);
+    throw err;
   }
-  const idUser1 = user1Created.getDataValue("id");
-  const room1 = await Room.create({
-    name: "room-abc",
-    creatorId: idUser1,
-  });
 
-  const idRoom1 = room1.getDataValue("id")
-
-  await Participant.create({
-    participantId: idUser1,
-    roomId: idRoom1,
-    teamNo: 1,
-  })
+  await tearDown(teardown)
 
 
-} catch (err) {
-  await tearDown()
-  console.log(err);
-  throw err;
+
 }
 
-await tearDown()
+seed()
+
+export default seed;
