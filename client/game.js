@@ -15,12 +15,12 @@ const ClientGame = (io) => {
       });
     };
 
-    const iWantToCreateRoom = (roomName) => {
-      console.log(`[iWantToCreateRoom]`);
+    const iWantToCreateAndJoinRoom = (roomName) => {
+      console.log(`[iWantToCreateAndJoinRoom]`);
       return new Promise((resolve) => {
-        io.emit("create-room", roomName, (response) => {
+        io.emit("create-join-room", roomName, (response) => {
           console.log(
-            `[iWantToCreateRoom] create room request sent: ${roomName}`
+            `[iWantToCreateAndJoinRoom] create room request sent: ${roomName}`
           );
 
           resolve(response);
@@ -30,7 +30,7 @@ const ClientGame = (io) => {
 
     return {
       whichRoomAmI,
-      iWantToCreateRoom,
+      iWantToCreateAndJoinRoom,
     };
   })(cookier);
 };

@@ -72,12 +72,14 @@ const bindSocketEvents = (socket) => {
     cb(null);
   });
 
-  socket.on("create-room", (roomName, cb) => {
+  socket.on("create-join-room", (roomName, cb) => {
     const userId = _getDbUserIdOfSocket(socket);
 
     console.log(
-      `[create-room] ${userId} requesting to create room ${roomName}`
+      `[create-join-room] ${userId} requesting to create and join room ${roomName}`
     );
+
+    
     cb({
       roomId: null,
       msg: "No empty room name....",
