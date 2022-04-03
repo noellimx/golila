@@ -4,7 +4,7 @@ import bindRoutes from "./routes/routes.js";
 import { Server } from "socket.io";
 import { getSecurityToken, validateToken, decodeUserId } from "./auth/auth.js";
 import http from "http";
-
+import { createAndJoinRoom } from "./database/actions/game.js";
 import cookier from "cookie";
 
 const SERVER_LISTENING_PORT = 3004;
@@ -72,17 +72,32 @@ const bindSocketEvents = (socket) => {
     cb(null);
   });
 
-  socket.on("create-join-room", (roomName, cb) => {
-    const userId = _getDbUserIdOfSocket(socket);
+  socket.on("create-join-room", async (roomName, cb) => {
+    try{
+      const userId = _getDbUserIdOfSocket(socket);
 
-    console.log(
-      `[create-join-room] ${userId} requesting to create and join room ${roomName}`
-    );
+      console.log(
+        `[create-join-room] ${userId} requesting to create and join room name ${roomName}`
+      );
+      const hostingRoomId = await createAndJoinRoom(userId, roomName)
 
-    cb({
-      roomId: null,
-      msg: "No empty room name....",
-    });
+      console.log(
+        `[create-join-room] ${userId} completed create and join room id ${hostingRoomId}`
+      );
+
+
+      cb({
+        roomId: hostingRoomId,
+        msg: "ok",
+      });
+    }catch(err){
+      console.log(err)
+      cb({
+        roomId: null,
+        msg: "[Server Error io create-join-room] Error creating room....",
+      }
+      )
+    }
   });
 };
 
