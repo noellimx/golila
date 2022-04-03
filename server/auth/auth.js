@@ -1,7 +1,7 @@
 import { getUserByUsername } from "../database/api/user.js";
 import { hashPassword, UserDoor } from "./crypt.js";
 
-const newSecurityToken = (userId) => ({ securityToken: userId });
+const newSecurityToken = (userId, msg) => ({ securityToken: userId, msg });
 const getSecurityToken = async ({ username, password: clearPassword }) => {
   if (!username) {
     return {
@@ -23,11 +23,9 @@ const getSecurityToken = async ({ username, password: clearPassword }) => {
   const isMatch = passwordReceivedHashed === passwordDatabaseHashed;
 
   const exposed_user_id = isMatch ? UserDoor.conceal(`${user_id}`) : null;
-  const securityToken = newSecurityToken(exposed_user_id);
-  return {
-    securityToken,
-    msg: isMatch ? "ok" : "Credentials mismatch.",
-  };
+  const msg = isMatch ? "ok" : "Credentials mismatch."
+  const securityToken = newSecurityToken(exposed_user_id, msg);
+  return securityToken
 };
 const decodeUserId = (concealed) => UserDoor.reveal(concealed);
 

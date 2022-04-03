@@ -1,4 +1,4 @@
-# Development Nodes
+# Development Notes
 
 ## This is a mono repo.
 
@@ -39,3 +39,7 @@ Custom scripts:
 
 [ ] remove package CleanWebpackPlugin
 [ ] check if Sequelize accept heroku psql connection string
+
+## Client
+
+`npm run client-dev` build client hot
