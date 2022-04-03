@@ -4,8 +4,12 @@ const cookier = Cookies.default;
 const ClientGame = (io) => {
   return ((Cookies) => {
     const whichRoomAmI = () => {
+      console.log(`[whichRoomAmI]`);
+
       return new Promise((resolve) => {
         io.emit("which-room", (roomId) => {
+          console.log(`[whichRoomAmI] resolving ${roomId}`);
+
           resolve(roomId);
         });
       });

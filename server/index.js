@@ -22,16 +22,14 @@ const _getCookies = (socket) => socket.handshake.headers.cookie;
 const _getDbUserIdOfSocket = (socket) => {
   try {
     const cookieString = _getCookies(socket);
-    console.log(`[_getDbUserIdOfSocket] cookieString ${cookieString
-}`)
+    console.log(`[_getDbUserIdOfSocket] cookieString ${cookieString}`);
     const cookie = cookier.parse(cookieString);
-    console.log(`[_getDbUserIdOfSocket] cookie ${JSON.stringify(cookie)
-      }`)
+    console.log(`[_getDbUserIdOfSocket] cookie ${JSON.stringify(cookie)}`);
     const concealedUser = cookie["s-token"];
     const userId = decodeUserId(concealedUser);
     return userId;
-  }catch (err){
-    console.log("[_getDbUserIdOfSocket] Error" + err)
+  } catch (err) {
+    console.log("[_getDbUserIdOfSocket] Error" + err);
 
     throw err;
   }
@@ -47,13 +45,15 @@ const bindSocketEvents = (socket) => {
     });
 
     console.log(
-      `[socket.on login - request] securityToken ${JSON.stringify(securityToken)} msg ${msg}`
+      `[socket.on login - request] securityToken ${JSON.stringify(
+        securityToken
+      )} msg ${msg}`
     );
     resCb({ securityToken, msg });
   });
 
   socket.on("verify-token", async (securityToken, resCb) => {
-    console.log(securityToken)
+    console.log(securityToken);
     console.log(`[verify-token] Verifying ${JSON.stringify(securityToken)}`);
 
     const { securityToken: validToken, msg } = await validateToken(
@@ -66,6 +66,7 @@ const bindSocketEvents = (socket) => {
     });
   });
   socket.on("which-room", async (cb) => {
+    console.log("[which-room]");
     const userId = _getDbUserIdOfSocket(socket);
 
     cb(null);

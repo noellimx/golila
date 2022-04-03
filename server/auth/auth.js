@@ -23,9 +23,9 @@ const getSecurityToken = async ({ username, password: clearPassword }) => {
   const isMatch = passwordReceivedHashed === passwordDatabaseHashed;
 
   const exposed_user_id = isMatch ? UserDoor.conceal(`${user_id}`) : null;
-  const msg = isMatch ? "ok" : "Credentials mismatch."
+  const msg = isMatch ? "ok" : "Credentials mismatch.";
   const securityToken = newSecurityToken(exposed_user_id, msg);
-  return securityToken
+  return securityToken;
 };
 const decodeUserId = (concealed) => UserDoor.reveal(concealed);
 
