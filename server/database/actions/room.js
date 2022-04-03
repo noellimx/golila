@@ -1,11 +1,8 @@
 import sequelize from "../index.js";
 
+const Room = sequelize.models.room;
 
-const Room = sequelize.models.room
+const createRoom = () => {};
 
-const createRoom = () => {}
-
-const addParticipantIntoRoom = () => {
-  
-}
-const createAndJoinRoom = () => {}
+const addParticipantIntoRoom = () => {};
+const createAndJoinRoom = () => {};

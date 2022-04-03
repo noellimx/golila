@@ -79,7 +79,6 @@ const bindSocketEvents = (socket) => {
       `[create-join-room] ${userId} requesting to create and join room ${roomName}`
     );
 
-    
     cb({
       roomId: null,
       msg: "No empty room name....",
