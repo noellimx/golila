@@ -62,6 +62,6 @@ const seed = async(teardown=true) => {
 
 }
 
-seed()
+await seed()
 
 export default seed;
