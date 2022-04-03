@@ -13,31 +13,31 @@ export default (sequelize) => {
         autoIncrement: true,
         primaryKey: true,
         type: DataTypes.INTEGER,
-        field: "id"
+        field: "id",
       },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE,
-        field: "created_at"
+        field: "created_at",
       },
       updatedAt: {
         allowNull: false,
         type: DataTypes.DATE,
-        field: "updated_at"
+        field: "updated_at",
       },
       name: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: "name"
+        field: "name",
       },
       creatorId: {
         type: DataTypes.STRING,
         allowNull: false,
         references: {
           model: sequelize.models.user,
-          key: 'id'
+          key: "id",
         },
-        field: "creator_id"
+        field: "creator_id",
       },
     },
     {

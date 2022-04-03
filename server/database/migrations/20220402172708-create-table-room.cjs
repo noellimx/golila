@@ -1,8 +1,7 @@
 const TABLE_NAME = "rooms";
 module.exports = {
-  
   up: async (queryInterface, Sequelize) => {
-    const { DataTypes } = Sequelize
+    const { DataTypes } = Sequelize;
 
     await queryInterface.createTable(TABLE_NAME, {
       id: {
@@ -29,9 +28,9 @@ module.exports = {
         allowNull: false,
         references: {
           model: {
-            tableName: 'users',
+            tableName: "users",
           },
-          key: 'id'
+          key: "id",
         },
       },
     });

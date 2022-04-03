@@ -1,8 +1,7 @@
 const TABLE_NAME = "users";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-
-    const { DataTypes } = Sequelize
+    const { DataTypes } = Sequelize;
     await queryInterface.createTable(TABLE_NAME, {
       id: {
         allowNull: false,

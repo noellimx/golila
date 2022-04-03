@@ -15,8 +15,9 @@ try {
   const sss = await getUserByUsername("user");
 
   await Room.create({
-    name: "room-abc", creatorId: sss.getDataValue("id")
-  })
+    name: "room-abc",
+    creatorId: sss.getDataValue("id"),
+  });
 } catch (err) {
   console.log(err);
   throw err;
