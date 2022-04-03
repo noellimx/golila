@@ -1,26 +1,29 @@
 "use strict";
 
-const TABLE_NAME = "users";
+const TABLE_NAME = "xxxx";
 module.exports = {
+
   up: async (queryInterface, Sequelize) => {
+    const { DataTypes } = Sequelize;
+
     await queryInterface.createTable(TABLE_NAME, {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: DataTypes.INTEGER,
       },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: DataTypes.DATE,
       },
       updated_at: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: DataTypes.DATE,
       },
-      username: {
-        type: Sequelize.STRING,
-      },
+
+      // ADD ATTRIBUTES HERE
+
     });
   },
 
