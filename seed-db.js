@@ -14,19 +14,12 @@ try {
 
   const sss = await getUserByUsername("user");
 
-  console.log(sss)
-
- try {
-   await Room.create({
-     name: "room-abc", creatorId: sss.dataValues.id
-   })
-   console.log("Room seed ok")
- }catch (err){
-    console.log("[seed] Room failure")
-
- }
+  await Room.create({
+    name: "room-abc", creatorId: sss.getDataValue("id")
+  })
 } catch (err) {
   console.log(err);
+  throw err;
 }
 
 sequelize.close();

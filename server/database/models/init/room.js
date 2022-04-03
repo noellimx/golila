@@ -13,18 +13,22 @@ export default (sequelize) => {
         autoIncrement: true,
         primaryKey: true,
         type: DataTypes.INTEGER,
+        field: "id"
       },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE,
+        field: "created_at"
       },
       updatedAt: {
         allowNull: false,
         type: DataTypes.DATE,
+        field: "updated_at"
       },
       name: {
         type: DataTypes.STRING,
         allowNull: false,
+        field: "name"
       },
       creatorId: {
         type: DataTypes.STRING,
@@ -33,6 +37,7 @@ export default (sequelize) => {
           model: sequelize.models.user,
           key: 'id'
         },
+        field: "creator_id"
       },
     },
     {

@@ -19,10 +19,16 @@ using PostgreSQL with Sequelize
 
 Go to step 2 if existing database is used (update to latest migration only).
 
-1. `./dev.sh` Ensure psql local or remote service has been started. Recreate an empty database.
-2. Initialize database schemas using Sequelize migrations.
+- `./dev.sh` Ensure psql local or remote service has been started. 
+
+Recreate an empty database, migrate and seed data.
+
+
+Custom scripts:
+
+- Initialize database schemas using Sequelize migrations.
    `npm run db:migrate` migrate
-3. `npm run seed` This is a reseed operation. Use models for seeding instead of sequelize-cli.
+- `npm run seed` This is a reseed operation. Use models for seeding instead of sequelize-cli.
 
 #### Adding migrations
 

@@ -8,6 +8,7 @@
     "server-dev": "nodemon server/index.js",
     "debug": "nodemon --inspect index.js",
     "start": "node server/index.js",
+    "db:create": "sequelize db:create",
     "db:migrate": "sequelize db:migrate",
     "gen:migrate": "sequelize migration:generate --name",
     "seed": "node seed-db.js"

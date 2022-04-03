@@ -13,22 +13,31 @@ export default (sequelize) => {
         autoIncrement: true,
         primaryKey: true,
         type: DataTypes.INTEGER,
+        field: "id"
+
       },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE,
+        field: "created_at"
       },
       updatedAt: {
         allowNull: false,
         type: DataTypes.DATE,
+        field: "updated_at"
+
       },
       username: {
         type: DataTypes.STRING,
         allowNull: false,
+        field: "username"
+
       },
       password: {
         type: DataTypes.STRING,
         allowNull: false,
+        field: "password"
+
       },
     },
     {
