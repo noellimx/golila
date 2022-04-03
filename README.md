@@ -13,14 +13,22 @@ using PostgreSQL with Sequelize
 `./database/config/config.js` refer config for database settings
 `./database/ERD/[hash].png` ERD Snapshots with filename as migration hash
 
+[lucidchart](https://lucid.app/lucidchart/ace1cdac-b17b-49e0-a04f-3f69d17f598c/edit?invitationId=inv_9788bdc8-aa64-4d17-8180-88289227ac33)
+
 #### Engine
+
+Go to step 2 if existing database is used (update to latest migration only).
 
 1. `./dev.sh` Ensure psql local or remote service has been started. Recreate an empty database.
 2. Initialize database schemas using Sequelize migrations.
-   `npm run db-migrate` migrate
-3. `node seed-db.js` Use models for seeding instead of sequelize-cli.
+   `npm run db:migrate` migrate
+3. `npm run seed` This is a reseed operation. Use models for seeding instead of sequelize-cli.
 
-### Network
+#### Adding migrations
+
+`npm run gen:migrate [name]` generate new migration file where name is appended to the file name
+
+### Network / Controller
 
 `npm run server-dev` run hot.
 

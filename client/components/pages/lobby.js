@@ -11,7 +11,7 @@ const getRoomCreationRequestDiv = () => {
   // ELEMENT - button
 
   const button = newButton();
-  UPDATE_TEXT(button, "+ and -> Room")
+  UPDATE_TEXT(button, "+ and -> Room");
 
   let onCreateRoomRequest = NO_OP;
   button.addEventListener("click", () => {
@@ -22,31 +22,27 @@ const getRoomCreationRequestDiv = () => {
 
   // ELEMENT - descript
 
-  const descDiv = newDivTag()
-
+  const descDiv = newDivTag();
 
   const whenCreateRoomRequest = (fn) => {
     onCreateRoomRequest = fn;
-  };;;
+  };
 
   const roomCreation = (result) => {
-
-    console.log(`roomCreation ${JSON.stringify(result)}`)
-    const { roomId, msg } = result
-    if (roomId){
-      UPDATE_TEXT(descDiv,"")
-    }else{
-      UPDATE_TEXT(descDiv, `${msg}`)
-
+    console.log(`roomCreation ${JSON.stringify(result)}`);
+    const { roomId, msg } = result;
+    if (roomId) {
+      UPDATE_TEXT(descDiv, "");
+    } else {
+      UPDATE_TEXT(descDiv, `${msg}`);
     }
-
-  }
+  };
   frame.replaceChildren(fieldRoomName, button, descDiv);
 
   return {
     frame,
     whenCreateRoomRequest,
-    roomCreation
+    roomCreation,
   };
 };
 
@@ -66,10 +62,10 @@ const getLobbyPage = (clientGame) => {
     }
   };
 
-  
   return {
     frame: mainFrame,
-    iAmInRoom, roomCreation: fn => roomCreationRequestDiv.roomCreation(fn),
+    iAmInRoom,
+    roomCreation: (fn) => roomCreationRequestDiv.roomCreation(fn),
     whenCreateRoomRequest: (fn) =>
       roomCreationRequestDiv.whenCreateRoomRequest(fn),
   };

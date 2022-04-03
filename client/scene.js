@@ -32,10 +32,10 @@ class Scene {
 
     this.lobbyFrame.whenCreateRoomRequest((roomName) => {
       console.log(`[whenCreateRoomRequest] ${roomName}`);
-      this.clientGame.iWantToCreateRoom(roomName).then((response) =>{
-        this.lobbyFrame.roomCreation(response)
-        this.commence()
-      } );
+      this.clientGame.iWantToCreateRoom(roomName).then((response) => {
+        this.lobbyFrame.roomCreation(response);
+        this.commence();
+      });
     });
   }
 

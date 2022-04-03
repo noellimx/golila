@@ -68,7 +68,7 @@ const bindSocketEvents = (socket) => {
     );
     cb({
       roomId: null,
-      msg: "No empty room name...."
+      msg: "No empty room name....",
     });
   });
 };

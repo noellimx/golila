@@ -19,7 +19,7 @@ const ClientGame = (io) => {
             `[iWantToCreateRoom] create room request sent: ${roomName}`
           );
 
-          resolve(response)
+          resolve(response);
         });
       });
     };
