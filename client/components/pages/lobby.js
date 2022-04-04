@@ -11,6 +11,7 @@ const getroomCreationFormRequestDiv = () => {
   // ELEMENT - button
 
   const button = newButton();
+
   UPDATE_TEXT(button, "+ and -> Room");
 
   let onCreateRoomRequest = NO_OP;
@@ -87,12 +88,15 @@ const getRoomDoor = (clientGame, { id, name, creatorName }) => {
   );
 
   const detach = () => {
+    console.log(`[RoomDoor] Detaching room ${id}`);
     frame.parentElement.removeChild(frame);
   };
   frame.replaceChildren(divId, divName, divCreatorName);
   return {
     frame,
     detach,
+
+    getId: () => id,
   };
 };
 
@@ -111,21 +115,26 @@ const getActiveRooms = (clientGame) => {
         const activeRoom = getRoomDoor(clientGame, roomData);
         rooms[id] = activeRoom;
       }
+      console.log(`[getActiveRooms init appending] frames`);
+
       for (const [_, { frame: _roomframe }] of Object.entries(rooms)) {
         frame.appendChild(_roomframe);
       }
     });
   };
   clientGame.onRoomDeleted((whichId) => {
-    console.log(`Active rooms. Room ${whichId} was removed by server`);
+    console.log(
+      `[Active rooms room deleted] Room ${whichId} was removed by server`
+    );
     rooms[whichId]?.detach();
   });
   clientGame.onRoomCreated((whichId) => {
     console.log(`Active rooms. Room ${whichId} was created by server`);
     clientGame.getRoomData(whichId).then((data) => {
-      const activeRoom = getRoomDoor(clientGame, data);
-      rooms[activeRoom.id] = activeRoom;
-      frame.appendChild(activeRoom.frame);
+      console.log(`Active rooms. ${whichId === data.id}`);
+      console.log(`Active rooms. data retrieved ${JSON.stringify(data)}`);
+      rooms[data.id] = rooms[data.id] ?? getRoomDoor(clientGame, data);
+      frame.appendChild(rooms[data.id].frame);
     });
   });
 

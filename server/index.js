@@ -159,7 +159,10 @@ const bindSocketEvents = (socket) => {
   });
 
   socket.on("room-data", async (id, fn) => {
+    console.log(`[Socket on room data ] Client request data for ${id}`);
     const data = await getRoomData(id);
+
+    console.log(`[Socket on room data ] ${id} := ${JSON.stringify(data)}`);
     fn(data);
   });
 };

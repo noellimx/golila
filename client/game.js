@@ -63,6 +63,7 @@ const ClientGame = (io) => {
 
     const getRoomData = (id) => {
       return new Promise((resolve) => {
+        console.log(`[Client io emit room-data] ? ${id}`);
         io.emit("room-data", id, (roomData) => {
           resolve(roomData);
         });

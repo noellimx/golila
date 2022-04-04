@@ -148,7 +148,7 @@ const getUserNameById = async (id) => {
 };
 
 const getRoomData = async (roomId) => {
-  const { dataValues } = await Room.findOne({ id: roomId });
+  const { dataValues } = await Room.findOne({ where: { id: roomId } });
   const { id, creatorId, name } = dataValues;
   const username = await getUserNameById(creatorId);
   return {
