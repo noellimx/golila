@@ -28,7 +28,7 @@ const getroomCreationFormRequestDiv = () => {
     onCreateRoomRequest = fn;
   };
 
-;;  const roomCreationForm = (result) => {
+;;  const roomCreationResponse = (result) => {
     console.log(`[roomCreationForm] server response of room creation request ${JSON.stringify(result)}`);
     const { roomId, msg } = result;
     if (roomId) {
@@ -42,7 +42,7 @@ const getroomCreationFormRequestDiv = () => {
   return {
     frame,
     whenCreateRoomRequest,
-    roomCreationForm,
+    roomCreationResponse,
   };
 };
 
@@ -88,7 +88,7 @@ const getLobbyPage = (clientGame) => {
   return {
     frame: mainFrame,
     iAmInRoom,
-    roomCreationForm: (fn) => roomCreationFormRequestDiv.roomCreationForm(fn),
+    roomCreationResponse: (fn) => roomCreationFormRequestDiv.roomCreationResponse(fn),
     whenCreateRoomRequest: (fn) =>
       roomCreationFormRequestDiv.whenCreateRoomRequest(fn),
   };

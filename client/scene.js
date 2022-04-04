@@ -32,14 +32,14 @@ class Scene {
           this.serverValidatesCredential(is);;
         }
       );
-    });;;
-
+    });;;;
+;
     this.lobbyFrame = getLobbyPage(this.clientGame);
 
     this.lobbyFrame.whenCreateRoomRequest((roomName) => {
       console.log(`[whenCreateRoomRequest] ${roomName}`);
       this.clientGame.iWantToCreateAndJoinRoom(roomName).then((response) => {
-        this.lobbyFrame.roomCreationForm(response);
+        this.lobbyFrame.roomCreationResponse(response);
         this.commence();
       });
     });

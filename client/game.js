@@ -8,7 +8,7 @@ const ClientGame = (io) => {
 
       return new Promise((resolve) => {
         io.emit("which-room", (roomId) => {
-          console.log(`[whichRoomAmI] resolving ${roomId}`);
+          console.log(`[whichRoomAmI] I am in ${roomId}`);
 
           resolve(roomId);
         });
