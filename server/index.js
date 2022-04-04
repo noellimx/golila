@@ -6,14 +6,16 @@ import { getSecurityToken, validateToken, decodeUserId } from "./auth/auth.js";
 import http from "http";
 import { createAndJoinRoom } from "./database/actions/game.js";
 import cookier from "cookie";
-
+import seed from "./database/api/seed.js"
 const SERVER_LISTENING_PORT = 3004;
 const app = express(); // framework
 const server = http.createServer(app); // communications
-const io = new Server(server, { cookie: true }); // upgrade / mounting
+const io = new Server(server); // upgrade / mounting
 
 app.use(express.static("dist"));
 app.use(cookieParser());
+
+await seed(false)
 
 bindRoutes(app);
 
@@ -22,6 +24,7 @@ const _getCookies = (socket) => socket.handshake.headers.cookie;
 const _getDbUserIdOfSocket = (socket) => {
   try {
     const cookieString = _getCookies(socket);
+
     console.log(`[_getDbUserIdOfSocket] cookieString ${cookieString}`);
     const cookie = cookier.parse(cookieString);
     console.log(`[_getDbUserIdOfSocket] cookie ${JSON.stringify(cookie)}`);
@@ -29,9 +32,8 @@ const _getDbUserIdOfSocket = (socket) => {
     const userId = decodeUserId(concealedUser);
     return userId;
   } catch (err) {
-    console.log("[_getDbUserIdOfSocket] Error" + err);
-
-    throw err;
+    console.log("[_getDbUserIdOfSocket] Consumed Error" + err);
+    return null;
   }
 };
 const bindSocketEvents = (socket) => {
@@ -67,6 +69,7 @@ const bindSocketEvents = (socket) => {
   });
   socket.on("which-room", async (cb) => {
     console.log("[which-room]");
+    console.log(socket.id)
     const userId = _getDbUserIdOfSocket(socket);
 
     cb(null);
@@ -104,7 +107,10 @@ const bindSocketEvents = (socket) => {
 const bindEvents = (io) => {
   io.on("connection", (socket) => {
     console.log(`[io.on connection] new socket connected ${socket.id}`);
+
     const cookie = socket.handshake.headers.cookie;
+    console.log(`[io.on connection] cookie ${cookie
+      }`);
     bindSocketEvents(socket);
   });
 };

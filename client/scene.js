@@ -5,26 +5,31 @@ import getLobbyPage from "./components/pages/lobby.js";
 import ClientAuth from "./auth.js";
 import ClientGame from "./game.js";
 class Scene {
-  toggleDisplayOnValidation = (is) => {
+  serverValidatesCredential = (is) => {
     if (is) {
-      this.lobby();
-    } else {
-      this.loginPage();
+      ;;
+      window.location.reload(); // IMPORTANT. new HTTP connection to tompang cookies.
+    } else {;
+      this.loginPage();;
       this.loginFrame.loginFailed(this.clientAuth.getStatus());
     }
   };
   constructor(io) {
-    this.root = document.getElementById("root");
+    this.root = document.getElementById("root");;;;;;
 
     this.clientAuth = new ClientAuth(io);
-    this.clientGame = new ClientGame(io);
+    this.clientGame = new ClientGame(io);;
 
     this.loginFrame = getLoginPage();
 
     this.loginFrame.whenLoginRequest((username, password) => {
       this.clientAuth.hiServerIsMyCredentialsValid(
         { username, password },
-        this.toggleDisplayOnValidation
+        (is) => {
+          console.log(`[loginFrame.whenLoginRequest] My Token ${this.clientAuth.getAuthToken()}`)
+          console.log(`[loginFrame.whenLoginRequest] Server replied ${is}`)
+          this.serverValidatesCredential(is)
+        }
       );
     });
 
