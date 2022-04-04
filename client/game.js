@@ -42,6 +42,10 @@ const ClientGame = (io) => {
       });
     };
 
+    const iWantToLeaveRoom = () => {
+      io.emit("leave-room")
+    }
+
     const whenLineUpChanges = (fn) => io.on("line-up", fn);
 
     return {
@@ -49,7 +53,7 @@ const ClientGame = (io) => {
       iWantToCreateAndJoinRoom,
       whatIsTheLineUp,
       whenLineUpChanges,
-      whenIchangeRoom,
+      whenIchangeRoom, iWantToLeaveRoom
     };
   })(cookier);
 };
