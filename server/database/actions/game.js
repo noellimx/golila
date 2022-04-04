@@ -55,4 +55,15 @@ const createAndJoinRoom = async (userId, roomName) => {
   }
 };
 
-export { createAndJoinRoom, whichRoomIsUserIn };
+const getLineUp = async (id) => {
+  const roomId =await whichRoomIsUserIn(id)
+  if (!roomId){
+    return null
+  }
+
+  return Participant.findAll({where: { roomId },
+    attributes: ["participantId","teamNo"],
+  })
+}
+
+export { createAndJoinRoom, whichRoomIsUserIn, getLineUp };

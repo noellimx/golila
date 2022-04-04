@@ -48,14 +48,19 @@ const getroomCreationFormRequestDiv = () => {
 
 const getActiveRoomDiv = () => {
 
-  const frame = newDivTag()
+  const frame = newDivTag();
 
-  const iAmInRoom =( roomId) => {
+  const iAmInRoom =( roomId) => {;;
     UPDATE_TEXT(frame,roomId)
   }
-    return {
-      frame, iAmInRoom
 
+  const roomLineUpIs= (lu) => {
+    console.log(`[activeRoom roomLineUpIs] ${lu
+}`)
+
+  }
+    return {
+      frame, iAmInRoom, roomLineUpIs
     }
 }
 ;;;;
@@ -69,7 +74,11 @@ const getLobbyPage = (clientGame) => {
 
   const iAmInRoom = (roomId) => {
     if (roomId) {
+      clientGame.whenLineUpChanges(activeRoomDiv.roomLineUpIs)
+      // tell room
       activeRoomDiv.iAmInRoom(roomId)
+      clientGame.whatIsTheLineUp(activeRoomDiv.roomLineUpIs)
+      // show room
       mainFrame.replaceChildren(activeRoomDiv.frame);
     } else {
       mainFrame.replaceChildren(roomCreationFormRequestDiv.frame);
