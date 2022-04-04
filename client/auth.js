@@ -1,4 +1,5 @@
 import * as Cookies from "js-cookie";
+import { NO_OP } from "./components/helpers.js";
 const cookier = Cookies.default;
 
 const ClientAuth = (io) => {
@@ -50,6 +51,17 @@ const ClientAuth = (io) => {
         fn(hasToken());
       });
     };
+
+    let loggedOutFn = NO_OP;
+
+    const iWantToLogOut = () => {
+      Cookies.remove(AUTH_COOKIE_NAME);
+
+      loggedOutFn();
+    };
+    const whenLoggedOut = (fn) => {
+      loggedOutFn = fn;
+    };
     return {
       hasToken,
       setAuth,
@@ -57,6 +69,8 @@ const ClientAuth = (io) => {
       getStatus,
       hiServerIsMyCredentialsValid,
       hiServerIsMyTokenValid,
+      iWantToLogOut,
+      whenLoggedOut,
       AUTH_COOKIE_NAME,
     };
   })(cookier);

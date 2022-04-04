@@ -7,7 +7,8 @@ import http from "http";
 import {
   createAndJoinRoom,
   whichRoomIsUserIn,
-  getLineUp, leaveRoom
+  getLineUp,
+  leaveRoom,
 } from "./database/actions/game.js";
 import cookier from "cookie";
 import { seed } from "./database/api/seed.js";
@@ -111,16 +112,13 @@ const bindSocketEvents = (socket) => {
 
   socket.on("leave-room", async () => {
     const userId = _getDbUserIdOfSocket(socket);
-    await leaveRoom(userId)
-    const roomId = await whichRoomIsUserIn(userId); 
+    await leaveRoom(userId);
+    const roomId = await whichRoomIsUserIn(userId);
 
     roomId === null;
 
-    socket.emit("which-room", roomId)
-
-
-
-  })
+    socket.emit("which-room", roomId);
+  });
 };
 
 const bindEvents = (io) => {

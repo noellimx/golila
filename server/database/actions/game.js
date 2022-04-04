@@ -65,23 +65,23 @@ const getLineUp = async (id) => {
   });
 };
 
-
 // leaves room and if user is creator, delete room
 
 const leaveRoom = async (userId) => {
+  const participant = await Participant.findOne({
+    where: { participantId: userId },
+  });
+  const fromRoomId = participant.getDataValue("roomId");
 
-  const participant = await Participant.findOne({ where: { participantId: userId } })
-  const fromRoomId = participant.getDataValue("roomId") 
+  const roomDetails = await Room.findOne({ where: { id: fromRoomId } });
 
-  const roomDetails = await Room.findOne({where:{id:fromRoomId}})
-
-  const creatorId = roomDetails.getDataValue("creatorId")
+  const creatorId = roomDetails.getDataValue("creatorId");
   // op
 
-  if (participant === creatorId){
-    await Room.destroy({ where: { id: fromRoomId } })
+  if (participant === creatorId) {
+    await Room.destroy({ where: { id: fromRoomId } });
   }
 
-  return Participant.destroy({ where: { participantId: userId}})
-}
+  return Participant.destroy({ where: { participantId: userId } });
+};
 export { createAndJoinRoom, whichRoomIsUserIn, getLineUp, leaveRoom };

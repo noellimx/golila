@@ -2,6 +2,7 @@ import "./root.css";
 
 import getLoginPage from "./components/pages/unauthenticated.js";
 import getLobbyPage from "./components/pages/lobby.js";
+import getNavBar from "./components/frames/navbar.js";
 import ClientAuth from "./auth.js";
 import ClientGame from "./game.js";
 class Scene {
@@ -42,6 +43,12 @@ class Scene {
         this.commence();
       });
     });
+
+    this.navbar = getNavBar(this.clientAuth);
+
+    this.clientAuth.whenLoggedOut(() => {
+      this.commence();
+    });
   }
 
   commence() {
@@ -59,7 +66,6 @@ class Scene {
   }
   lobby() {
     console.log("[lobby] i am in lobby");
-
     this.clientGame.whichRoomAmI().then((roomId) => {
       console.log(
         `[Scene lobby whichRoomAmI] Server responded: ${roomId ?? ""}`
@@ -67,7 +73,7 @@ class Scene {
       this.lobbyFrame.iAmInRoom(roomId);
     });
 
-    this.root.replaceChildren(this.lobbyFrame.frame);
+    this.root.replaceChildren(this.navbar.frame, this.lobbyFrame.frame);
   }
 }
 

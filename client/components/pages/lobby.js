@@ -53,13 +53,13 @@ const getroomCreationFormRequestDiv = () => {
 const getActiveRoomDiv = (clientGame) => {
   const frame = newDivTag();
 
-  const roomNumDiv = newDivTag()
+  const roomNumDiv = newDivTag();
 
-  const leaveButton = newButton({desc: "leave room"})
+  const leaveButton = newButton({ desc: "leave room" });
 
   leaveButton.addEventListener("click", () => {
-    clientGame.iWantToLeaveRoom()
-  })
+    clientGame.iWantToLeaveRoom();
+  });
   const iAmInRoom = (roomId) => {
     UPDATE_TEXT(roomNumDiv, roomId);
   };
@@ -68,7 +68,7 @@ const getActiveRoomDiv = (clientGame) => {
     console.log(`[activeRoom roomLineUpIs] ${lu}`);
   };
 
-  frame.replaceChildren(roomNumDiv, leaveButton)
+  frame.replaceChildren(roomNumDiv, leaveButton);
   return {
     frame,
     iAmInRoom,
@@ -82,7 +82,6 @@ const getLobbyPage = (clientGame) => {
   const roomCreationFormRequestDiv = getroomCreationFormRequestDiv();
 
   const lineUpDiv = getActiveRoomDiv(clientGame);
-
 
   const iAmInRoom = (roomId) => {
     if (roomId) {
