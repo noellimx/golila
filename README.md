@@ -31,7 +31,7 @@ Custom scripts:
 
 #### Adding migrations
 
-`npm run gen:migrate [name]` generate new migration file where name is appended to the file name
+`npm run gen:migrate [name]` generate new migration file where name is appended to the file name. NOTE: change .js to .cjs
 
 ### Network / Controller
 

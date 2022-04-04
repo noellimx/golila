@@ -50,7 +50,7 @@ const getroomCreationFormRequestDiv = () => {
   };
 };
 
-const getActiveRoomDiv = (clientGame) => {
+const getLineUpDiv = (clientGame) => {
   const frame = newDivTag();
 
   const roomNumDiv = newDivTag();
@@ -65,7 +65,7 @@ const getActiveRoomDiv = (clientGame) => {
   };
 
   const roomLineUpIs = (lu) => {
-    console.log(`[activeRoom roomLineUpIs] ${lu}`);
+    console.log(`[getLineUpDiv roomLineUpIs] ${lu}`);
   };
 
   frame.replaceChildren(roomNumDiv, leaveButton);
@@ -75,13 +75,65 @@ const getActiveRoomDiv = (clientGame) => {
     roomLineUpIs,
   };
 };
+
+const getRoomDoor = (clientGame, { id, name, creatorName }) => {
+  const frame = newDivTag();
+  frame.style.border = "2px solid black";
+  const divId = newDivTag(id);
+  const divName = newDivTag(name);
+  const divCreatorName = newDivTag(creatorName);
+  [divId, divName, divCreatorName].forEach(
+    (ele) => (ele.style.border = "1px solid black")
+  );
+
+  const detach = () => {
+    frame.parentElement.removeChild(frame);
+  };
+  frame.replaceChildren(divId, divName, divCreatorName);
+  return {
+    frame,
+    detach,
+  };
+};
+
+const getActiveRooms = (clientGame) => {
+  const frame = newDivTag();
+  const rooms = {};
+
+  const init = () => {
+    console.log(`[getActiveRooms init]`);
+    clientGame.canIHaveAllRooms().then((roomsData) => {
+      console.log(`[getActiveRooms canIHaveAllRooms] Server returns`);
+      console.log(roomsData);
+
+      for (const roomData of roomsData) {
+        const { id } = roomData;
+        const activeRoom = getRoomDoor(clientGame, roomData);
+        rooms[id] = activeRoom;
+      }
+      for (const [_, { frame: _roomframe }] of Object.entries(rooms)) {
+        frame.appendChild(_roomframe);
+      }
+    });
+  };
+
+  clientGame.onRoomDeleted((whichId) => {
+    console.log(`Active rooms. Room ${whichId} was removed by server`);
+    rooms[whichId]?.detach();
+  });
+  init();
+  return {
+    frame,
+  };
+};
 const getLobbyPage = (clientGame) => {
   const mainFrame = newDivTag();
   ADD_CLASS(mainFrame, "page-lobby");
 
   const roomCreationFormRequestDiv = getroomCreationFormRequestDiv();
+  const activeRooms = getActiveRooms(clientGame);
 
-  const lineUpDiv = getActiveRoomDiv(clientGame);
+  const lineUpDiv = getLineUpDiv(clientGame);
 
   const iAmInRoom = (roomId) => {
     if (roomId) {
@@ -92,7 +144,10 @@ const getLobbyPage = (clientGame) => {
       // show room
       mainFrame.replaceChildren(lineUpDiv.frame);
     } else {
-      mainFrame.replaceChildren(roomCreationFormRequestDiv.frame);
+      mainFrame.replaceChildren(
+        roomCreationFormRequestDiv.frame,
+        activeRooms.frame
+      );
     }
   };
   clientGame.whenIchangeRoom(iAmInRoom);

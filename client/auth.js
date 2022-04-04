@@ -62,6 +62,7 @@ const ClientAuth = (io) => {
     const whenLoggedOut = (fn) => {
       loggedOutFn = fn;
     };
+
     return {
       hasToken,
       setAuth,

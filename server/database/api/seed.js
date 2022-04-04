@@ -21,9 +21,23 @@ const tearDown = async () => {
 const seed = async () => {
   await wipe();
 
-  await User.create({
+  const user = await User.create({
     username: "user",
     password: hashPassword("user"),
+  });
+  const idUser1 = user.getDataValue("id");
+
+  const room1 = await Room.create({
+    name: "room-abc" + crypto.randomUUID(),
+    creatorId: idUser1,
+  });
+
+  const idRoom1 = room1.getDataValue("id");
+
+  await Participant.create({
+    participantId: idUser1,
+    roomId: idRoom1,
+    teamNo: 1,
   });
 };
 const seedTest = async () => {

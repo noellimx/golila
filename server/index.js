@@ -9,9 +9,16 @@ import {
   whichRoomIsUserIn,
   getLineUp,
   leaveRoom,
+  getAllRooms,
 } from "./database/actions/game.js";
 import cookier from "cookie";
 import { seed } from "./database/api/seed.js";
+import {
+  getSocketsOfUsers,
+  getSocketsOfUser,
+  updateSession,
+  removeSession,
+} from "./database/api/session.js";
 const SERVER_LISTENING_PORT = 3004;
 const app = express(); // framework
 const server = http.createServer(app); // communications
@@ -65,7 +72,12 @@ const bindSocketEvents = (socket) => {
     const { securityToken: validToken, msg } = await validateToken(
       securityToken
     );
-
+    const userId = _getDbUserIdOfSocket(socket);
+    if (validToken) {
+      await updateSession(socket.id, userId);
+    } else {
+      await removeSession(socket.id);
+    }
     resCb({
       securityToken: validToken,
       msg,
@@ -74,7 +86,13 @@ const bindSocketEvents = (socket) => {
   socket.on("which-room", async (cb) => {
     console.log("[which-room]");
     const userId = _getDbUserIdOfSocket(socket);
+
+    console.log(`[which-room] user of socket is ${userId}`);
+
     const roomId = await whichRoomIsUserIn(userId);
+
+    console.log(`[which-room] user of socket is in room ${roomId}`);
+
     cb(roomId);
   });
 
@@ -95,6 +113,13 @@ const bindSocketEvents = (socket) => {
         roomId: hostingRoomId,
         msg: "ok",
       });
+
+      const userSockets = await getSocketsOfUser(userId);
+      console.log(`[create-join-room] userSockets`);
+      console.log(`${userSockets}`);
+      userSockets.forEach(({ id }) => {
+        io.to(id).emit("changed-room");
+      });
     } catch (err) {
       console.log(`[create-join-room] ${err}`);
       cb({
@@ -112,12 +137,23 @@ const bindSocketEvents = (socket) => {
 
   socket.on("leave-room", async () => {
     const userId = _getDbUserIdOfSocket(socket);
-    await leaveRoom(userId);
+    const [removedRoomId, leftPids] = await leaveRoom(userId);
+    removedRoomId && io.emit("room-deleted", removedRoomId);
+
     const roomId = await whichRoomIsUserIn(userId);
-
     roomId === null;
+    const userSockets = await getSocketsOfUsers(leftPids);
+    console.log(`[Server on leave-room] ${JSON.stringify(userSockets)}`);
+    userSockets.forEach(({ id }) => {
+      io.to(id).emit("changed-room");
+    });
+  });
 
-    socket.emit("which-room", roomId);
+  socket.on("all-active-rooms", async (fn) => {
+    const rooms = await getAllRooms();
+    console.log(`[all-active-rooms] result v `);
+    console.log(rooms);
+    fn(rooms);
   });
 };
 

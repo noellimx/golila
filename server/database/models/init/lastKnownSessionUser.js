@@ -1,16 +1,16 @@
 import { Sequelize } from "sequelize";
 
-const MODEL_NAME = "participant";
+const MODEL_NAME = "lastKnownSessionUser";
 /**
  * @param {Sequelize} sequelize
  */
 export default (sequelize) => {
   const { DataTypes } = sequelize.Sequelize;
 
-  const { user: User, room: Room } = sequelize.models;
-  if (!(User && Room)) {
+  const { user: User } = sequelize.models;
+  if (!User) {
     throw new Error(
-      `[model] [${MODEL_NAME}] Are you sure there's valid model references? ${User} ${Room}`
+      `[model] [${MODEL_NAME}] Are you sure there's valid model references? ${User}`
     );
   }
   const model = sequelize.define(
@@ -26,26 +26,23 @@ export default (sequelize) => {
         type: DataTypes.DATE,
         field: "updated_at",
       },
-      participantId: {
-        type: DataTypes.INTEGER,
+
+      // ADD ATTRIBUTES HERE
+      id: {
+        type: DataTypes.STRING,
         primaryKey: true,
+        allowNull: false,
+        field: "id",
+      },
+      userId: {
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: User,
           key: "id",
         },
-      },
-      roomId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: Room,
-          key: "id",
-        },
-      },
-      teamNo: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+
+        field: "user_id",
       },
     },
     {

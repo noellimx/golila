@@ -51,7 +51,7 @@ const validateToken = async (token) => {
   } else {
     return {
       securityToken: null,
-      msg: "Token not verified.",
+      msg: "Token failed verification.",
     };
   }
 };
