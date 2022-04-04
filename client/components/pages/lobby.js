@@ -1,7 +1,7 @@
 import { newTextInput, newDivTag, newButton } from "../elements/index.js";
 import { NO_OP, ADD_CLASS, UPDATE_TEXT } from "../helpers.js";
 
-const getRoomCreationRequestDiv = () => {
+const getroomCreationFormRequestDiv = () => {
   const frame = newDivTag();
   ADD_CLASS(frame, "frame-room-create");
 
@@ -28,8 +28,8 @@ const getRoomCreationRequestDiv = () => {
     onCreateRoomRequest = fn;
   };
 
-  const roomCreation = (result) => {
-    console.log(`roomCreation ${JSON.stringify(result)}`);
+;;  const roomCreationForm = (result) => {
+    console.log(`[roomCreationForm] server response of room creation request ${JSON.stringify(result)}`);
     const { roomId, msg } = result;
     if (roomId) {
       UPDATE_TEXT(descDiv, "");
@@ -42,32 +42,46 @@ const getRoomCreationRequestDiv = () => {
   return {
     frame,
     whenCreateRoomRequest,
-    roomCreation,
+    roomCreationForm,
   };
 };
 
+const getActiveRoomDiv = () => {
+
+  const frame = newDivTag()
+
+  const iAmInRoom =( roomId) => {
+    UPDATE_TEXT(frame,roomId)
+  }
+    return {
+      frame, iAmInRoom
+
+    }
+}
+;;;;
 const getLobbyPage = (clientGame) => {
   const mainFrame = newDivTag();
   ADD_CLASS(mainFrame, "page-lobby");
 
-  const roomCreationRequestDiv = getRoomCreationRequestDiv();
+  const roomCreationFormRequestDiv = getroomCreationFormRequestDiv();
+
+  const activeRoomDiv = getActiveRoomDiv();
 
   const iAmInRoom = (roomId) => {
     if (roomId) {
-      const roomDiv = newDivTag(roomId);
-
-      mainFrame.replaceChildren(roomDiv);
+      activeRoomDiv.iAmInRoom(roomId)
+      mainFrame.replaceChildren(activeRoomDiv.frame);
     } else {
-      mainFrame.replaceChildren(roomCreationRequestDiv.frame);
+      mainFrame.replaceChildren(roomCreationFormRequestDiv.frame);
     }
   };
 
   return {
     frame: mainFrame,
     iAmInRoom,
-    roomCreation: (fn) => roomCreationRequestDiv.roomCreation(fn),
+    roomCreationForm: (fn) => roomCreationFormRequestDiv.roomCreationForm(fn),
     whenCreateRoomRequest: (fn) =>
-      roomCreationRequestDiv.whenCreateRoomRequest(fn),
+      roomCreationFormRequestDiv.whenCreateRoomRequest(fn),
   };
 };
 

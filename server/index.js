@@ -94,10 +94,11 @@ const bindSocketEvents = (socket) => {
         msg: "ok",
       });
     } catch (err) {
-      console.log(err);
+      console.log(`[create-join-room] ${err
+}`);
       cb({
         roomId: null,
-        msg: "[Server Error io create-join-room] Error creating room....",
+        msg: `[Server Error io create-join-room] ${err}`,
       });
     }
   });

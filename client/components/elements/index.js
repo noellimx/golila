@@ -11,7 +11,7 @@ const newDivTag = (desc) => {
 
   return ele;
 };
-
+;
 const newTextInput = () => {
   const ele = newTag("input");
   ele.setAttribute("type", "text");

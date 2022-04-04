@@ -39,7 +39,7 @@ class Scene {
     this.lobbyFrame.whenCreateRoomRequest((roomName) => {
       console.log(`[whenCreateRoomRequest] ${roomName}`);
       this.clientGame.iWantToCreateAndJoinRoom(roomName).then((response) => {
-        this.lobbyFrame.roomCreation(response);
+        this.lobbyFrame.roomCreationForm(response);
         this.commence();
       });
     });
@@ -55,11 +55,11 @@ class Scene {
     });
   }
   loginPage() {
-    console.log("[loginPage] flashing");
+    console.log("[loginPage] i am in login page");
     this.root.replaceChildren(this.loginFrame.frame);
   }
   lobby() {
-    console.log("[lobby] flashing");
+    console.log("[lobby] i am in lobby");
 
     this.clientGame.whichRoomAmI().then((roomId) => {
       console.log(
