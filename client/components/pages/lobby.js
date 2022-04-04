@@ -28,8 +28,12 @@ const getroomCreationFormRequestDiv = () => {
     onCreateRoomRequest = fn;
   };
 
-;;  const roomCreationResponse = (result) => {
-    console.log(`[roomCreationForm] server response of room creation request ${JSON.stringify(result)}`);
+  const roomCreationResponse = (result) => {
+    console.log(
+      `[roomCreationForm] server response of room creation request ${JSON.stringify(
+        result
+      )}`
+    );
     const { roomId, msg } = result;
     if (roomId) {
       UPDATE_TEXT(descDiv, "");
@@ -47,39 +51,39 @@ const getroomCreationFormRequestDiv = () => {
 };
 
 const getActiveRoomDiv = () => {
-
   const frame = newDivTag();
 
-  const iAmInRoom =( roomId) => {;;
-    UPDATE_TEXT(frame,roomId)
-  }
+  const iAmInRoom = (roomId) => {
+    UPDATE_TEXT(frame, roomId);
+  };
 
-  const roomLineUpIs= (lu) => {
-    console.log(`[activeRoom roomLineUpIs] ${lu
-}`)
-
-  }
-    return {
-      frame, iAmInRoom, roomLineUpIs
-    }
-}
-;;;;
+  const roomLineUpIs = (lu) => {
+    console.log(`[activeRoom roomLineUpIs] ${lu}`);
+  };
+  return {
+    frame,
+    iAmInRoom,
+    roomLineUpIs,
+  };
+};
 const getLobbyPage = (clientGame) => {
   const mainFrame = newDivTag();
   ADD_CLASS(mainFrame, "page-lobby");
 
   const roomCreationFormRequestDiv = getroomCreationFormRequestDiv();
 
-  const activeRoomDiv = getActiveRoomDiv();
+  const lineUpDiv = getActiveRoomDiv();
+
+  clientGame.whenIchangeRoom(iAmInRoom);
 
   const iAmInRoom = (roomId) => {
     if (roomId) {
-      clientGame.whenLineUpChanges(activeRoomDiv.roomLineUpIs)
+      clientGame.whenLineUpChanges(lineUpDiv.roomLineUpIs);
       // tell room
-      activeRoomDiv.iAmInRoom(roomId)
-      clientGame.whatIsTheLineUp(activeRoomDiv.roomLineUpIs)
+      lineUpDiv.iAmInRoom(roomId);
+      clientGame.whatIsTheLineUp(lineUpDiv.roomLineUpIs);
       // show room
-      mainFrame.replaceChildren(activeRoomDiv.frame);
+      mainFrame.replaceChildren(lineUpDiv.frame);
     } else {
       mainFrame.replaceChildren(roomCreationFormRequestDiv.frame);
     }
@@ -88,7 +92,8 @@ const getLobbyPage = (clientGame) => {
   return {
     frame: mainFrame,
     iAmInRoom,
-    roomCreationResponse: (fn) => roomCreationFormRequestDiv.roomCreationResponse(fn),
+    roomCreationResponse: (fn) =>
+      roomCreationFormRequestDiv.roomCreationResponse(fn),
     whenCreateRoomRequest: (fn) =>
       roomCreationFormRequestDiv.whenCreateRoomRequest(fn),
   };

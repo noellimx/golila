@@ -2,13 +2,11 @@ import sequelize from "../index.js";
 import crypto from "crypto";
 const Room = sequelize.models.room;
 const Participant = sequelize.models.participant;
-;
 const DEFAULT_TEAM_NO = 1;
-;;;
 const createRoom = async ({ name, creatorId }) => {
   console.log(`[createRoom] room name: ${name} creator: ${creatorId}`);
   if (name === "") {
-    throw new Error ("Room name must have > 1 character.")
+    throw new Error("Room name must have > 1 character.");
   }
   return Room.create({
     name,
@@ -35,7 +33,7 @@ const whichRoomIsUserIn = async (participantId) => {
 const createAndJoinRoom = async (userId, roomName) => {
   // userId should be plain since caller is server.
 
-  try{
+  try {
     const room = await createRoom({ creatorId: userId, name: roomName });
 
     const roomId = room.getDataValue("id");
@@ -50,20 +48,21 @@ const createAndJoinRoom = async (userId, roomName) => {
 
     console.log(`[participantIsInRoom] in room ${participantIsInRoom}`);
     return participantIsInRoom;
-  }catch(err) {
-    throw err
+  } catch (err) {
+    throw err;
   }
 };
 
 const getLineUp = async (id) => {
-  const roomId =await whichRoomIsUserIn(id)
-  if (!roomId){
-    return null
+  const roomId = await whichRoomIsUserIn(id);
+  if (!roomId) {
+    return null;
   }
 
-  return Participant.findAll({where: { roomId },
-    attributes: ["participantId","teamNo"],
-  })
-}
+  return Participant.findAll({
+    where: { roomId },
+    attributes: ["participantId", "teamNo"],
+  });
+};
 
 export { createAndJoinRoom, whichRoomIsUserIn, getLineUp };

@@ -6,7 +6,8 @@ import { getSecurityToken, validateToken, decodeUserId } from "./auth/auth.js";
 import http from "http";
 import {
   createAndJoinRoom,
-  whichRoomIsUserIn, getLineUp
+  whichRoomIsUserIn,
+  getLineUp,
 } from "./database/actions/game.js";
 import cookier from "cookie";
 import { seed } from "./database/api/seed.js";
@@ -94,8 +95,7 @@ const bindSocketEvents = (socket) => {
         msg: "ok",
       });
     } catch (err) {
-      console.log(`[create-join-room] ${err
-}`);
+      console.log(`[create-join-room] ${err}`);
       cb({
         roomId: null,
         msg: `[Server Error io create-join-room] ${err}`,
@@ -103,12 +103,11 @@ const bindSocketEvents = (socket) => {
     }
   });
 
-
   socket.on("line-up", async (cb) => {
-    console.log(`[Server io on line-up]`)
+    console.log(`[Server io on line-up]`);
     const userId = _getDbUserIdOfSocket(socket);
-    cb(await getLineUp(userId))
-  })
+    cb(await getLineUp(userId));
+  });
 };
 
 const bindEvents = (io) => {

@@ -15,6 +15,10 @@ const ClientGame = (io) => {
       });
     };
 
+    const whenIchangeRoom = (fn) => {
+      io.on("which-room", (roomId) => fn(roomId));
+    };
+
     const iWantToCreateAndJoinRoom = (roomName) => {
       console.log(`[iWantToCreateAndJoinRoom]`);
       return new Promise((resolve) => {
@@ -28,24 +32,24 @@ const ClientGame = (io) => {
       });
     };
     const whatIsTheLineUp = () => {
-      console.log(`[whatIsTheLineUp]`)
+      console.log(`[whatIsTheLineUp]`);
       return new Promise((resolve) => {
         io.emit("line-up", (response) => {
-          console.log(
-            `[whatIsTheLineUp] := ${response}`
-          );
-          console.log(response)
+          console.log(`[whatIsTheLineUp] := ${response}`);
+          console.log(response);
           resolve(response);
         });
       });
-    }
+    };
 
     const whenLineUpChanges = (fn) => io.on("line-up", fn);
 
-
     return {
       whichRoomAmI,
-      iWantToCreateAndJoinRoom, whatIsTheLineUp, whenLineUpChanges
+      iWantToCreateAndJoinRoom,
+      whatIsTheLineUp,
+      whenLineUpChanges,
+      whenIchangeRoom,
     };
   })(cookier);
 };

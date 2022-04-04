@@ -29,11 +29,10 @@ class Scene {
             `[loginFrame.whenLoginRequest] My Token ${this.clientAuth.getAuthToken()}`
           );
           console.log(`[loginFrame.whenLoginRequest] Server replied ${is}`);
-          this.serverValidatesCredential(is);;
+          this.serverValidatesCredential(is);
         }
       );
-    });;;;
-;
+    });
     this.lobbyFrame = getLobbyPage(this.clientGame);
 
     this.lobbyFrame.whenCreateRoomRequest((roomName) => {
