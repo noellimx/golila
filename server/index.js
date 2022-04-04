@@ -10,6 +10,7 @@ import {
   getLineUp,
   leaveRoom,
   getAllRooms,
+  getRoomData,
 } from "./database/actions/game.js";
 import cookier from "cookie";
 import { seed } from "./database/api/seed.js";
@@ -27,7 +28,7 @@ const io = new Server(server); // upgrade / mounting
 app.use(express.static("dist"));
 app.use(cookieParser());
 
-await seed(false);
+await seed();
 
 bindRoutes(app);
 
@@ -113,7 +114,7 @@ const bindSocketEvents = (socket) => {
         roomId: hostingRoomId,
         msg: "ok",
       });
-
+      io.emit("room-created", hostingRoomId);
       const userSockets = await getSocketsOfUser(userId);
       console.log(`[create-join-room] userSockets`);
       console.log(`${userSockets}`);
@@ -144,6 +145,7 @@ const bindSocketEvents = (socket) => {
     roomId === null;
     const userSockets = await getSocketsOfUsers(leftPids);
     console.log(`[Server on leave-room] ${JSON.stringify(userSockets)}`);
+
     userSockets.forEach(({ id }) => {
       io.to(id).emit("changed-room");
     });
@@ -154,6 +156,11 @@ const bindSocketEvents = (socket) => {
     console.log(`[all-active-rooms] result v `);
     console.log(rooms);
     fn(rooms);
+  });
+
+  socket.on("room-data", async (id, fn) => {
+    const data = await getRoomData(id);
+    fn(data);
   });
 };
 

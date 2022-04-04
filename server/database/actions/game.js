@@ -128,6 +128,7 @@ const leaveRoom = async (userId) => {
 
   const creatorId = roomDetails.getDataValue("creatorId");
   // op
+  console.log(`[leaveRoom] ${participantId}`);
 
   if (participantId === creatorId) {
     const pids = await removeParticipantsOfRoom(fromRoomId);
@@ -146,6 +147,17 @@ const getUserNameById = async (id) => {
   return user.getDataValue("username");
 };
 
+const getRoomData = async (roomId) => {
+  const { dataValues } = await Room.findOne({ id: roomId });
+  const { id, creatorId, name } = dataValues;
+  const username = await getUserNameById(creatorId);
+  return {
+    id,
+    creatorId: UserDoor.conceal(`${creatorId}`),
+    name,
+    creatorName: username,
+  };
+};
 const getAllRooms = async () => {
   return await Room.findAll().then(async (rooms) => {
     const result = Promise.all(
@@ -172,4 +184,5 @@ export {
   getLineUp,
   leaveRoom,
   getAllRooms,
+  getRoomData,
 };

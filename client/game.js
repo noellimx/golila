@@ -60,6 +60,26 @@ const ClientGame = (io) => {
         });
       });
     };
+
+    const getRoomData = (id) => {
+      return new Promise((resolve) => {
+        io.emit("room-data", id, (roomData) => {
+          resolve(roomData);
+        });
+      });
+    };
+
+    let onroomcreatedfn = NO_OP;
+
+    const onRoomCreated = (fn) => {
+      onroomcreatedfn = fn;
+    };
+
+    io.on("room-created", (id) => {
+      console.log(`[room-created] room ${id}`);
+      onroomcreatedfn(id);
+    });
+
     let onroomdeletefn = NO_OP;
     const onRoomDeleted = (fn) => {
       onroomdeletefn = fn;
@@ -78,6 +98,8 @@ const ClientGame = (io) => {
       iWantToLeaveRoom,
       canIHaveAllRooms,
       onRoomDeleted,
+      onRoomCreated,
+      getRoomData,
     };
   })(cookier);
 };

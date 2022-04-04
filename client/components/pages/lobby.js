@@ -116,11 +116,19 @@ const getActiveRooms = (clientGame) => {
       }
     });
   };
-
   clientGame.onRoomDeleted((whichId) => {
     console.log(`Active rooms. Room ${whichId} was removed by server`);
     rooms[whichId]?.detach();
   });
+  clientGame.onRoomCreated((whichId) => {
+    console.log(`Active rooms. Room ${whichId} was created by server`);
+    clientGame.getRoomData(whichId).then((data) => {
+      const activeRoom = getRoomDoor(clientGame, data);
+      rooms[activeRoom.id] = activeRoom;
+      frame.appendChild(activeRoom.frame);
+    });
+  });
+
   init();
   return {
     frame,

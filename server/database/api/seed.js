@@ -25,6 +25,11 @@ const seed = async () => {
     username: "user",
     password: hashPassword("user"),
   });
+
+  await User.create({
+    username: "user2",
+    password: hashPassword("user"),
+  });
   const idUser1 = user.getDataValue("id");
 
   const room1 = await Room.create({
