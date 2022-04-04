@@ -12,11 +12,13 @@ const getUserDoor = (algo, key, iv) => {
 
   return {
     conceal: (username) => {
+      username = `${username}`
       const c = cipher();
       c.update(username, "utf-8", "hex");
       return c.final("hex");
     },
     reveal: (concealed) => {
+      concealed = `${concealed}`
       const d = decipher();
       d.update(concealed, "hex", "utf-8");
       return d.final("utf-8");

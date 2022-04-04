@@ -5,12 +5,12 @@ import { Server } from "socket.io";
 import { getSecurityToken, validateToken, decodeUserId } from "./auth/auth.js";
 import http from "http";
 import {
-  createAndJoinRoom,
+  createAndJoinRoom, joinRoom,
   whichRoomIsUserIn,
   getLineUp,
   leaveRoom,
   getAllRooms,
-  getRoomData,
+  getRoomData, checkLineUpByUserId, participantsOfRoom, changeTeam
 } from "./database/actions/game.js";
 import cookier from "cookie";
 import { seed } from "./database/api/seed.js";
@@ -50,6 +50,8 @@ const _getDbUserIdOfSocket = (socket) => {
   }
 };
 const bindSocketEvents = (socket) => {
+
+
   socket.on("login-request", async (credentials, resCb) => {
     const { username, password } = credentials;
     console.log("[socket.on login - request] Getting security token. . . ");
@@ -120,6 +122,7 @@ const bindSocketEvents = (socket) => {
       console.log(`${userSockets}`);
       userSockets.forEach(({ id }) => {
         io.to(id).emit("changed-room");
+        io.to(id).emit("line-up");
       });
     } catch (err) {
       console.log(`[create-join-room] ${err}`);
@@ -130,24 +133,84 @@ const bindSocketEvents = (socket) => {
     }
   });
 
+  socket.on("join-room", async (roomId, cb) => {
+    try {
+      const userId = _getDbUserIdOfSocket(socket);
+
+      console.log(
+        `[join-room] ${userId} requesting join room id ${roomId}`
+      );
+      const hostingRoomId = await joinRoom(userId, roomId);
+
+      console.log(
+        `[join-room] ${userId} join room id ${hostingRoomId}`
+      );
+
+      cb({
+        roomId: hostingRoomId,
+        msg: "ok",
+      });
+
+      const [roomId2, userIds ] = await checkLineUpByUserId(userId,false)
+      if (roomId2 !== hostingRoomId){
+        throw new Error(`[join-room broadcast to room] room ids mismatch ${roomId} ${hostingRoomId}`)
+      }
+      const userSockets = await getSocketsOfUsers(userIds);
+      console.log(`[join-room] userSockets`);
+      console.log(`${userSockets}`);
+      userSockets.forEach(({ id }) => {
+        io.to(id).emit("changed-room");
+        io.to(id).emit("line-up");
+      });
+    } catch (err) {
+      console.log(`[join-room] ${err}`);
+      cb({
+        roomId: null,
+        msg: `[Server Error io join-room] ${err}`,
+      });
+    }
+  });
+
+
   socket.on("line-up", async (cb) => {
     console.log(`[Server io on line-up]`);
     const userId = _getDbUserIdOfSocket(socket);
-    cb(await getLineUp(userId));
+    const retrieved = await getLineUp(userId);
+    cb(retrieved);
   });
 
   socket.on("leave-room", async () => {
     const userId = _getDbUserIdOfSocket(socket);
-    const [removedRoomId, leftPids] = await leaveRoom(userId);
-    removedRoomId && io.emit("room-deleted", removedRoomId);
+    const [removedRoomId, lineupIds, isRoomRemoved] = await leaveRoom(userId);
+    isRoomRemoved && io.emit("room-deleted", removedRoomId);
 
     const roomId = await whichRoomIsUserIn(userId);
     roomId === null;
-    const userSockets = await getSocketsOfUsers(leftPids);
+    const userSockets = await getSocketsOfUsers(lineupIds);
     console.log(`[Server on leave-room] ${JSON.stringify(userSockets)}`);
 
     userSockets.forEach(({ id }) => {
       io.to(id).emit("changed-room");
+      io.to(id).emit("line-up");
+
+    });
+  });
+
+  socket.on("change-team", async () => {
+
+    console.log(`[Server on change team]`)
+    const userId = _getDbUserIdOfSocket(socket);
+
+    const pids = await changeTeam(userId);
+
+    console.log(`[Server on change team] pids`)
+    console.log(pids)
+    const userSockets = await getSocketsOfUsers(pids);
+
+    console.log(`[Server on change-team] ${JSON.stringify(userSockets)}`);
+
+    userSockets.forEach(({ id }) => {
+      io.to(id).emit("line-up");
     });
   });
 

@@ -55,11 +55,16 @@ const participantsOfRoom = async (roomId, conceal = true) => {
   );
 };
 
-const removeParticipantsOfRoom = async (id) => {
+
+const participantIdsOfRoom =  async (roomId,conceal = true) => {
+  const ps = await participantsOfRoom(roomId, conceal);
+  const pids = ps.map(({ participantId }) => participantId);
+  return pids
+}
+const removeParticipantsOfRoom = async (roomId) => {
   console.log(`[removeParticipantsOfRoom]`);
 
-  const ps = await participantsOfRoom(id, false);
-  const pids = ps.map(({ participantId }) => participantId);
+  const pids = await participantIdsOfRoom(roomId,false)
 
   await Participant.destroy({
     where: {
@@ -69,6 +74,30 @@ const removeParticipantsOfRoom = async (id) => {
 
   return pids;
 };
+
+
+
+const joinRoom = async (userId,roomId) => {
+  // userId should be plain since caller is server.
+  console.log(`[Server joinRoom] attempting... roomid ${roomId
+}`);
+  try {
+    const participantId = userId;
+    await moveParticipantIntoRoom({
+      participantId,
+      teamNo: DEFAULT_TEAM_NO,
+      roomId,
+    });
+
+    const participantIsInRoom = await whichRoomIsUserIn(participantId);
+
+    console.log(`[joinRoom] := in room ${participantIsInRoom}`);
+    return participantIsInRoom;
+  } catch (err) {
+    throw err;
+  }
+};
+
 
 const createAndJoinRoom = async (userId, roomName) => {
   // userId should be plain since caller is server.
@@ -86,32 +115,45 @@ const createAndJoinRoom = async (userId, roomName) => {
 
     const participantIsInRoom = await whichRoomIsUserIn(participantId);
 
-    console.log(`[participantIsInRoom] in room ${participantIsInRoom}`);
+    console.log(`[createAndJoinRoom] := in room ${participantIsInRoom}`);
     return participantIsInRoom;
   } catch (err) {
     throw err;
   }
 };
 
-const getLineUp = async (id) => {
+const getLineUp = async (id, conceal = true) => {
   console.log(`[getLineUp] ${id}`);
   const roomId = await whichRoomIsUserIn(id);
   if (!roomId) {
     return null;
   }
-
-  return Participant.findAll({
+  const lineup = await Participant.findAll({
     where: { roomId },
     attributes: ["participantId", "teamNo"],
+    include: User
   });
+
+  const result = lineup.map(p => {
+    console.log(p)
+    const _pid = p.getDataValue("participantId")
+    const participantId = conceal ? UserDoor.conceal(_pid) : _pid;
+    const teamNo = p.getDataValue("teamNo")
+
+    const participantName = p.getDataValue("user").username;
+
+    return {
+      participantId, teamNo, participantName
+
+    }
+
+  })
+  return [roomId, result]
 };
 
 // leaves room and if user is creator, delete room
 
-/**
- *
- * @returns {Number} deleted room id
- */
+
 const leaveRoom = async (userId) => {
   console.log(`[leaveRoom]`);
   const participant = await Participant.findOne({
@@ -119,7 +161,7 @@ const leaveRoom = async (userId) => {
   });
 
   if (!participant) {
-    return null;
+    return [null,[],null];
   }
   const fromRoomId = participant.getDataValue("roomId");
   const participantId = participant.getDataValue("participantId");
@@ -135,11 +177,31 @@ const leaveRoom = async (userId) => {
 
     await Room.destroy({ where: { id: fromRoomId } });
 
-    return [fromRoomId, pids];
+    return [fromRoomId, pids, true];
   } else {
+
+    const pids = await participantIdsOfRoom(fromRoomId,false)
+
     await Participant.destroy({ where: { participantId } });
-    return [fromRoomId, [participantId]];
+    return [fromRoomId, pids, false];
   }
+};
+
+const checkLineUpByUserId = async (userId,conceal = true) => {
+  console.log(`[checkLineUpByUserId]`);
+  const participant = await Participant.findOne({
+    where: { participantId: userId },
+  });
+
+  if (!participant) {
+    return [null,[]];
+  }
+  const fromRoomId = participant.getDataValue("roomId");
+
+  const pids = await participantIdsOfRoom(fromRoomId, conceal)
+  
+  return [fromRoomId,pids]
+  
 };
 
 const getUserNameById = async (id) => {
@@ -178,11 +240,32 @@ const getAllRooms = async () => {
     return result;
   });
 };
+
+const changeTeam = async (participantId) => {
+  console.log(`[changeTeam]`)
+  await Participant.findOne({ where: { participantId
+}}).then(p => {
+  console.log(`[changeTeam] found participant`)
+  console.log(p)
+
+  const teamNo = Number(p.getDataValue("teamNo")) === 1 ? 2 : 1;
+  p.update({ teamNo
+})
+})
+
+  const roomId = await whichRoomIsUserIn(participantId)
+  if (!roomId){
+    return []
+  }
+  const pids = await participantIdsOfRoom(roomId,false)
+  return pids
+
+}
 export {
   createAndJoinRoom,
   whichRoomIsUserIn,
   getLineUp,
   leaveRoom,
   getAllRooms,
-  getRoomData,
+  getRoomData, joinRoom, checkLineUpByUserId, changeTeam, participantsOfRoom
 };

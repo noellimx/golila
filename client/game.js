@@ -31,27 +31,50 @@ const ClientGame = (io) => {
           console.log(
             `[iWantToCreateAndJoinRoom] create room request sent: ${roomName}`
           );
-
           resolve(response);
         });
       });
     };
+
+    const iWantToJoinRoom = (roomId) => {
+      console.log(`[iWantToJoinRoom]`);
+      return new Promise((resolve) => {
+        io.emit("join-room", roomId, (response) => {
+          console.log(
+            `[iWantToJoinRoom] join room request sent: ${roomId}`
+          );
+          resolve(response);;;
+        });
+      });
+    };;;
     const whatIsTheLineUp = () => {
       console.log(`[whatIsTheLineUp]`);
-      return new Promise((resolve) => {
+      return new Promise((resolve) => {;;
         io.emit("line-up", (response) => {
-          console.log(`[whatIsTheLineUp] := ${response}`);
-          console.log(response);
+          console.log(`[whatIsTheLineUp] := ${JSON.stringify(response)}`);
+          console.log(response);;;
           resolve(response);
         });
       });
+    };;;
+    const whenLineUpChanges =  (fn) => {
+
+      io.on("line-up",  () => {
+        whatIsTheLineUp().then(lineup => fn(lineup))
+        
+      })
     };
 
     const iWantToLeaveRoom = () => {
       io.emit("leave-room");
     };
 
-    const whenLineUpChanges = (fn) => io.on("line-up", fn);
+    const iWantToChangeTeam = () => {
+      console.log(`[iWantToChangeTeam]`)
+      io.emit("change-team");
+
+    }
+
 
     const canIHaveAllRooms = () => {
       return new Promise((resolve) => {
@@ -100,7 +123,7 @@ const ClientGame = (io) => {
       canIHaveAllRooms,
       onRoomDeleted,
       onRoomCreated,
-      getRoomData,
+      getRoomData, iWantToJoinRoom, iWantToChangeTeam
     };
   })(cookier);
 };

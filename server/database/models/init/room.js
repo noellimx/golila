@@ -47,4 +47,6 @@ export default (sequelize) => {
   if (model !== sequelize.models.room) {
     throw new Error("model reference mismatch");
   }
+  return model
+
 };

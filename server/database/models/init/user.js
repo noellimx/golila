@@ -43,4 +43,6 @@ export default (sequelize) => {
   if (model !== sequelize.models.user) {
     throw new Error("model reference mismatch");
   }
+
+  return model
 };

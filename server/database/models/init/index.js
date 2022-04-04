@@ -7,6 +7,9 @@ const initModels = (db) => {
   const Room = initModelRoom(db);
   const Participant = initModelParticipant(db);
   const LastKnowSessionUser = initModelLastKnownSessionUser(db);
+
+  Participant.belongsTo(User,{foreignKey : 'participantId'})
+  
 };
 
 export default initModels;
