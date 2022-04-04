@@ -91,7 +91,7 @@ const bindSocketEvents = (socket) => {
 
     const roomId = await whichRoomIsUserIn(userId);
 
-    console.log(`[which-room] user of socket is in room ${roomId}`);
+    console.log(`[which-room] user of socket ${userId} is in room ${roomId}`);
 
     cb(roomId);
   });
