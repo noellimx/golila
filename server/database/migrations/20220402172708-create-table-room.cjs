@@ -21,7 +21,6 @@ module.exports = {
       name: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
       },
       creator_id: {
         type: DataTypes.INTEGER,

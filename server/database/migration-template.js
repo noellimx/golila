@@ -2,7 +2,6 @@
 
 const TABLE_NAME = "xxxx";
 module.exports = {
-
   up: async (queryInterface, Sequelize) => {
     const { DataTypes } = Sequelize;
 
@@ -23,7 +22,6 @@ module.exports = {
       },
 
       // ADD ATTRIBUTES HERE
-
     });
   },
 

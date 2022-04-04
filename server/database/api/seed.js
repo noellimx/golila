@@ -2,63 +2,64 @@ import sequelize from "../index.js";
 
 import { hashPassword } from "../../auth/crypt.js";
 
-const { user: User, room: Room, participant: Participant } = sequelize.models;
-
 import { getUserByUsername } from "../api/user.js";
+import crypto from "crypto";
+
+const { user: User, room: Room, participant: Participant } = sequelize.models;
 
 const wipe = async () => {
   await User.truncate({ cascade: true });
   await Room.truncate({ cascade: true });
   await Participant.truncate({ cascade: true });
-}
+};
 
 const tearDown = async () => {
-
-  await wipe()
+  await wipe();
   sequelize.close();
-}
+};
 
-const seed = async (teardown = true) => {
+const seed = async () => {
+  await wipe();
 
+  await User.create({
+    username: "user",
+    password: hashPassword("user"),
+  });
+};
+const seedTest = async () => {
   try {
-    // remove all records
+    await wipe();
 
-    await wipe()
-    const user1Created = await User.create({
+    await User.create({
       username: "user",
       password: hashPassword("user"),
     });
 
-    const user1Retrieved = await getUserByUsername("user");
+    const userRetrieved = await getUserByUsername("user");
 
-    if (user1Retrieved.getDataValue("id") !== user1Created.getDataValue("id")) {
-      throw new Error("[seed] user mismatch");
-    }
+    const user1Created = await User.create({
+      username: "user" + crypto.randomUUID(),
+      password: hashPassword("user"),
+    });
+
     const idUser1 = user1Created.getDataValue("id");
     const room1 = await Room.create({
-      name: "room-abc",
+      name: "room-abc" + crypto.randomUUID(),
       creatorId: idUser1,
     });
 
-    const idRoom1 = room1.getDataValue("id")
+    const idRoom1 = room1.getDataValue("id");
 
     await Participant.create({
       participantId: idUser1,
       roomId: idRoom1,
       teamNo: 1,
-    })
-
-
+    });
   } catch (err) {
-    await tearDown()
+    await tearDown();
     console.log(err);
     throw err;
   }
-  if (teardown) {
-    await tearDown()
-  }
-
-
-
-}
-export default seed;
+  await tearDown();
+};
+export { seedTest, seed };

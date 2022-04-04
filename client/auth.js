@@ -21,7 +21,7 @@ const ClientAuth = (io) => {
     };
     const getStatus = () => status_msg;
 
-    const hasToken = () => !!getAuthToken();;;
+    const hasToken = () => !!getAuthToken();
 
     const hiServerIsMyCredentialsValid = ({ username, password }, fn) => {
       io.emit("login-request", { username, password }, (_authResponse) => {

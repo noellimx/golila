@@ -4,9 +4,12 @@ import bindRoutes from "./routes/routes.js";
 import { Server } from "socket.io";
 import { getSecurityToken, validateToken, decodeUserId } from "./auth/auth.js";
 import http from "http";
-import { createAndJoinRoom } from "./database/actions/game.js";
+import {
+  createAndJoinRoom,
+  whichRoomIsUserIn,
+} from "./database/actions/game.js";
 import cookier from "cookie";
-import seed from "./database/api/seed.js"
+import { seed } from "./database/api/seed.js";
 const SERVER_LISTENING_PORT = 3004;
 const app = express(); // framework
 const server = http.createServer(app); // communications
@@ -15,7 +18,7 @@ const io = new Server(server); // upgrade / mounting
 app.use(express.static("dist"));
 app.use(cookieParser());
 
-await seed(false)
+await seed(false);
 
 bindRoutes(app);
 
@@ -55,7 +58,6 @@ const bindSocketEvents = (socket) => {
   });
 
   socket.on("verify-token", async (securityToken, resCb) => {
-    console.log(securityToken);
     console.log(`[verify-token] Verifying ${JSON.stringify(securityToken)}`);
 
     const { securityToken: validToken, msg } = await validateToken(
@@ -69,37 +71,34 @@ const bindSocketEvents = (socket) => {
   });
   socket.on("which-room", async (cb) => {
     console.log("[which-room]");
-    console.log(socket.id)
     const userId = _getDbUserIdOfSocket(socket);
-
-    cb(null);
+    const roomId = await whichRoomIsUserIn(userId);
+    cb(roomId);
   });
 
   socket.on("create-join-room", async (roomName, cb) => {
-    try{
+    try {
       const userId = _getDbUserIdOfSocket(socket);
 
       console.log(
         `[create-join-room] ${userId} requesting to create and join room name ${roomName}`
       );
-      const hostingRoomId = await createAndJoinRoom(userId, roomName)
+      const hostingRoomId = await createAndJoinRoom(userId, roomName);
 
       console.log(
         `[create-join-room] ${userId} completed create and join room id ${hostingRoomId}`
       );
 
-
       cb({
         roomId: hostingRoomId,
         msg: "ok",
       });
-    }catch(err){
-      console.log(err)
+    } catch (err) {
+      console.log(err);
       cb({
         roomId: null,
         msg: "[Server Error io create-join-room] Error creating room....",
-      }
-      )
+      });
     }
   });
 };
@@ -109,8 +108,7 @@ const bindEvents = (io) => {
     console.log(`[io.on connection] new socket connected ${socket.id}`);
 
     const cookie = socket.handshake.headers.cookie;
-    console.log(`[io.on connection] cookie ${cookie
-      }`);
+    console.log(`[io.on connection] cookie ${cookie}`);
     bindSocketEvents(socket);
   });
 };

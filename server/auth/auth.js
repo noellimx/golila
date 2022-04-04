@@ -1,4 +1,4 @@
-import { getUserByUsername } from "../database/api/user.js";
+import { getUserByUsername, isUserExisting } from "../database/api/user.js";
 import { hashPassword, UserDoor } from "./crypt.js";
 
 const newSecurityToken = (userId, msg) => ({ securityToken: userId, msg });
@@ -30,7 +30,7 @@ const getSecurityToken = async ({ username, password: clearPassword }) => {
 const decodeUserId = (concealed) => UserDoor.reveal(concealed);
 
 const useIdOfToken = (token) => token;
-const validateToken = (token) => {
+const validateToken = async (token) => {
   if (!token) {
     return {
       securityToken: null,
@@ -42,10 +42,18 @@ const validateToken = (token) => {
 
   // TODO #asdfk124avdsfv verify id....
   console.log(`[validateToken] id is ${id}`);
-  return {
-    securityToken: token,
-    msg: "Verified.",
-  };
+  const is = await isUserExisting(id);
+  if (is) {
+    return {
+      securityToken: token,
+      msg: "Verified.",
+    };
+  } else {
+    return {
+      securityToken: null,
+      msg: "Token not verified.",
+    };
+  }
 };
 
 export { getSecurityToken, validateToken, decodeUserId };

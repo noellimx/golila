@@ -2,12 +2,10 @@
 
 const TABLE_NAME = "participants";
 module.exports = {
-
   up: async (queryInterface, Sequelize) => {
     const { DataTypes } = Sequelize;
 
     await queryInterface.createTable(TABLE_NAME, {
-
       created_at: {
         type: DataTypes.DATE,
         allowNull: false,

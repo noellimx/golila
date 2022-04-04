@@ -1,6 +1,5 @@
 import { Sequelize } from "sequelize";
 
-
 const MODEL_NAME = "participant";
 /**
  * @param {Sequelize} sequelize
@@ -8,10 +7,11 @@ const MODEL_NAME = "participant";
 export default (sequelize) => {
   const { DataTypes } = sequelize.Sequelize;
 
-  const { user:User, room:Room} = sequelize.models
-  if (!(User && Room)){
-    throw new Error(`[model] [${MODEL_NAME}] Are you sure there's valid model references? ${User
-} ${Room}`)
+  const { user: User, room: Room } = sequelize.models;
+  if (!(User && Room)) {
+    throw new Error(
+      `[model] [${MODEL_NAME}] Are you sure there's valid model references? ${User} ${Room}`
+    );
   }
   const model = sequelize.define(
     MODEL_NAME,

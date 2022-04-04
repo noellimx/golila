@@ -7,18 +7,17 @@ import ClientGame from "./game.js";
 class Scene {
   serverValidatesCredential = (is) => {
     if (is) {
-      ;;
       window.location.reload(); // IMPORTANT. new HTTP connection to tompang cookies.
-    } else {;
-      this.loginPage();;
+    } else {
+      this.loginPage();
       this.loginFrame.loginFailed(this.clientAuth.getStatus());
     }
   };
   constructor(io) {
-    this.root = document.getElementById("root");;;;;;
+    this.root = document.getElementById("root");
 
     this.clientAuth = new ClientAuth(io);
-    this.clientGame = new ClientGame(io);;
+    this.clientGame = new ClientGame(io);
 
     this.loginFrame = getLoginPage();
 
@@ -26,9 +25,11 @@ class Scene {
       this.clientAuth.hiServerIsMyCredentialsValid(
         { username, password },
         (is) => {
-          console.log(`[loginFrame.whenLoginRequest] My Token ${this.clientAuth.getAuthToken()}`)
-          console.log(`[loginFrame.whenLoginRequest] Server replied ${is}`)
-          this.serverValidatesCredential(is)
+          console.log(
+            `[loginFrame.whenLoginRequest] My Token ${this.clientAuth.getAuthToken()}`
+          );
+          console.log(`[loginFrame.whenLoginRequest] Server replied ${is}`);
+          this.serverValidatesCredential(is);
         }
       );
     });

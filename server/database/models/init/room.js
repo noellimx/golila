@@ -31,7 +31,7 @@ export default (sequelize) => {
         field: "name",
       },
       creatorId: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: sequelize.models.user,
