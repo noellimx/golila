@@ -14,6 +14,7 @@ import {
   getRoomData,
   checkLineUpByUserId,
   participantsOfRoom,
+  isGameStarted,
   changeTeam,
   isUserSomeCreator,
   getSocketsOfRoomByParticipatingUserId,
@@ -185,6 +186,9 @@ const bindSocketEvents = (socket) => {
   socket.on("leave-room", async () => {
     const userId = _getDbUserIdOfSocket(socket);
     const [removedRoomId, lineupIds, isRoomRemoved] = await leaveRoom(userId);
+    console.log(`[Server on leave-room]`);
+    console.table([removedRoomId, lineupIds, isRoomRemoved]);
+
     isRoomRemoved && io.emit("room-deleted", removedRoomId);
 
     const roomId = await whichRoomIsUserIn(userId);
@@ -287,7 +291,18 @@ const bindSocketEvents = (socket) => {
     console.log(`[Server on what-chain] := ${userId}'s game has ${chain}`);
     fn(chain);
   });
+  socket.on("is-game-started", async (fn) => {
+    const userId = _getDbUserIdOfSocket(socket);
+    const is = await isGameStarted(userId);
+    console.log(
+      `[Server on is-game-started] := ${userId}'s game has ${
+        is ? "started" : "NOT started"
+      }`
+    );
+    fn(is);
+  });
 };
+//// End of socket binding
 
 const bindEvents = (io) => {
   io.on("connection", (socket) => {

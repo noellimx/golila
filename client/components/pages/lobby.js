@@ -99,6 +99,9 @@ const getLineUpDiv = (clientGame) => {
     clientGame.startGame();
   });
 
+  
+
+
   clientGame.onGameStarted(() => {
     DETACH(startGameButton);
     DETACH(changeTeamButton);
@@ -107,14 +110,21 @@ const getLineUpDiv = (clientGame) => {
   const iAmInRoom = (id) => {
     roomId = id;
     UPDATE_TEXT(roomNumDiv, roomId);
-    clientGame.amICreator(roomId, (is) => {
-      is && frame.appendChild(startGameButton);
+    frame.replaceChildren(roomNumDiv, list.frame, leaveButton);
+
+    clientGame.amICreator(roomId, (isC) => {
+      clientGame.isGameStarted((isGS) => {;;
+;;;;;;;;
+        console.log(`[iAmInRoom] ${roomId} amIcreator ${isC} isGameStarted ${isGS} `)
+        isC && !isGS && frame.appendChild(startGameButton);
+        !isGS && frame.appendChild(changeTeamButton)
+      });;;
     });
   };
 
   const lineUpIs = (lu) => {
     console.log(
-      `[getLineUpDiv roomLineUpIs] native room ${roomId}       retrived     ${lu}`
+      `[getLineUpDiv roomLineUpIs]  native room ${roomId}       retrived     ${lu}`
     );
     if (lu) {
       const [_, lineup] = lu;
@@ -124,10 +134,21 @@ const getLineUpDiv = (clientGame) => {
     }
   };
 
-  clientGame.whenLineUpChanges(lineUpIs);
-  clientGame.whatIsTheLineUp().then(lineUpIs);
 
-  frame.replaceChildren(roomNumDiv, list.frame, leaveButton, changeTeamButton);
+  const init = () => {
+ 
+    clientGame.whenLineUpChanges(lineUpIs);
+    clientGame.whatIsTheLineUp().then(lineUpIs);
+
+ 
+
+  }
+
+
+  init()
+
+
+
   return {
     frame,
     iAmInRoom,
@@ -352,16 +373,23 @@ const getLobbyPage = (clientGame) => {
 
     if (roomId) {
       board.iAmInRoom(roomId);
-
       // show room
       mainFrame.replaceChildren(board.frame);
-    } else {
+    } else {;;
       mainFrame.replaceChildren(
         roomCreationFormRequestDiv.frame,
         activeRooms.frame
-      );
+      );;;;;
     }
   };
+
+  clientGame.whichRoomAmI().then((roomId) => {
+    console.log(
+      `[Lobby] Server responded: ${roomId ?? ""}`
+    );
+    iAmInRoom(roomId);
+  });
+
   clientGame.whenIchangeRoom(iAmInRoom);
 
   return {

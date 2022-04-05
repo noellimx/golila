@@ -66,12 +66,7 @@ class Scene {
   }
   lobby() {
     console.log("[lobby] i am in lobby");
-    this.clientGame.whichRoomAmI().then((roomId) => {
-      console.log(
-        `[Scene lobby whichRoomAmI] Server responded: ${roomId ?? ""}`
-      );
-      this.lobbyFrame.iAmInRoom(roomId);
-    });
+    
 
     this.root.replaceChildren(this.navbar.frame, this.lobbyFrame.frame);
   }

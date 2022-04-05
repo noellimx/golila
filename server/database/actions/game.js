@@ -142,7 +142,6 @@ const getLineUp = async (id, conceal = true) => {
   });
 
   const result = lineup.map((p) => {
-    console.log(p);
     const _pid = p.getDataValue("participantId");
     const participantId = conceal ? UserDoor.conceal(_pid) : _pid;
     const teamNo = p.getDataValue("teamNo");
@@ -270,6 +269,13 @@ const isUserSomeCreator = async (userId) => {
   return [!!some, some?.getDataValue("id")]; // predicate and room id
 };
 
+const isGameStarted = async (userId) => {
+  const roomId = await whichRoomIsUserIn(userId);
+  const game = await Gameplay.findOne({ where: { roomId } });
+
+  return !!game;
+};
+
 const getSocketsOfRoomByParticipatingUserId = async (userId) => {
   const roomId = await whichRoomIsUserIn(userId);
   const lineupIds = await participantIdsOfRoom(roomId, false);
@@ -278,12 +284,38 @@ const getSocketsOfRoomByParticipatingUserId = async (userId) => {
   return userSockets;
 };
 
+
+const getDateMinutesFromNow = (mins) => {
+  const d = new Date()
+  d.setMinutes(d.getMinutes() + mins)
+  return d
+}
+
+const gameplayEndsIn = async (userId) => {
+  console.log(`gameplayEndsIn`)
+  const roomId = await whichRoomIsUserIn(userId);
+  const game = await Gameplay.findOne({ where: { roomId } });
+  return game.getDataValue("endDate")
+}
+
+
+const howLongMoreMs = async (userId) => {
+  const now = new Date()
+  return await gameplayEndsIn(userId) - now
+}
+
 const initGameplay = async (userId) => {
   try {
     const roomId = await whichRoomIsUserIn(userId);
-    const now = new Date();
+    const later = getDateMinutesFromNow(30);
     const firstchain = chainToString(getRandomChain());
-    await Gameplay.create({ roomId, chain: firstchain, endDate: now });
+    await Gameplay.create({ roomId, chain: firstchain, endDate: later });
+
+    const checkLater = await gameplayEndsIn(userId);
+    console.log(`[initGameplay] checkinglater ${checkLater
+} later ${later.toString()
+      } ${checkLater.toString() === later.toString() }`)
+    console.log(`[initGameplay checking cd] ${await howLongMoreMs(userId)}`)
   } catch {}
 };
 
@@ -317,4 +349,5 @@ export {
   getSocketsOfRoomByParticipatingUserId,
   initGameplay,
   getChainOfGameplayForUser,
+  isGameStarted, howLongMoreMs
 };

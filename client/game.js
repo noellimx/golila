@@ -74,6 +74,10 @@ const ClientGame = (io) => {
       io.emit("am-i-creator", roomId, fn);
     };
 
+    const isGameStarted = (fn) => {
+      io.emit("is-game-started", fn);
+    };
+
     const canIHaveAllRooms = () => {
       return new Promise((resolve) => {
         io.emit("all-active-rooms", (rooms) => {
@@ -172,6 +176,7 @@ const ClientGame = (io) => {
       onNewChain,
       onGameEnd,
       onRoomStarted,
+      isGameStarted,
       submitTry,
     };
   })(cookier);
