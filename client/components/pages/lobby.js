@@ -96,7 +96,7 @@ const getLineUpDiv = (clientGame) => {
 
   const startGameButton = newButton({ desc: "start" });
   startGameButton.addEventListener("click", () => {
-    clientGame.startGame();
+    clientGame.startGame();;;
   });
 
   
@@ -104,7 +104,7 @@ const getLineUpDiv = (clientGame) => {
 
   clientGame.onGameStarted(() => {
     DETACH(startGameButton);
-    DETACH(changeTeamButton);
+    DETACH(changeTeamButton);;;
   });
 
   const iAmInRoom = (id) => {
