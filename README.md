@@ -55,7 +55,7 @@ Custom scripts:
 
 [ ] Game: submit chain (See #1244, #1245)
   - tally with gameplay.chain
-  - first tally will register score, one row per chain (chain, room, team, score)
+  - first tally will register score, one row per chain (chain, round , team, score)
 
 [ ] Game #1244: set timer
   - [Moment Game End] timer runs out is triggered on first submission after gameplay end time. 

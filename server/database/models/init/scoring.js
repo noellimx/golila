@@ -5,18 +5,19 @@ import { Sequelize } from "sequelize";
  */
 export default (sequelize) => {
 
-  const MODEL_NAME = "gameplay"
+  const MODEL_NAME = "scoring"
+
   const { DataTypes } = sequelize.Sequelize;
 
-  const { room: Room } = sequelize.models;
-  if (!Room) {
+  const { user: User } = sequelize.models;
+  if (!User) {
     throw new Error(
-      `[model] [${MODEL_NAME}] Are you sure there's valid model references? ${Room}`
+      `[model] [${MODEL_NAME}] Are you sure there's valid model references? ${User}`
     );
   }
 
   const model = sequelize.define(
-    MODEL_NAME,
+    "scoring",
     {
       createdAt: {
         type: DataTypes.DATE,
@@ -28,31 +29,48 @@ export default (sequelize) => {
         allowNull: false,
         field: "updated_at",
       },
-
       // ADD ATTRIBUTES HERE
-      roomId: {
-        type: DataTypes.STRING,
+
+      id: {
+        type: DataTypes.INTEGER,
         primaryKey: true,
-        references: {
-          model: Room,
-          key: "id",
-        },
         allowNull: false,
-        field: "room_id",
+        field: "id",
+      },
+
+      roundId: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: "round_id",
+
+      },
+      teamNo: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: "team_no",
+
       },
       chain: {
         type: DataTypes.STRING,
         allowNull: false,
         field: "chain",
+
       },
-      endDate: {
-        type: DataTypes.DATE,
+      credit: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-        field: "end_date",
+        field: "credit",
+
       },
-      lastKnownRound: {
-        type: DataTypes.STRING,
-        field: "last_known_round"
+      scorerId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: "scorer_id",
+        references: {
+          model: User,
+          key: "id",
+        },
+        onDelete: "cascade"
       }
     },
     {
