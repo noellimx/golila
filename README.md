@@ -17,7 +17,7 @@ using PostgreSQL with Sequelize
 
 #### Engine
 
-Go to step 2 if existing database is used (update to latest migration only).
+Go to custom scripts if existing database is used (update to latest migration only).
 
 - `./dev.sh` Ensure psql local or remote service has been started.
 

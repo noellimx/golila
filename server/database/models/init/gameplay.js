@@ -48,6 +48,10 @@ export default (sequelize) => {
         allowNull: false,
         field: "end_date",
       },
+      lastKnownRound: {
+        type: DataTypes.STRING,
+        field: "last_known_round"
+      }
     },
     {
       underscored: true,
