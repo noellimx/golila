@@ -15,8 +15,10 @@ import {
   checkLineUpByUserId,
   participantsOfRoom,
   changeTeam,
-  isUserCreator,
+  isUserSomeCreator,
   getSocketsOfRoomByParticipatingUserId,
+  initGameplay,
+  getChainOfGameplayForUser,
 } from "./database/actions/game.js";
 import cookier from "cookie";
 import { seed } from "./database/api/seed.js";
@@ -231,7 +233,7 @@ const bindSocketEvents = (socket) => {
   socket.on("am-i-creator", async (clientRoomId, cb) => {
     const userId = _getDbUserIdOfSocket(socket);
 
-    const [is, roomId] = await isUserCreator(userId);
+    const [is, roomId] = await isUserSomeCreator(userId);
     if (is && roomId !== clientRoomId) {
       throw new Error(
         `am - i - creator Sanity check failed ${roomId} ${clientRoomId}`
@@ -243,10 +245,47 @@ const bindSocketEvents = (socket) => {
 
   socket.on("start-game", async () => {
     const userId = _getDbUserIdOfSocket(socket);
+
+    // START OF GAME
     const sockets = await getSocketsOfRoomByParticipatingUserId(userId);
     sockets.forEach(({ id }) => {
       io.to(id).emit("game-started");
     });
+
+    const roomId = await whichRoomIsUserIn(userId);
+
+    io.emit("room-started", roomId);
+
+    await (async () => {
+      let count = 5;
+
+      const interval = setInterval(async () => {
+        const sockets = await getSocketsOfRoomByParticipatingUserId(userId);
+        sockets.forEach(({ id }) => {
+          io.to(id).emit("game-started-count-down", count);
+        });
+
+        count -= 1;
+        console.log(`[on start-game] ${count}`);
+        if (count === 0) {
+          clearInterval(interval);
+          await initGameplay(userId);
+
+          getSocketsOfRoomByParticipatingUserId(userId).then((sockets) => {
+            sockets.forEach(({ id }) => {
+              io.to(id).emit("game-new-chain-notify");
+            });
+          });
+        }
+      }, 1000);
+    })();
+  });
+
+  socket.on("what-chain", async (fn) => {
+    const userId = _getDbUserIdOfSocket(socket);
+    const chain = await getChainOfGameplayForUser(userId);
+    console.log(`[Server on what-chain] := ${userId}'s game has ${chain}`);
+    fn(chain);
   });
 };
 

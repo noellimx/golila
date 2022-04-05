@@ -31,10 +31,10 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      end_date : {
+      end_date: {
         type: DataTypes.DATE,
         allowNull: false,
-      }
+      },
     });
   },
 

@@ -5,12 +5,18 @@ import { hashPassword } from "../../auth/crypt.js";
 import { getUserByUsername } from "../api/user.js";
 import crypto from "crypto";
 
-const { user: User, room: Room, participant: Participant } = sequelize.models;
+const {
+  user: User,
+  room: Room,
+  participant: Participant,
+  gameplay: Gameplay,
+} = sequelize.models;
 
 const wipe = async () => {
   await User.truncate({ cascade: true });
   await Room.truncate({ cascade: true });
   await Participant.truncate({ cascade: true });
+  await Gameplay.truncate({ cascade: true });
 };
 
 const tearDown = async () => {

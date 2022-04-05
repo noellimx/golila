@@ -1,10 +1,20 @@
 import sequelize from "../index.js";
-import crypto from "crypto";
 import { UserDoor } from "../../auth/crypt.js";
 
 import { getSocketsOfUsers } from "../api/session.js";
 
-const { room: Room, participant: Participant, user: User } = sequelize.models;
+import {
+  getRandomChain,
+  chainToString,
+  stringToChain,
+} from "../../app/chain.js";
+
+const {
+  room: Room,
+  participant: Participant,
+  user: User,
+  gameplay: Gameplay,
+} = sequelize.models;
 const DEFAULT_TEAM_NO = 1;
 const createRoom = async ({ name, creatorId }) => {
   console.log(`[createRoom] room name: ${name} creator: ${creatorId}`);
@@ -253,7 +263,8 @@ const changeTeam = async (participantId) => {
   return pids;
 };
 
-const isUserCreator = async (userId) => {
+// this works for now since user is creator of at most 1 room at any one time for now
+const isUserSomeCreator = async (userId) => {
   const some = await Room.findOne({ where: { creatorId: userId } });
 
   return [!!some, some?.getDataValue("id")]; // predicate and room id
@@ -266,6 +277,31 @@ const getSocketsOfRoomByParticipatingUserId = async (userId) => {
 
   return userSockets;
 };
+
+const initGameplay = async (userId) => {
+  try {
+    const roomId = await whichRoomIsUserIn(userId);
+    const now = new Date();
+    const firstchain = chainToString(getRandomChain());
+    await Gameplay.create({ roomId, chain: firstchain, endDate: now });
+  } catch {}
+};
+
+const getChainOfGameplayForUser = async (userId) => {
+  try {
+    const roomId = await whichRoomIsUserIn(userId);
+    const game = await Gameplay.findOne({ where: { roomId } });
+    if (!game) {
+      return null;
+    }
+    const chainString = game.getDataValue("chain");
+
+    console.log(`[getChainOfGameplayForUser] ${chainString}`);
+    return stringToChain(chainString);
+  } catch (err) {
+    return null;
+  }
+};
 export {
   createAndJoinRoom,
   whichRoomIsUserIn,
@@ -277,6 +313,8 @@ export {
   checkLineUpByUserId,
   changeTeam,
   participantsOfRoom,
-  isUserCreator,
+  isUserSomeCreator,
   getSocketsOfRoomByParticipatingUserId,
+  initGameplay,
+  getChainOfGameplayForUser,
 };

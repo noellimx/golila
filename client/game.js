@@ -112,6 +112,13 @@ const ClientGame = (io) => {
       onroomdeletefn(id);
     });
 
+    const onRoomStarted = (fn) => {
+      io.on("room-started", (id) => {
+        console.log(`[room-started] room ${id} has start.`);
+        fn(id);
+      });
+    };
+
     const startGame = () => {
       io.emit("start-game");
     };
@@ -124,8 +131,18 @@ const ClientGame = (io) => {
       io.on("game-started-count-down", fn);
     };
 
+    const whatIsMyChain = () => {
+      return new Promise((resolve) => {
+        io.emit("what-chain", (chain) => {
+          resolve(chain);
+        });
+      });
+    };
+
     const onNewChain = (fn) => {
-      io.on("game-started-new-chain", fn);
+      io.on("game-new-chain-notify", () => {
+        whatIsMyChain().then(fn);
+      });
     };
 
     const onGameEnd = (fn) => {
@@ -154,6 +171,7 @@ const ClientGame = (io) => {
       onCountDown,
       onNewChain,
       onGameEnd,
+      onRoomStarted,
       submitTry,
     };
   })(cookier);

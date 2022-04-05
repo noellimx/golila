@@ -103,6 +103,7 @@ const getLineUpDiv = (clientGame) => {
     DETACH(startGameButton);
     DETACH(changeTeamButton);
   });
+
   const iAmInRoom = (id) => {
     roomId = id;
     UPDATE_TEXT(roomNumDiv, roomId);
@@ -190,6 +191,15 @@ const getActiveRooms = (clientGame) => {
     );
     rooms[whichId]?.detach();
   });
+
+  clientGame.onRoomStarted((whichId) => {
+    console.log(
+      `[Active rooms room started] Room ${whichId} was started by server.`
+    );
+    console.log(whichId);
+    rooms[whichId]?.detach();
+  });
+
   clientGame.onRoomCreated((whichId) => {
     console.log(`Active rooms. Room ${whichId} was created by server`);
     clientGame.getRoomData(whichId).then((data) => {
@@ -205,19 +215,123 @@ const getActiveRooms = (clientGame) => {
     frame,
   };
 };
+const getFieldCoin = (coin = "99") => {
+  const frame = newDivTag(coin);
 
+  const detach = () => {
+    DETACH(frame);
+  };
+
+  const getToken = () => {
+    return coin;
+  };
+  return {
+    frame,
+    detach,
+    getToken,
+  };
+};
+
+const getFieldChain = () => {
+  const frame = newDivTag();
+
+  const chainContainer = [];
+
+  const reset = () => {
+    chainContainer.forEach((fieldcoin) => {
+      fieldcoin.detach();
+    });
+  };
+
+  const consume = (token) => {
+    if (!token) {
+      return;
+    }
+    if (token === "-") {
+      const last = chainContainer.pop();
+      last?.detach();
+      return;
+    }
+    const fieldcoin = getFieldCoin(token);
+    chainContainer.push(fieldcoin);
+    frame.appendChild(fieldcoin.frame);
+  };
+  const getTokenString = () => {
+    const tokens = chainContainer
+      .map((fc) => {
+        return fc.getToken();
+      })
+      .join(",");
+    return tokens;
+  };
+  return { frame, reset, consume, getTokenString };
+};
+
+const getTargetChain = () => {
+  const frame = newDivTag();
+
+  const div = newDivTag();
+
+  frame.appendChild(div);
+  const updateChain = (chain) => {
+    UPDATE_TEXT(div, chain);
+  };
+
+  return { frame, updateChain };
+};
 const getBoard = (clientGame) => {
   const frame = newDivTag();
+  ADD_CLASS(frame, "board");
 
   const lineUpDiv = getLineUpDiv(clientGame);
 
   const iAmInRoom = (roomId) => {
+    if (!roomId) {
+      DETACH(frame);
+    }
     lineUpDiv.iAmInRoom(roomId);
   };
 
   const init = () => {
     frame.appendChild(lineUpDiv.frame);
   };
+
+  const targetChain = getTargetChain();
+  const fieldChain = getFieldChain();
+
+  clientGame.onGameStarted(() => {
+    clientGame.onCountDown((sec) => {
+      console.log(`[Board onCountDown] ${sec}`);
+    });
+
+    clientGame.onNewChain((chain) => {
+      console.log(`[Board onNewChain] ${chain}`);
+      targetChain.updateChain(chain);
+      frame.appendChild(targetChain.frame, fieldChain.frame);
+
+      fieldChain.reset();
+    });
+    const KEYCODE_TO_TOKEN = (keycode) => {
+      switch (keycode) {
+        case "KeyJ":
+          return "38";
+        case "KeyK":
+          return "39";
+        case "KeyL":
+          return "40";
+        case "Backspace":
+          return "-";
+        default:
+          return null;
+      }
+    };
+    document.addEventListener("keydown", ({ code }) => {
+      const token = KEYCODE_TO_TOKEN(code);
+      fieldChain.consume(token);
+
+      console.log(`[keydown] after := ${fieldChain.getTokenString()}`);
+    });
+  });
 
   init();
   return {

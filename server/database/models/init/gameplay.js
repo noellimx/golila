@@ -20,13 +20,11 @@ export default (sequelize) => {
         type: DataTypes.DATE,
         allowNull: false,
         field: "created_at",
-
       },
       updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
         field: "updated_at",
-
       },
 
       // ADD ATTRIBUTES HERE
@@ -39,7 +37,6 @@ export default (sequelize) => {
         },
         allowNull: false,
         field: "room_id",
-
       },
       chain: {
         type: DataTypes.STRING,
@@ -50,7 +47,7 @@ export default (sequelize) => {
         type: DataTypes.DATE,
         allowNull: false,
         field: "end_date",
-      }
+      },
     },
     {
       underscored: true,

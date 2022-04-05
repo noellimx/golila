@@ -40,6 +40,9 @@ Custom scripts:
 [ ] remove package CleanWebpackPlugin
 [ ] check if Sequelize accept heroku psql connection string
 
+[x] not all users in room receive game-start event
+[ ] need to tear down previous room events
+
 ## Client
 
 `npm run client-dev` build client hot

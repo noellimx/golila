@@ -8,7 +8,7 @@ const initModels = (db) => {
   const Room = initModelRoom(db);
   const Participant = initModelParticipant(db);
   const LastKnowSessionUser = initModelLastKnownSessionUser(db);
-  const Gameplay = initModeGameplay(db)
+  const Gameplay = initModeGameplay(db);
   Participant.belongsTo(User, { foreignKey: "participantId" });
 };
 
