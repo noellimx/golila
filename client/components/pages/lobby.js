@@ -99,8 +99,9 @@ const getLineUpDiv = (clientGame) => {
     clientGame.startGame();
   });
 
-  clientGame.onStartGame(() => {
+  clientGame.onGameStarted(() => {
     DETACH(startGameButton);
+    DETACH(changeTeamButton);
   });
   const iAmInRoom = (id) => {
     roomId = id;

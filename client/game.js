@@ -116,7 +116,7 @@ const ClientGame = (io) => {
       io.emit("start-game");
     };
 
-    const onStartGame = (fn) => {
+    const onGameStarted = (fn) => {
       io.on("game-started", fn);
     };
 
@@ -150,7 +150,7 @@ const ClientGame = (io) => {
       iWantToChangeTeam,
       amICreator,
       startGame,
-      onStartGame,
+      onGameStarted,
       onCountDown,
       onNewChain,
       onGameEnd,
