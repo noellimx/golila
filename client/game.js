@@ -40,29 +40,25 @@ const ClientGame = (io) => {
       console.log(`[iWantToJoinRoom]`);
       return new Promise((resolve) => {
         io.emit("join-room", roomId, (response) => {
-          console.log(
-            `[iWantToJoinRoom] join room request sent: ${roomId}`
-          );
-          resolve(response);;;
-        });
-      });
-    };;;
-    const whatIsTheLineUp = () => {
-      console.log(`[whatIsTheLineUp]`);
-      return new Promise((resolve) => {;;
-        io.emit("line-up", (response) => {
-          console.log(`[whatIsTheLineUp] := ${JSON.stringify(response)}`);
-          console.log(response);;;
+          console.log(`[iWantToJoinRoom] join room request sent: ${roomId}`);
           resolve(response);
         });
       });
-    };;;
-    const whenLineUpChanges =  (fn) => {
-
-      io.on("line-up",  () => {
-        whatIsTheLineUp().then(lineup => fn(lineup))
-        
-      })
+    };
+    const whatIsTheLineUp = () => {
+      console.log(`[whatIsTheLineUp]`);
+      return new Promise((resolve) => {
+        io.emit("line-up", (response) => {
+          console.log(`[whatIsTheLineUp] := ${JSON.stringify(response)}`);
+          console.log(response);
+          resolve(response);
+        });
+      });
+    };
+    const whenLineUpChanges = (fn) => {
+      io.on("line-up", () => {
+        whatIsTheLineUp().then((lineup) => fn(lineup));
+      });
     };
 
     const iWantToLeaveRoom = () => {
@@ -70,11 +66,13 @@ const ClientGame = (io) => {
     };
 
     const iWantToChangeTeam = () => {
-      console.log(`[iWantToChangeTeam]`)
+      console.log(`[iWantToChangeTeam]`);
       io.emit("change-team");
+    };
 
-    }
-
+    const amICreator = (roomId, fn) => {
+      io.emit("am-i-creator", roomId, fn);
+    };
 
     const canIHaveAllRooms = () => {
       return new Promise((resolve) => {
@@ -113,6 +111,30 @@ const ClientGame = (io) => {
       console.log(`[room-deleted] room ${id} has been deleted`);
       onroomdeletefn(id);
     });
+
+    const startGame = () => {
+      io.emit("start-game");
+    };
+
+    const onStartGame = (fn) => {
+      io.on("game-started", fn);
+    };
+
+    const onCountDown = (fn) => {
+      io.on("game-started-count-down", fn);
+    };
+
+    const onNewChain = (fn) => {
+      io.on("game-started-new-chain", fn);
+    };
+
+    const onGameEnd = (fn) => {
+      io.on("game-ended", fn);
+    };
+
+    const submitTry = (attempt) => {
+      io.on("game-submit", attempt);
+    };
     return {
       whichRoomAmI,
       iWantToCreateAndJoinRoom,
@@ -123,7 +145,16 @@ const ClientGame = (io) => {
       canIHaveAllRooms,
       onRoomDeleted,
       onRoomCreated,
-      getRoomData, iWantToJoinRoom, iWantToChangeTeam
+      getRoomData,
+      iWantToJoinRoom,
+      iWantToChangeTeam,
+      amICreator,
+      startGame,
+      onStartGame,
+      onCountDown,
+      onNewChain,
+      onGameEnd,
+      submitTry,
     };
   })(cookier);
 };

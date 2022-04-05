@@ -44,5 +44,5 @@ export default (sequelize) => {
     throw new Error("model reference mismatch");
   }
 
-  return model
+  return model;
 };

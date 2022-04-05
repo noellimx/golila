@@ -8,8 +8,7 @@ const initModels = (db) => {
   const Participant = initModelParticipant(db);
   const LastKnowSessionUser = initModelLastKnownSessionUser(db);
 
-  Participant.belongsTo(User,{foreignKey : 'participantId'})
-  
+  Participant.belongsTo(User, { foreignKey: "participantId" });
 };
 
 export default initModels;

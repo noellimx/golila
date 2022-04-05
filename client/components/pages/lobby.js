@@ -1,16 +1,16 @@
 import { newTextInput, newDivTag, newButton } from "../elements/index.js";
-import { NO_OP, ADD_CLASS, UPDATE_TEXT } from "../helpers.js";
+import { NO_OP, ADD_CLASS, UPDATE_TEXT, DETACH } from "../helpers.js";
 
 const getroomCreationFormRequestDiv = () => {
   const frame = newDivTag();
   ADD_CLASS(frame, "frame-room-create");
 
   // ELEMENT - fieldRoomName
-  const fieldRoomName = newTextInput();;;
+  const fieldRoomName = newTextInput();
 
   // ELEMENT - button
 
-  const button = newButton();;
+  const button = newButton();
 
   UPDATE_TEXT(button, "+ and -> Room");
 
@@ -49,85 +49,87 @@ const getroomCreationFormRequestDiv = () => {
     whenCreateRoomRequest,
     roomCreationResponse,
   };
-};;
+};
 
 const getListLineUp = () => {
   const frame = newDivTag();
 
   const updateLineUp = (lineup) => {
-    ;;;
+    console.log(`[updateLineUp] `);
+    console.log(lineup);
+    const divs = lineup
+      ? lineup.map(({ participantId, teamNo, participantName }) => {
+          const pwrap = newDivTag();
+          const divPID = newDivTag(participantName);
+          const divTeamNo = newDivTag(teamNo);
+          pwrap.replaceChildren(divPID, divTeamNo);
 
-    console.log(`[updateLineUp] `)
-    console.log(lineup)
-    const divs = lineup ? lineup.map( ({participantId,teamNo,participantName}) => {
-      const pwrap = newDivTag()
-      const divPID = newDivTag(participantName)
-      const divTeamNo = newDivTag(teamNo)
-      pwrap.replaceChildren(divPID,divTeamNo)
+          return pwrap;
+        })
+      : [];
 
-      return pwrap
-
-    }) : [];
-
-    frame.replaceChildren(...divs)
-
-  }
+    frame.replaceChildren(...divs);
+  };
   return {
     frame,
-    updateLineUp
-  }
-}
+    updateLineUp,
+  };
+};
 
 const getLineUpDiv = (clientGame) => {
-
   let roomId;
   const frame = newDivTag();
 
   const roomNumDiv = newDivTag();
-  const list = getListLineUp()
+  const list = getListLineUp();
 
   const leaveButton = newButton({ desc: "leave room" });
 
   leaveButton.addEventListener("click", () => {
-    clientGame.iWantToLeaveRoom();;
+    clientGame.iWantToLeaveRoom();
   });
-
-  ;;;;
 
   const changeTeamButton = newButton({ desc: "change team" });
   changeTeamButton.addEventListener("click", () => {
-    clientGame.iWantToChangeTeam();;
+    clientGame.iWantToChangeTeam();
   });
 
+  const startGameButton = newButton({ desc: "start" });
+  startGameButton.addEventListener("click", () => {
+    clientGame.startGame();
+  });
+
+  clientGame.onStartGame(() => {
+    DETACH(startGameButton);
+  });
   const iAmInRoom = (id) => {
     roomId = id;
     UPDATE_TEXT(roomNumDiv, roomId);
+    clientGame.amICreator(roomId, (is) => {
+      is && frame.appendChild(startGameButton);
+    });
   };
 
   const lineUpIs = (lu) => {
-
-    ;;;
-    console.log(`[getLineUpDiv roomLineUpIs] native room ${roomId
-}       retrived     ${lu}`);;;;;
-    if (lu){
+    console.log(
+      `[getLineUpDiv roomLineUpIs] native room ${roomId}       retrived     ${lu}`
+    );
+    if (lu) {
       const [_, lineup] = lu;
-      list.updateLineUp(lineup)
-    }else{
-      list.updateLineUp(null)
-
+      list.updateLineUp(lineup);
+    } else {
+      list.updateLineUp(null);
     }
-
   };
 
   clientGame.whenLineUpChanges(lineUpIs);
   clientGame.whatIsTheLineUp().then(lineUpIs);
 
-
   frame.replaceChildren(roomNumDiv, list.frame, leaveButton, changeTeamButton);
   return {
     frame,
     iAmInRoom,
-   lineUpIs,
+    lineUpIs,
   };
 };
 
@@ -139,7 +141,7 @@ const getRoomDoor = (clientGame, { id, name, creatorName }) => {
   const divCreatorName = newDivTag(creatorName);
   [divId, divName, divCreatorName].forEach(
     (ele) => (ele.style.border = "1px solid black")
-  );;;
+  );
 
   const detach = () => {
     console.log(`[RoomDoor] Detaching room ${id}`);
@@ -147,8 +149,8 @@ const getRoomDoor = (clientGame, { id, name, creatorName }) => {
   };
 
   frame.addEventListener("click", () => {
-    clientGame.iWantToJoinRoom(id)
-  })
+    clientGame.iWantToJoinRoom(id);
+  });
   frame.replaceChildren(divId, divName, divCreatorName);
   return {
     frame,
@@ -161,13 +163,9 @@ const getRoomDoor = (clientGame, { id, name, creatorName }) => {
 const getActiveRooms = (clientGame) => {
   const frame = newDivTag();
 
-
-
-  const rooms = {};;;
+  const rooms = {};
 
   const init = () => {
-
-
     console.log(`[getActiveRooms init]`);
     clientGame.canIHaveAllRooms().then((roomsData) => {
       console.log(`[getActiveRooms canIHaveAllRooms] Server returns`);
@@ -184,8 +182,6 @@ const getActiveRooms = (clientGame) => {
         frame.appendChild(_roomframe);
       }
     });
-
-    
   };
   clientGame.onRoomDeleted((whichId) => {
     console.log(
@@ -205,41 +201,39 @@ const getActiveRooms = (clientGame) => {
 
   init();
   return {
-    frame, 
+    frame,
   };
 };
 
 const getBoard = (clientGame) => {
   const frame = newDivTag();
 
-  const lineUpDiv = getLineUpDiv(clientGame);;
-
+  const lineUpDiv = getLineUpDiv(clientGame);
 
   const iAmInRoom = (roomId) => {
-    lineUpDiv.iAmInRoom(roomId)
-  }
+    lineUpDiv.iAmInRoom(roomId);
+  };
 
   const init = () => {
-    frame.appendChild(lineUpDiv.frame)
+    frame.appendChild(lineUpDiv.frame);
+  };
 
-  }
-
-  init()
+  init();
   return {
-    frame, iAmInRoom
-
-  }
-}
+    frame,
+    iAmInRoom,
+  };
+};
 const getLobbyPage = (clientGame) => {
-  const mainFrame = newDivTag();;;
+  const mainFrame = newDivTag();
   ADD_CLASS(mainFrame, "page-lobby");
 
   const roomCreationFormRequestDiv = getroomCreationFormRequestDiv();
-  const activeRooms = getActiveRooms(clientGame);;;;;;;
-  const board = getBoard(clientGame)
+  const activeRooms = getActiveRooms(clientGame);
+  const board = getBoard(clientGame);
 
   const iAmInRoom = (roomId) => {
-      // tell room anyway
+    // tell room anyway
 
     if (roomId) {
       board.iAmInRoom(roomId);

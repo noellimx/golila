@@ -5,12 +5,18 @@ import { Server } from "socket.io";
 import { getSecurityToken, validateToken, decodeUserId } from "./auth/auth.js";
 import http from "http";
 import {
-  createAndJoinRoom, joinRoom,
+  createAndJoinRoom,
+  joinRoom,
   whichRoomIsUserIn,
   getLineUp,
   leaveRoom,
   getAllRooms,
-  getRoomData, checkLineUpByUserId, participantsOfRoom, changeTeam
+  getRoomData,
+  checkLineUpByUserId,
+  participantsOfRoom,
+  changeTeam,
+  isUserCreator,
+  getSocketsOfRoomByParticipatingUserId,
 } from "./database/actions/game.js";
 import cookier from "cookie";
 import { seed } from "./database/api/seed.js";
@@ -50,8 +56,6 @@ const _getDbUserIdOfSocket = (socket) => {
   }
 };
 const bindSocketEvents = (socket) => {
-
-
   socket.on("login-request", async (credentials, resCb) => {
     const { username, password } = credentials;
     console.log("[socket.on login - request] Getting security token. . . ");
@@ -137,23 +141,21 @@ const bindSocketEvents = (socket) => {
     try {
       const userId = _getDbUserIdOfSocket(socket);
 
-      console.log(
-        `[join-room] ${userId} requesting join room id ${roomId}`
-      );
+      console.log(`[join-room] ${userId} requesting join room id ${roomId}`);
       const hostingRoomId = await joinRoom(userId, roomId);
 
-      console.log(
-        `[join-room] ${userId} join room id ${hostingRoomId}`
-      );
+      console.log(`[join-room] ${userId} join room id ${hostingRoomId}`);
 
       cb({
         roomId: hostingRoomId,
         msg: "ok",
       });
 
-      const [roomId2, userIds ] = await checkLineUpByUserId(userId,false)
-      if (roomId2 !== hostingRoomId){
-        throw new Error(`[join-room broadcast to room] room ids mismatch ${roomId} ${hostingRoomId}`)
+      const [roomId2, userIds] = await checkLineUpByUserId(userId, false);
+      if (roomId2 !== hostingRoomId) {
+        throw new Error(
+          `[join-room broadcast to room] room ids mismatch ${roomId} ${hostingRoomId}`
+        );
       }
       const userSockets = await getSocketsOfUsers(userIds);
       console.log(`[join-room] userSockets`);
@@ -170,7 +172,6 @@ const bindSocketEvents = (socket) => {
       });
     }
   });
-
 
   socket.on("line-up", async (cb) => {
     console.log(`[Server io on line-up]`);
@@ -192,19 +193,17 @@ const bindSocketEvents = (socket) => {
     userSockets.forEach(({ id }) => {
       io.to(id).emit("changed-room");
       io.to(id).emit("line-up");
-
     });
   });
 
   socket.on("change-team", async () => {
-
-    console.log(`[Server on change team]`)
+    console.log(`[Server on change team]`);
     const userId = _getDbUserIdOfSocket(socket);
 
     const pids = await changeTeam(userId);
 
-    console.log(`[Server on change team] pids`)
-    console.log(pids)
+    console.log(`[Server on change team] pids`);
+    console.log(pids);
     const userSockets = await getSocketsOfUsers(pids);
 
     console.log(`[Server on change-team] ${JSON.stringify(userSockets)}`);
@@ -227,6 +226,27 @@ const bindSocketEvents = (socket) => {
 
     console.log(`[Socket on room data ] ${id} := ${JSON.stringify(data)}`);
     fn(data);
+  });
+
+  socket.on("am-i-creator", async (clientRoomId, cb) => {
+    const userId = _getDbUserIdOfSocket(socket);
+
+    const [is, roomId] = await isUserCreator(userId);
+    if (is && roomId !== clientRoomId) {
+      throw new Error(
+        `am - i - creator Sanity check failed ${roomId} ${clientRoomId}`
+      );
+    }
+
+    cb(is);
+  });
+
+  socket.on("start-game", async () => {
+    const userId = _getDbUserIdOfSocket(socket);
+    const sockets = await getSocketsOfRoomByParticipatingUserId(userId);
+    sockets.forEach(({ id }) => {
+      io.to(id).emit("game-started");
+    });
   });
 };
 

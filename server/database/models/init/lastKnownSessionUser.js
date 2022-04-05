@@ -52,6 +52,5 @@ export default (sequelize) => {
   if (model !== sequelize.models[[MODEL_NAME]]) {
     throw new Error("model reference mismatch");
   }
-  return model
-
+  return model;
 };

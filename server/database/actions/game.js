@@ -2,6 +2,8 @@ import sequelize from "../index.js";
 import crypto from "crypto";
 import { UserDoor } from "../../auth/crypt.js";
 
+import { getSocketsOfUsers } from "../api/session.js";
+
 const { room: Room, participant: Participant, user: User } = sequelize.models;
 const DEFAULT_TEAM_NO = 1;
 const createRoom = async ({ name, creatorId }) => {
@@ -55,16 +57,15 @@ const participantsOfRoom = async (roomId, conceal = true) => {
   );
 };
 
-
-const participantIdsOfRoom =  async (roomId,conceal = true) => {
+const participantIdsOfRoom = async (roomId, conceal = true) => {
   const ps = await participantsOfRoom(roomId, conceal);
   const pids = ps.map(({ participantId }) => participantId);
-  return pids
-}
+  return pids;
+};
 const removeParticipantsOfRoom = async (roomId) => {
   console.log(`[removeParticipantsOfRoom]`);
 
-  const pids = await participantIdsOfRoom(roomId,false)
+  const pids = await participantIdsOfRoom(roomId, false);
 
   await Participant.destroy({
     where: {
@@ -75,12 +76,9 @@ const removeParticipantsOfRoom = async (roomId) => {
   return pids;
 };
 
-
-
-const joinRoom = async (userId,roomId) => {
+const joinRoom = async (userId, roomId) => {
   // userId should be plain since caller is server.
-  console.log(`[Server joinRoom] attempting... roomid ${roomId
-}`);
+  console.log(`[Server joinRoom] attempting... roomid ${roomId}`);
   try {
     const participantId = userId;
     await moveParticipantIntoRoom({
@@ -97,7 +95,6 @@ const joinRoom = async (userId,roomId) => {
     throw err;
   }
 };
-
 
 const createAndJoinRoom = async (userId, roomName) => {
   // userId should be plain since caller is server.
@@ -131,28 +128,27 @@ const getLineUp = async (id, conceal = true) => {
   const lineup = await Participant.findAll({
     where: { roomId },
     attributes: ["participantId", "teamNo"],
-    include: User
+    include: User,
   });
 
-  const result = lineup.map(p => {
-    console.log(p)
-    const _pid = p.getDataValue("participantId")
+  const result = lineup.map((p) => {
+    console.log(p);
+    const _pid = p.getDataValue("participantId");
     const participantId = conceal ? UserDoor.conceal(_pid) : _pid;
-    const teamNo = p.getDataValue("teamNo")
+    const teamNo = p.getDataValue("teamNo");
 
     const participantName = p.getDataValue("user").username;
 
     return {
-      participantId, teamNo, participantName
-
-    }
-
-  })
-  return [roomId, result]
+      participantId,
+      teamNo,
+      participantName,
+    };
+  });
+  return [roomId, result];
 };
 
 // leaves room and if user is creator, delete room
-
 
 const leaveRoom = async (userId) => {
   console.log(`[leaveRoom]`);
@@ -161,7 +157,7 @@ const leaveRoom = async (userId) => {
   });
 
   if (!participant) {
-    return [null,[],null];
+    return [null, [], null];
   }
   const fromRoomId = participant.getDataValue("roomId");
   const participantId = participant.getDataValue("participantId");
@@ -179,29 +175,27 @@ const leaveRoom = async (userId) => {
 
     return [fromRoomId, pids, true];
   } else {
-
-    const pids = await participantIdsOfRoom(fromRoomId,false)
+    const pids = await participantIdsOfRoom(fromRoomId, false);
 
     await Participant.destroy({ where: { participantId } });
     return [fromRoomId, pids, false];
   }
 };
 
-const checkLineUpByUserId = async (userId,conceal = true) => {
+const checkLineUpByUserId = async (userId, conceal = true) => {
   console.log(`[checkLineUpByUserId]`);
   const participant = await Participant.findOne({
     where: { participantId: userId },
   });
 
   if (!participant) {
-    return [null,[]];
+    return [null, []];
   }
   const fromRoomId = participant.getDataValue("roomId");
 
-  const pids = await participantIdsOfRoom(fromRoomId, conceal)
-  
-  return [fromRoomId,pids]
-  
+  const pids = await participantIdsOfRoom(fromRoomId, conceal);
+
+  return [fromRoomId, pids];
 };
 
 const getUserNameById = async (id) => {
@@ -242,30 +236,47 @@ const getAllRooms = async () => {
 };
 
 const changeTeam = async (participantId) => {
-  console.log(`[changeTeam]`)
-  await Participant.findOne({ where: { participantId
-}}).then(p => {
-  console.log(`[changeTeam] found participant`)
-  console.log(p)
+  console.log(`[changeTeam]`);
+  await Participant.findOne({ where: { participantId } }).then((p) => {
+    console.log(`[changeTeam] found participant`);
+    console.log(p);
 
-  const teamNo = Number(p.getDataValue("teamNo")) === 1 ? 2 : 1;
-  p.update({ teamNo
-})
-})
+    const teamNo = Number(p.getDataValue("teamNo")) === 1 ? 2 : 1;
+    p.update({ teamNo });
+  });
 
-  const roomId = await whichRoomIsUserIn(participantId)
-  if (!roomId){
-    return []
+  const roomId = await whichRoomIsUserIn(participantId);
+  if (!roomId) {
+    return [];
   }
-  const pids = await participantIdsOfRoom(roomId,false)
-  return pids
+  const pids = await participantIdsOfRoom(roomId, false);
+  return pids;
+};
 
-}
+const isUserCreator = async (userId) => {
+  const some = await Room.findOne({ where: { creatorId: userId } });
+
+  return [!!some, some?.getDataValue("id")]; // predicate and room id
+};
+
+const getSocketsOfRoomByParticipatingUserId = async (userId) => {
+  const roomId = await whichRoomIsUserIn(userId);
+  const lineupIds = await participantIdsOfRoom(roomId, false);
+  const userSockets = await getSocketsOfUsers(lineupIds);
+
+  return userSockets;
+};
 export {
   createAndJoinRoom,
   whichRoomIsUserIn,
   getLineUp,
   leaveRoom,
   getAllRooms,
-  getRoomData, joinRoom, checkLineUpByUserId, changeTeam, participantsOfRoom
+  getRoomData,
+  joinRoom,
+  checkLineUpByUserId,
+  changeTeam,
+  participantsOfRoom,
+  isUserCreator,
+  getSocketsOfRoomByParticipatingUserId,
 };
