@@ -10,10 +10,9 @@ import {
   whichRoomIdIsUserIn,
   getLineUp,
   leaveRoom,
-  getAllRooms,
+  getAllRoomsNotInActivePlay,
   getRoomData,
   checkLineUpByUserId,
-  participantsOfRoom,
   isGameStarted,
   changeTeam,
   isUserSomeCreator,
@@ -237,7 +236,7 @@ const bindSocketEvents = (socket) => {
   });
 
   socket.on("all-active-rooms", async (fn) => {
-    const rooms = await getAllRooms();
+    const rooms = await getAllRoomsNotInActivePlay();
     console.log(`[all-active-rooms] result v `);
     console.log(rooms);
     fn(rooms);
@@ -304,6 +303,11 @@ const bindSocketEvents = (socket) => {
   });
 
   const lockGameAndBroadcast_ThisIsEndOfRound = async (userId) => {
+
+    whichRoomIdIsUserIn(userId).then(rId => {
+
+      io.emit("room-not-started", rId)
+    })
     const isGA = await isGameActive(userId);
     if (!isGA) {
       return; // sanity check that if already NOT GA so we down broadcast twice.

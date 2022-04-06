@@ -250,15 +250,15 @@ const getRoomDoor = (clientGame, { id, name, creatorName }) => {
   };
 };
 
-const getActiveRooms = (clientGame) => {
+const getJoinableRooms = (clientGame) => {
   const frame = newDivTag();
 
   const rooms = {};
 
   const init = () => {
-    console.log(`[getActiveRooms init]`);
-    clientGame.canIHaveAllRooms().then((roomsData) => {
-      console.log(`[getActiveRooms canIHaveAllRooms] Server returns`);
+    console.log(`[getJoinableRooms init]`);
+    clientGame.canIHaveJoinableRooms().then((roomsData) => {
+      console.log(`[getJoinableRooms canIHaveJoinableRooms] Server returns`);
       console.log(roomsData);
 
       for (const roomData of roomsData) {
@@ -266,7 +266,7 @@ const getActiveRooms = (clientGame) => {
         const activeRoom = getRoomDoor(clientGame, roomData);
         rooms[id] = activeRoom;
       }
-      console.log(`[getActiveRooms init appending] frames`);
+      console.log(`[getJoinableRooms init appending] frames`);
 
       for (const [_, { frame: _roomframe }] of Object.entries(rooms)) {
         frame.appendChild(_roomframe);
@@ -275,29 +275,32 @@ const getActiveRooms = (clientGame) => {
   };
   clientGame.onRoomDeleted((whichId) => {
     console.log(
-      `[Active rooms room deleted] Room ${whichId} was removed by server`
+      `[Joinable Rooms room deleted] Room ${whichId} was removed by server`
     );
     rooms[whichId]?.detach();
   });
 
   clientGame.onRoomStarted((whichId) => {
     console.log(
-      `[Active rooms room started] Room ${whichId} was started by server.`
+      `[Joinable Rooms room started] Room ${whichId} was started by server.`
     );
     console.log(whichId);
     rooms[whichId]?.detach();
   });
 
-  clientGame.onRoomCreated((whichId) => {
-    console.log(`Active rooms. Room ${whichId} was created by server`);
+  
+  const showRoom = (whichId) => {
+    console.log(`Joinable Rooms. Room ${whichId} was created by server`);
     clientGame.getRoomData(whichId).then((data) => {
-      console.log(`Active rooms. ${whichId === data.id}`);
-      console.log(`Active rooms. data retrieved ${JSON.stringify(data)}`);
+      console.log(`Joinable Rooms. ${whichId === data.id}`);
+      console.log(`Joinable Rooms. data retrieved ${JSON.stringify(data)}`);
       rooms[data.id] = rooms[data.id] ?? getRoomDoor(clientGame, data);
       frame.appendChild(rooms[data.id].frame);
     });
-  });
-
+  };
+  clientGame.onRoomCreated(showRoom);
+  
+  clientGame.onRoomNotStarted(showRoom)
   init();
   return {
     frame,
@@ -484,6 +487,12 @@ const getBoard = (clientGame) => {
   // HACK
   let interv;
 
+  const clearIntervalAndResetTimer = () => {
+
+    clearInterval(interv);
+    timer.detach();
+    timer.reset()
+  }
   const startedPlane = () => {
     console.log(`[startedPlane] `);
     clientGame.onCountDown(oncdLn);
@@ -493,7 +502,9 @@ const getBoard = (clientGame) => {
     document.addEventListener("keydown", keydownLn);
     clientGame.whatIsMyChain().then(onnewchainLn);
 
-    clearInterval(interv);
+    clearIntervalAndResetTimer()
+    frame.appendChild(timer.frame);
+
     interv = setInterval(() => {
       clientGame.howLongMoreMs().then((ms) => {
         timer.update(ms);
@@ -501,14 +512,19 @@ const getBoard = (clientGame) => {
     }, 1000);
     clientGame.onGameEnd(() => {
       console.log(`[Board] onGameEnd`);
-      clearInterval(interv);
-      timer.detach();
+      clearIntervalAndResetTimer()
       targetChain.reset();
+      fieldChain.reset()
+      // TODO
+      clientGame.canIHaveTally().then((tally) => {
 
-      clientGame.canIHaveTally().then((tally) => {});
+        console.log(`[canIHaveTally] <-v `)
+        console.table(tally)
+        
+
+      });
     });
 
-    frame.appendChild(timer.frame);
   };
   const dormantPlane = () => {
     console.log(`[dormantPlane]`);
@@ -556,7 +572,7 @@ const getLobbyPage = (clientGame) => {
   ADD_CLASS(mainFrame, "page-lobby");
 
   const roomCreationFormRequestDiv = getroomCreationFormRequestDiv();
-  const activeRooms = getActiveRooms(clientGame);
+  const activeRooms = getJoinableRooms(clientGame);
   const board = getBoard(clientGame);
 
   const iAmInRoom = (roomId,creatorName,roomName) => {

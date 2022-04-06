@@ -77,7 +77,7 @@ const ClientGame = (io) => {
       io.emit("is-game-started", fn);
     };
 
-    const canIHaveAllRooms = () => {
+    const canIHaveJoinableRooms = () => {
       return new Promise((resolve) => {
         io.emit("all-active-rooms", (rooms) => {
           resolve(rooms);
@@ -104,6 +104,20 @@ const ClientGame = (io) => {
       console.log(`[room-created] room ${id}`);
       onroomcreatedfn(id);
     });
+
+
+    let onroomnotstartedLn = NO_OP;
+
+    const onRoomNotStarted = (fn) => {
+      onroomnotstartedLn = fn;
+    };
+
+    io.on("room-not-started", (id) => {
+      console.log(`[room-not-started] room ${id}`);
+      onroomnotstartedLn(id);
+    });
+
+
 
     let onroomdeletefn = NO_OP;
     const onRoomDeleted = (fn) => {
@@ -200,7 +214,7 @@ const ClientGame = (io) => {
       whenLineUpChanges,
       whenIchangeRoom,
       iWantToLeaveRoom,
-      canIHaveAllRooms,
+      canIHaveJoinableRooms,
       onRoomDeleted,
       onRoomCreated,
       getRoomData,
@@ -218,7 +232,7 @@ const ClientGame = (io) => {
       whatIsMyChain,
       canIHaveTally,
       submitChain,
-      removeCountDown,
+      removeCountDown, onRoomNotStarted
     };
   })(cookier);
 };

@@ -13,6 +13,8 @@ import {
 } from "../../app/chain.js";
 import { isUserExistingByUsername, createUser } from "../api/user.js";
 
+
+const {Op} = sequelize.Sequelize;
 const {
   room: Room,
   participant: Participant,
@@ -269,6 +271,47 @@ const getAllRooms = async () => {
     return result;
   });
 };
+
+const getAllRoomsNotInActivePlay = async () => {
+
+  const gpinplayRaw = await Gameplay.findAll({ where: { isActive: true }, include: Room}); // set of in game gameplays. take the complement rooms of this set
+
+  const roomIdsThatAreInGameRaw = gpinplayRaw.map(gp => {
+    return gp.getDataValue("roomId")
+  })
+  const gpNotInPlayxx = await Gameplay.findAll({ include: Room });
+  const gpNotInPlayxxx = await Gameplay.findAll();
+  const gpNotInPlayxxxx = await Gameplay.findAll({ where: { isActive: false }});
+
+  console.log(`getAllRoomsNotInActivePlay`)
+  console.log(gpinplayRaw)
+
+
+
+
+  return await Room.findAll({ where: { id: { [Op.notIn] : roomIdsThatAreInGameRaw }}}).then(async (rooms) => {
+    const result = Promise.all(
+      rooms.map(async ({ dataValues }) => {
+        const { id, creatorId, name } = dataValues;
+
+        const username = await getUsernameById(creatorId);
+
+        return {
+          id,
+          creatorId: UserDoor.conceal(`${creatorId}`),
+          name,
+          creatorName: username,
+        };
+      })
+    );
+
+    return result;
+  });
+
+
+
+};
+
 
 const changeTeam = async (participantId) => {
   console.log(`[changeTeam]`);
@@ -645,5 +688,5 @@ export {
   getCreditOf,
   settleGame,
   registerUser,
-  whoIsCreatorOfRoom,
+  whoIsCreatorOfRoom, getAllRoomsNotInActivePlay
 };
