@@ -41,10 +41,8 @@ Custom scripts:
 
 `npm run client-dev` build client hot
 
-
-
-
 # To Do
+
 [ ] remove package CleanWebpackPlugin
 [ ] check if Sequelize accept heroku psql connection string
 [ ] how to host on heroku????
@@ -52,21 +50,36 @@ Custom scripts:
 [x] not all users in room receive game-start event
 [ ] need to tear down previous room events
 
-
 [ ] Game: submit chain (See #1244, #1245)
-  - tally with gameplay.chain
-  - first tally will register score, one row per chain (chain, round , team, score)
+
+- tally with gameplay.chain
+- first tally will register score, one row per chain (chain, round , team, score)
 
 [ ] Game #1244: set timer
-  - [Moment Game End] timer runs out is triggered on first submission after gameplay end time. 
-  - Server: On game ends, notify client game ends
 
-[ ] Game #1245: Scoring 
-  - Create table scoring
-  - Client: On notify game ends, ask whats the tally
+- [Moment Game End] timer runs out is triggered and game will be locked on first successful submission after gameplay end time.
 
-[ ] Scoring: *Only players staying until the end can claim money*
-  - transaction should occur at [Moment Game End]. See Game #1244
-  - payout for each player is total of the team.
+- Server: On game ends, notify client game ends
+
+[ ] Game #1245: Scoring
+
+- Create table scoring
+- Client: On notify game ends, ask whats the tally
+
+[ ] Scoring: _Only players staying until the end can claim money_
+
+- transaction should occur at [Moment Game End]. See Game #1244
+- payout for each player is total of the team.
 
 [ ] User Display: Credit System (navbar + emit)
+
+[ ] Board.dormantPlane tear down if game is not active
+
+[ ] CSS
+
+- Spawn time
+- general arrangement
+
+[ ] Registration Page
+
+[ ] DEPLOYMENT

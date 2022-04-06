@@ -8,7 +8,7 @@ import ClientGame from "./game.js";
 class Scene {
   serverValidatesCredential = (is) => {
     if (is) {
-      window.location.reload(); // IMPORTANT. new HTTP connection to tompang cookies.
+      window.location.reload(); // IMPORTANT. new HTTP connection to tompang cookies.;;
     } else {
       this.loginPage();
       this.loginFrame.loginFailed(this.clientAuth.getStatus());
@@ -47,10 +47,9 @@ class Scene {
     this.navbar = getNavBar(this.clientAuth);
 
     this.clientAuth.whenLoggedOut(() => {
-      this.commence();
+      window.location.reload(); // IMPORTANT. new HTTP connection to tompang cookies.;;
     });
   }
-
   commence() {
     this.clientAuth.hiServerIsMyTokenValid((is) => {
       if (is) {
@@ -66,8 +65,7 @@ class Scene {
   }
   lobby() {
     console.log("[lobby] i am in lobby");
-    
-
+    this.lobbyFrame.refresh();
     this.root.replaceChildren(this.navbar.frame, this.lobbyFrame.frame);
   }
 }

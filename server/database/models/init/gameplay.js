@@ -4,8 +4,7 @@ import { Sequelize } from "sequelize";
  * @param {Sequelize} sequelize
  */
 export default (sequelize) => {
-
-  const MODEL_NAME = "gameplay"
+  const MODEL_NAME = "gameplay";
   const { DataTypes } = sequelize.Sequelize;
 
   const { room: Room } = sequelize.models;
@@ -52,8 +51,14 @@ export default (sequelize) => {
       },
       lastKnownRound: {
         type: DataTypes.STRING,
-        field: "last_known_round"
-      }
+        field: "last_known_round",
+      },
+      isActive: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        field: "is_active",
+      },
     },
     {
       underscored: true,

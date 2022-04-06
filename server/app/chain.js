@@ -3,12 +3,14 @@ const ARROW_RIGHT = "37";
 const ARROW_DOWN = "40";
 const ARROW_UP = "39";
 
-const ARROWS = [ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP];
+const ARROWS = [ARROW_DOWN, ARROW_LEFT, ARROW_UP];
 
 const MODE_EASY = 1;
+const MODE_TEST = 1;
 
 const LENGTHS = {
   [MODE_EASY]: 10,
+  [MODE_TEST]: 1,
 };
 
 const COLOR_GREEN = ARROW_DOWN;
@@ -37,29 +39,23 @@ const shuffleChain = (_chain) => {
   return chain;
 };
 
-const getRandomChain = (difficulty = MODE_EASY) => {
+const getRandomChain = (difficulty = MODE_TEST) => {
   console.log(`[getRandomChain]`);
   const length = LENGTHS[difficulty];
 
-  const cutoffs = [
-    getRandomInt(length),
-    getRandomInt(length),
-    getRandomInt(length),
-  ];
+  const cutoffs = [getRandomInt(length), getRandomInt(length)];
   cutoffs.sort();
   console.log(`[getRandomChain] cut ${cutoffs}`);
 
   const lengthDown = cutoffs[0] - 0;
   const lengthLeft = cutoffs[1] - cutoffs[0];
-  const lengthRight = cutoffs[2] - cutoffs[1];
-  const lengthUp = length - cutoffs[2];
+  const lengthUp = length - cutoffs[1];
 
-  const neatchain = [lengthDown, lengthLeft, lengthRight, lengthUp].reduce(
+  const neatchain = [lengthDown, lengthLeft, lengthUp].reduce(
     (acc, length, index) => {
       const list = [];
       while (length > 0) {
         list.push(ARROWS[index]);
-
         length -= 1;
       }
       return [...acc, ...list];
@@ -81,4 +77,7 @@ const stringToChain = (stringChain) => {
   return stringChain.split(CHAIN_DELIMITER);
 };
 
-export { getRandomChain, chainToString, stringToChain };
+const valueOfChainString = (chainString) => {
+  return stringToChain(chainString).length;
+};
+export { getRandomChain, chainToString, stringToChain, valueOfChainString };

@@ -3,10 +3,13 @@ import { UserDoor } from "../../auth/crypt.js";
 
 import { getSocketsOfUsers } from "../api/session.js";
 
+import crypto from "crypto";
+
 import {
   getRandomChain,
   chainToString,
   stringToChain,
+  valueOfChainString,
 } from "../../app/chain.js";
 
 const {
@@ -14,6 +17,7 @@ const {
   participant: Participant,
   user: User,
   gameplay: Gameplay,
+  scoring: Scoring,
 } = sequelize.models;
 const DEFAULT_TEAM_NO = 1;
 const createRoom = async ({ name, creatorId }) => {
@@ -42,7 +46,15 @@ const whichRoomIsUserIn = async (participantId) => {
   });
   return p ? p.getDataValue("roomId") : null;
 };
+const getUsernameById = async (id) => {
+  const u = await User.findOne({ where: { id } });
+  if (!u) {
+    return null;
+  }
+  const name = u.getDataValue("username");
 
+  return name;
+};
 const participantsOfRoom = async (roomId, conceal = true) => {
   return await Participant.findAll({ where: { roomId } }).then(
     async (rooms) => {
@@ -50,7 +62,7 @@ const participantsOfRoom = async (roomId, conceal = true) => {
         rooms.map(async ({ dataValues }) => {
           const { participantId, roomId } = dataValues;
 
-          const participantName = await getUserNameById(participantId);
+          const participantName = await getUsernameById(participantId);
 
           return {
             participantId: conceal
@@ -207,15 +219,10 @@ const checkLineUpByUserId = async (userId, conceal = true) => {
   return [fromRoomId, pids];
 };
 
-const getUserNameById = async (id) => {
-  const user = await User.findOne({ where: { id } });
-  return user.getDataValue("username");
-};
-
 const getRoomData = async (roomId) => {
   const { dataValues } = await Room.findOne({ where: { id: roomId } });
   const { id, creatorId, name } = dataValues;
-  const username = await getUserNameById(creatorId);
+  const username = await getUsernameById(creatorId);
   return {
     id,
     creatorId: UserDoor.conceal(`${creatorId}`),
@@ -229,7 +236,7 @@ const getAllRooms = async () => {
       rooms.map(async ({ dataValues }) => {
         const { id, creatorId, name } = dataValues;
 
-        const username = await getUserNameById(creatorId);
+        const username = await getUsernameById(creatorId);
 
         return {
           id,
@@ -272,10 +279,9 @@ const isUserSomeCreator = async (userId) => {
 const isGameStarted = async (userId) => {
   const roomId = await whichRoomIsUserIn(userId);
   const game = await Gameplay.findOne({ where: { roomId } });
-
-  return !!game;
+  return game && game.getDataValue("isActive");
 };
-
+const isGameActive = isGameStarted;
 const getSocketsOfRoomByParticipatingUserId = async (userId) => {
   const roomId = await whichRoomIsUserIn(userId);
   const lineupIds = await participantIdsOfRoom(roomId, false);
@@ -284,46 +290,122 @@ const getSocketsOfRoomByParticipatingUserId = async (userId) => {
   return userSockets;
 };
 
-
 const getDateMinutesFromNow = (mins) => {
-  const d = new Date()
-  d.setMinutes(d.getMinutes() + mins)
-  return d
-}
+  const d = new Date();
+  // d.setMinutes(d.getMinutes() + mins);
+  d.setSeconds(d.getSeconds() + 20);
+  return d;
+};
 
 const gameplayEndsIn = async (userId) => {
-  console.log(`gameplayEndsIn`)
-  const roomId = await whichRoomIsUserIn(userId);
-  const game = await Gameplay.findOne({ where: { roomId } });
-  return game.getDataValue("endDate")
-}
+  try {
+    const roomId = await whichRoomIsUserIn(userId);
+    const game = await Gameplay.findOne({ where: { roomId } });
 
+    const d = game.getDataValue("endDate");
+    console.log(`[gameplayEndsIn] := ${d}`);
+
+    return d;
+  } catch (err) {
+    return null;
+  }
+};
 
 const howLongMoreMs = async (userId) => {
-  const now = new Date()
-  return await gameplayEndsIn(userId) - now
-}
+  const dead = await gameplayEndsIn(userId);
+  if (!dead) {
+    return null;
+  }
+  const now = new Date();
+  return dead - now;
+};
+
+const isOvertime = async (userId) => {
+  return (await howLongMoreMs(userId)) < 0;
+};
+
+const changeChainOfGameOfUser = async (userId) => {
+  try {
+    console.log(`[changeChainOfGameOfUser] ?= ${userId}`);
+    await getGameOfUser(userId).then(async (game) => {
+      console.log(`[changeChainOfGameOfUser] game`);
+      console.log(game);
+
+      if (game) {
+        const chain = chainToString(getRandomChain());
+        //HACK
+        const roomId = game.getDataValue("roomId");
+        await Gameplay.update({ chain }, { where: { roomId } });
+
+        console.log(`[changeChainOfGameOfUser] Update chain executed.`);
+      }
+    });
+  } catch (err) {
+    const msg = `[changeChainOfGameOfUser]  Error ${err} `;
+    throw new Error(msg);
+  }
+
+  console.log(`[changeChainOfGameOfUser] End`);
+};
 
 const initGameplay = async (userId) => {
   try {
     const roomId = await whichRoomIsUserIn(userId);
-    const later = getDateMinutesFromNow(30);
-    const firstchain = chainToString(getRandomChain());
-    await Gameplay.create({ roomId, chain: firstchain, endDate: later });
+    const later = getDateMinutesFromNow(1);
+    const chain = chainToString(getRandomChain());
+
+    const game = await getGameOfUser(userId);
+
+    if (game) {
+      await game.update({
+        chain,
+        endDate: later,
+        lastKnownRound: crypto.randomUUID(),
+        isActive: true,
+      });
+    } else {
+      await Gameplay.create({
+        roomId,
+        chain,
+        endDate: later,
+        lastKnownRound: crypto.randomUUID(),
+        isActive: true,
+      });
+    }
 
     const checkLater = await gameplayEndsIn(userId);
-    console.log(`[initGameplay] checkinglater ${checkLater
-} later ${later.toString()
-      } ${checkLater.toString() === later.toString() }`)
-    console.log(`[initGameplay checking cd] ${await howLongMoreMs(userId)}`)
-  } catch {}
+    console.log(
+      `[initGameplay] checkinglater ${checkLater} later ${later.toString()} ${
+        checkLater.toString() === later.toString()
+      }`
+    );
+    console.log(`[initGameplay checking cd] ${await howLongMoreMs(userId)}`);
+  } catch (err) {
+    throw err;
+  }
+};
+
+const lockGameOfUser = async (userId) => {
+  const roomId = await whichRoomIsUserIn(userId);
+
+  console.log(`[lockGameOfUser] locking gameplay of room ${roomId}`);
+  await Gameplay.update(
+    { isActive: false },
+    {
+      where: {
+        roomId,
+      },
+    }
+  );
 };
 
 const getChainOfGameplayForUser = async (userId) => {
   try {
     const roomId = await whichRoomIsUserIn(userId);
     const game = await Gameplay.findOne({ where: { roomId } });
-    if (!game) {
+
+    const isActive = game.getDataValue("isActive");
+    if (!game || !isActive) {
       return null;
     }
     const chainString = game.getDataValue("chain");
@@ -333,6 +415,102 @@ const getChainOfGameplayForUser = async (userId) => {
   } catch (err) {
     return null;
   }
+};
+
+const getGameOfUser = async (userId) => {
+  const roomId = await whichRoomIsUserIn(userId);
+  const game = await Gameplay.findOne({ where: { roomId } });
+
+  return game;
+};
+
+const whichRoundIsUserIn = async (userId) => {
+  const game = await getGameOfUser(userId);
+  const round = game.getDataValue("lastKnownRound");
+  return round;
+};
+
+const submitChain = async (chain, userId) => {
+  console.log(`[submitChain] Processing ?= ${chain} submitted by  ${userId}`);
+
+  const result = {};
+  const game = await getGameOfUser(userId);
+  if (!game) {
+    result.success = false;
+    return result;
+  }
+  const targetChain = game.getDataValue("chain");
+  const isActive = game.getDataValue("isActive");
+  if (!(isActive === false || isActive === true)) {
+    const msg = `I thought is active ${isActive} should be of boolean type??`;
+    throw new Error(msg);
+  }
+
+  if (!isActive) {
+    console.log(`[submitChain] Game not active.`);
+
+    result.success = false;
+    return result;
+  }
+
+  console.log(`[submitChain] tg |${targetChain}| === |${chain}| ?`);
+  if (chain === targetChain) {
+    result.success = true;
+    result.scorerId = userId;
+    console.log(`[submitChain] HIT`);
+
+    const round = game.getDataValue("lastKnownRound");
+    const participant = await Participant.findOne({
+      where: {
+        participantId: userId,
+      },
+    });
+
+    const teamNo = participant.getDataValue("teamNo");
+
+    const credit = valueOfChainString(chain);
+
+    Scoring.create({
+      roundId: round,
+      teamNo,
+      chain,
+      credit,
+      scorerId: userId,
+    });
+  } else {
+    result.success = false;
+  }
+  if (result.success) {
+    if (await isOvertime(userId)) {
+      result.overtime = true;
+    }
+  }
+  return result;
+};
+
+const getTallyOfMostRecentRoundOfUser = async (userId) => {
+  console.log(`[getTallyOfMostRecentRoundOfUser] ?= ${userId}`);
+  // get the round and user by game
+  const game = await getGameOfUser(userId);
+  const roundId = game.getDataValue("lastKnownRound");
+  const roomId = game.getDataValue("roomId");
+
+  // get the active participants
+  const pids = await participantIdsOfRoom(roomId, false);
+
+  console.log(`[getTallyOfMostRecentRoundOfUser] Getting scores`);
+
+  // get scores of active participants
+  const scoringRaw = await Scoring.findAll({
+    where: {
+      roundId,
+      scorerId: pids,
+    },
+  });
+
+  const scoring = scoringRaw.map(({ dataValues }) => dataValues);
+
+  return scoring;
 };
 export {
   createAndJoinRoom,
@@ -349,5 +527,12 @@ export {
   getSocketsOfRoomByParticipatingUserId,
   initGameplay,
   getChainOfGameplayForUser,
-  isGameStarted, howLongMoreMs
+  isGameStarted,
+  howLongMoreMs,
+  submitChain,
+  lockGameOfUser,
+  changeChainOfGameOfUser,
+  getUsernameById,
+  getTallyOfMostRecentRoundOfUser,
+  isGameActive,
 };

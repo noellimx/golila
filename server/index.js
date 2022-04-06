@@ -20,6 +20,13 @@ import {
   getSocketsOfRoomByParticipatingUserId,
   initGameplay,
   getChainOfGameplayForUser,
+  submitChain,
+  lockGameOfUser,
+  changeChainOfGameOfUser,
+  howLongMoreMs,
+  isGameActive,
+  getUsernameById,
+  getTallyOfMostRecentRoundOfUser,
 } from "./database/actions/game.js";
 import cookier from "cookie";
 import { seed } from "./database/api/seed.js";
@@ -43,7 +50,7 @@ bindRoutes(app);
 
 const _getCookies = (socket) => socket.handshake.headers.cookie;
 
-const _getDbUserIdOfSocket = (socket) => {
+const _getDbUserIdOfSocket = (socket, io) => {
   try {
     const cookieString = _getCookies(socket);
 
@@ -246,6 +253,7 @@ const bindSocketEvents = (socket) => {
 
     cb(is);
   });
+  // START OF GAME
 
   socket.on("start-game", async () => {
     const userId = _getDbUserIdOfSocket(socket);
@@ -257,6 +265,7 @@ const bindSocketEvents = (socket) => {
     });
 
     const roomId = await whichRoomIsUserIn(userId);
+    await initGameplay(userId);
 
     io.emit("room-started", roomId);
 
@@ -273,7 +282,6 @@ const bindSocketEvents = (socket) => {
         console.log(`[on start-game] ${count}`);
         if (count === 0) {
           clearInterval(interval);
-          await initGameplay(userId);
 
           getSocketsOfRoomByParticipatingUserId(userId).then((sockets) => {
             sockets.forEach(({ id }) => {
@@ -285,10 +293,46 @@ const bindSocketEvents = (socket) => {
     })();
   });
 
+  socket.on("submit-chain", async (chainString) => {
+    console.log(`[Server on submit-chain] ?= ${chainString}`);
+    const userId = _getDbUserIdOfSocket(socket);
+    const res = await submitChain(chainString, userId);
+
+    if (res.overtime) {
+      await lockGameOfUser(userId);
+      getSocketsOfRoomByParticipatingUserId(userId).then((sockets) => {
+        sockets.forEach(({ id }) => {
+          io.to(id).emit("game-ended");
+        });
+      });
+    }
+    if (res.success) {
+      console.log(
+        `[Server on submit-chain] submission is a hit. scorer: ${res.scorerId}`
+      );
+
+      const scorerName = await getUsernameById(res.scorerId);
+      const sockets = await getSocketsOfRoomByParticipatingUserId(userId);
+      sockets.forEach(({ id }) => {
+        io.to(id).emit("chain-hit-by", scorerName);
+      });
+
+      const isGA = await isGameActive(userId);
+
+      console.log(`[Server on submit-chain] isGA := ${isGA}`);
+
+      isGA && (await changeChainOfGameOfUser(userId));
+      isGA &&
+        sockets.forEach(({ id }) => {
+          io.to(id).emit("game-new-chain-notify");
+        });
+    }
+  });
+
   socket.on("what-chain", async (fn) => {
     const userId = _getDbUserIdOfSocket(socket);
     const chain = await getChainOfGameplayForUser(userId);
-    console.log(`[Server on what-chain] := ${userId}'s game has ${chain}`);
+    console.log(`[Server on what-chain] := user ${userId}'s game has ${chain}`);
     fn(chain);
   });
   socket.on("is-game-started", async (fn) => {
@@ -301,8 +345,20 @@ const bindSocketEvents = (socket) => {
     );
     fn(is);
   });
-};
-//// End of socket binding
+
+  socket.on("how-long-more", async (fn) => {
+    const userId = _getDbUserIdOfSocket(socket);
+    const ms = await howLongMoreMs(userId);
+    fn(ms);
+  });
+
+  socket.on("can-i-have-tally", async (chnSend) => {
+    const userId = _getDbUserIdOfSocket(socket);
+
+    const tally = await getTallyOfMostRecentRoundOfUser(userId);
+    chnSend(tally);
+  });
+}; //// End of socket binding
 
 const bindEvents = (io) => {
   io.on("connection", (socket) => {
@@ -310,7 +366,7 @@ const bindEvents = (io) => {
 
     const cookie = socket.handshake.headers.cookie;
     console.log(`[io.on connection] cookie ${cookie}`);
-    bindSocketEvents(socket);
+    bindSocketEvents(socket, io);
   });
 };
 

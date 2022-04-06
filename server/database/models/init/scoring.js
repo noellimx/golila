@@ -4,8 +4,7 @@ import { Sequelize } from "sequelize";
  * @param {Sequelize} sequelize
  */
 export default (sequelize) => {
-
-  const MODEL_NAME = "scoring"
+  const MODEL_NAME = "scoring";
 
   const { DataTypes } = sequelize.Sequelize;
 
@@ -17,7 +16,7 @@ export default (sequelize) => {
   }
 
   const model = sequelize.define(
-    "scoring",
+    MODEL_NAME,
     {
       createdAt: {
         type: DataTypes.DATE,
@@ -36,31 +35,28 @@ export default (sequelize) => {
         primaryKey: true,
         allowNull: false,
         field: "id",
+        autoIncrement: true,
       },
 
       roundId: {
         type: DataTypes.STRING,
         allowNull: false,
         field: "round_id",
-
       },
       teamNo: {
         type: DataTypes.INTEGER,
         allowNull: false,
         field: "team_no",
-
       },
       chain: {
         type: DataTypes.STRING,
         allowNull: false,
         field: "chain",
-
       },
       credit: {
         type: DataTypes.INTEGER,
         allowNull: false,
         field: "credit",
-
       },
       scorerId: {
         type: DataTypes.INTEGER,
@@ -70,14 +66,14 @@ export default (sequelize) => {
           model: User,
           key: "id",
         },
-        onDelete: "cascade"
-      }
+        onDelete: "cascade",
+      },
     },
     {
       underscored: true,
     }
   );
-  if (model !== sequelize.models.gameplay) {
+  if (model !== sequelize.models.scoring) {
     throw new Error("model reference mismatch");
   }
 

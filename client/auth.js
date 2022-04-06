@@ -55,7 +55,7 @@ const ClientAuth = (io) => {
     let loggedOutFn = NO_OP;
 
     const iWantToLogOut = () => {
-      Cookies.remove(AUTH_COOKIE_NAME);
+      Cookies.remove(AUTH_COOKIE_NAME, { path: "" });
 
       loggedOutFn();
     };

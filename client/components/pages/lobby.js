@@ -96,15 +96,12 @@ const getLineUpDiv = (clientGame) => {
 
   const startGameButton = newButton({ desc: "start" });
   startGameButton.addEventListener("click", () => {
-    clientGame.startGame();;;
+    clientGame.startGame();
   });
-
-  
-
 
   clientGame.onGameStarted(() => {
     DETACH(startGameButton);
-    DETACH(changeTeamButton);;;
+    DETACH(changeTeamButton);
   });
 
   const iAmInRoom = (id) => {
@@ -113,14 +110,21 @@ const getLineUpDiv = (clientGame) => {
     frame.replaceChildren(roomNumDiv, list.frame, leaveButton);
 
     clientGame.amICreator(roomId, (isC) => {
-      clientGame.isGameStarted((isGS) => {;;
-;;;;;;;;
-        console.log(`[iAmInRoom] ${roomId} amIcreator ${isC} isGameStarted ${isGS} `)
+      clientGame.isGameStarted((isGS) => {
+        console.log(
+          `[LineUp iAmInRoom] ${roomId} amIcreator ${isC} isGameStarted ${isGS} `
+        );
         isC && !isGS && frame.appendChild(startGameButton);
-        !isGS && frame.appendChild(changeTeamButton)
-      });;;
+        !isGS && frame.appendChild(changeTeamButton);
+      });
     });
   };
+
+  clientGame.onGameEnd(() => {
+    console.log(`[Line Up] onGameEnd`);
+
+    clientGame.whichRoomAmI().then(iAmInRoom);
+  });
 
   const lineUpIs = (lu) => {
     console.log(
@@ -134,20 +138,12 @@ const getLineUpDiv = (clientGame) => {
     }
   };
 
-
   const init = () => {
- 
     clientGame.whenLineUpChanges(lineUpIs);
     clientGame.whatIsTheLineUp().then(lineUpIs);
+  };
 
- 
-
-  }
-
-
-  init()
-
-
+  init();
 
   return {
     frame,
@@ -255,13 +251,29 @@ const getFieldCoin = (coin = "99") => {
 
 const getFieldChain = () => {
   const frame = newDivTag();
-
+  ADD_CLASS(frame, "field-chain");
   const chainContainer = [];
 
   const reset = () => {
     chainContainer.forEach((fieldcoin) => {
       fieldcoin.detach();
     });
+
+    chainContainer.splice(0, chainContainer.length);
+  };
+
+  let onchainchangefn = NO_OP;
+  const onChainChange = (fn) => {
+    onchainchangefn = fn;
+  };
+
+  const getTokenString = () => {
+    const tokens = chainContainer
+      .map((fc) => {
+        return fc.getToken();
+      })
+      .join(",");
+    return tokens;
   };
 
   const consume = (token) => {
@@ -271,35 +283,80 @@ const getFieldChain = () => {
     if (token === "-") {
       const last = chainContainer.pop();
       last?.detach();
-      return;
+    } else {
+      const fieldcoin = getFieldCoin(token);
+      chainContainer.push(fieldcoin);
+      frame.appendChild(fieldcoin.frame);
     }
-    const fieldcoin = getFieldCoin(token);
-    chainContainer.push(fieldcoin);
-    frame.appendChild(fieldcoin.frame);
+
+    onchainchangefn(getTokenString());
   };
-  const getTokenString = () => {
-    const tokens = chainContainer
-      .map((fc) => {
-        return fc.getToken();
-      })
-      .join(",");
-    return tokens;
-  };
-  return { frame, reset, consume, getTokenString };
+
+  return { frame, reset, consume, getTokenString, onChainChange };
 };
 
 const getTargetChain = () => {
   const frame = newDivTag();
+  ADD_CLASS(frame, "target-chain-frame");
 
   const div = newDivTag();
+  ADD_CLASS(div, "target-chain-display");
 
   frame.appendChild(div);
   const updateChain = (chain) => {
-    UPDATE_TEXT(div, chain);
+    console.log(`[Target Chain] uppdateChain`);
+    // TODO
+    UPDATE_TEXT(div, chain ?? "");
   };
 
-  return { frame, updateChain };
+  const reset = () => {
+    updateChain();
+  };
+
+  return { frame, updateChain, reset };
+}; // END OF TARGET CHAIN
+
+const KEYCODE_TO_TOKEN = (keycode) => {
+  switch (keycode) {
+    case "KeyJ":
+      return "38";
+    case "KeyK":
+      return "39";
+    case "KeyL":
+      return "40";
+    case "Backspace":
+      return "-";
+    default:
+      return null;
+  }
 };
+
+const getTimer = (clientGame) => {
+  const frame = newDivTag();
+
+  const desc = newDivTag();
+  ADD_CLASS(desc, "timer");
+  const update = (ms) => {
+    //  HACK
+    console.log(`[Timer] update text $= ${ms}`);
+    if (ms) {
+      UPDATE_TEXT(desc, ms);
+    } else {
+      UPDATE_TEXT(desc, "");
+    }
+  };
+
+  const detach = () => {
+    DETACH(frame);
+  };
+  frame.appendChild(desc);
+  return {
+    frame,
+    update,
+    detach,
+  };
+};
+
 const getBoard = (clientGame) => {
   const frame = newDivTag();
   ADD_CLASS(frame, "board");
@@ -307,59 +364,111 @@ const getBoard = (clientGame) => {
   const lineUpDiv = getLineUpDiv(clientGame);
 
   const iAmInRoom = (roomId) => {
+    lineUpDiv.iAmInRoom(roomId);
+
     if (!roomId) {
       DETACH(frame);
+      return;
     }
-    lineUpDiv.iAmInRoom(roomId);
-  };
-
-  const init = () => {
-    frame.appendChild(lineUpDiv.frame);
+    refresh();
   };
 
   const targetChain = getTargetChain();
   const fieldChain = getFieldChain();
 
-  clientGame.onGameStarted(() => {
-    clientGame.onCountDown((sec) => {
-      console.log(`[Board onCountDown] ${sec}`);
+  const timer = getTimer();
+
+  const oncdLn = (sec) => {
+    console.log(`[Board onCountDown] ${sec}`);
+  };
+  const onchainscoredLn = (scorer) => {
+    console.log(`[onChainScored] ${scorer} scored!`);
+  };
+  const keydownLn = ({ code }) => {
+    const token = KEYCODE_TO_TOKEN(code);
+    fieldChain.consume(token);
+
+    const chainString = fieldChain.getTokenString();
+    console.log(`[keydown] after := ${chainString}`);
+
+    fieldChain.onChainChange(clientGame.submitChain);
+  };
+  const onnewchainLn = (chain) => {
+    console.log(`[Board onNewChain] ${chain}`);
+    targetChain.updateChain(chain);
+    frame.appendChild(targetChain.frame);
+    frame.appendChild(fieldChain.frame);
+
+    fieldChain.reset();
+  };
+
+  // HACK
+  let interv;
+
+  const startedPlane = () => {
+    console.log(`[startedPlane] `);
+    clientGame.onCountDown(oncdLn);
+    clientGame.onNewChain(onnewchainLn);
+    clientGame.onChainScored(onchainscoredLn);
+    console.log(`[Board ] adding listener`)
+    document.addEventListener("keydown", keydownLn);
+    clientGame.whatIsMyChain().then(onnewchainLn);
+
+    clearInterval(interv);
+    interv = setInterval(() => {
+      clientGame.howLongMoreMs().then((ms) => {
+        timer.update(ms);
+      });
+    }, 1000);
+    clientGame.onGameEnd(() => {
+      console.log(`[Board] onGameEnd`);
+      clearInterval(interv);
+      timer.detach();
+      targetChain.reset();
+
+      clientGame.canIHaveTally().then((tally) => {});
     });
 
-    clientGame.onNewChain((chain) => {
-      console.log(`[Board onNewChain] ${chain}`);
-      targetChain.updateChain(chain);
-      frame.appendChild(targetChain.frame, fieldChain.frame);
+    frame.appendChild(timer.frame);
+  };
+  const dormantPlane = () => {
+    console.log(`[dormantPlane]`);
+    clearInterval(interv);
 
-      fieldChain.reset();
-    });
-    const KEYCODE_TO_TOKEN = (keycode) => {
-      switch (keycode) {
-        case "KeyJ":
-          return "38";
-        case "KeyK":
-          return "39";
-        case "KeyL":
-          return "40";
-        case "Backspace":
-          return "-";
-        default:
-          return null;
+    // TODO Client side tear down if game is not in progress.
+    clientGame.removeCountDown(oncdLn);
+    // clientGame.removeOnNewChain(onnewchainLn);
+    // clientGame.removeOnChainScored(onchainscoredLn)
+    // asdfasdf;
+    targetChain.reset();
+
+    document.removeEventListener("keydown", keydownLn);
+  };
+  const refresh = () => {
+    console.log(`[Board refresh] targetChain display reset`);
+    targetChain.reset();
+    clientGame.isGameStarted((is) => {
+      console.log(`[Board refresh] clientGame.isGameStarted := ${is}`);
+      if (is) {
+        startedPlane();
+      } else {
+        dormantPlane();
       }
-    };
-    document.addEventListener("keydown", ({ code }) => {
-      const token = KEYCODE_TO_TOKEN(code);
-      fieldChain.consume(token);
-
-      console.log(`[keydown] after := ${fieldChain.getTokenString()}`);
     });
-  });
-
+  };
+  const init = () => {
+    frame.appendChild(lineUpDiv.frame);
+    refresh();
+    clientGame.onGameStarted(startedPlane);
+  };
   init();
   return {
     frame,
     iAmInRoom,
+    refresh,
   };
-};
+}; // End of Board
+
 const getLobbyPage = (clientGame) => {
   const mainFrame = newDivTag();
   ADD_CLASS(mainFrame, "page-lobby");
@@ -370,31 +479,31 @@ const getLobbyPage = (clientGame) => {
 
   const iAmInRoom = (roomId) => {
     // tell room anyway
-
     if (roomId) {
       board.iAmInRoom(roomId);
       // show room
       mainFrame.replaceChildren(board.frame);
-    } else {;;
+    } else {
       mainFrame.replaceChildren(
         roomCreationFormRequestDiv.frame,
         activeRooms.frame
-      );;;;;
+      );
     }
   };
 
-  clientGame.whichRoomAmI().then((roomId) => {
-    console.log(
-      `[Lobby] Server responded: ${roomId ?? ""}`
-    );
-    iAmInRoom(roomId);
-  });
+  const refresh = () =>
+    clientGame.whichRoomAmI().then((roomId) => {
+      console.log(`[Lobby] Server responded: ${roomId ?? ""}`);
+      iAmInRoom(roomId);
+      board.refresh();
+    });
 
   clientGame.whenIchangeRoom(iAmInRoom);
-
+  refresh();
   return {
     frame: mainFrame,
     iAmInRoom,
+    refresh,
     roomCreationResponse: (fn) =>
       roomCreationFormRequestDiv.roomCreationResponse(fn),
     whenCreateRoomRequest: (fn) =>

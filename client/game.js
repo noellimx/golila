@@ -131,8 +131,13 @@ const ClientGame = (io) => {
       io.on("game-started", fn);
     };
 
+    const eventCd = "game-started-count-down";
     const onCountDown = (fn) => {
-      io.on("game-started-count-down", fn);
+      io.on(eventCd, fn);
+    };
+
+    const removeCountDown = (fn) => {
+      io.off(eventCd, fn);
     };
 
     const whatIsMyChain = () => {
@@ -141,6 +146,11 @@ const ClientGame = (io) => {
           resolve(chain);
         });
       });
+    };
+
+    const submitChain = (chainString) => {
+      console.log(`[Client emit submitChain] -> ${chainString}`);
+      io.emit("submit-chain", chainString);
     };
 
     const onNewChain = (fn) => {
@@ -153,12 +163,40 @@ const ClientGame = (io) => {
       io.on("game-ended", fn);
     };
 
+    const canIHaveTally = () => {
+      return new Promise((resolve) => {
+        io.emit("can-i-have-tally", (tally) => {
+          console.log(`[Client emit can-i-have-tally] <-`);
+          console.log(tally);
+          resolve(tally);
+        });
+      });
+    };
+
     const submitTry = (attempt) => {
       io.on("game-submit", attempt);
     };
+
+    const onChainScored = (fn) => {
+      io.on("chain-hit-by", (scorer) => {
+        fn(scorer);
+      });
+    };
+
+    const howLongMoreMs = () => {
+      return new Promise((resolve) => {
+        io.emit("how-long-more", (ms) => {
+          console.log(`[clientGame how long more] := ${ms}`);
+          resolve(ms);
+        });
+      });
+    };
+
     return {
       whichRoomAmI,
       iWantToCreateAndJoinRoom,
+      howLongMoreMs,
+      onChainScored,
       whatIsTheLineUp,
       whenLineUpChanges,
       whenIchangeRoom,
@@ -178,6 +216,10 @@ const ClientGame = (io) => {
       onRoomStarted,
       isGameStarted,
       submitTry,
+      whatIsMyChain,
+      canIHaveTally,
+      submitChain,
+      removeCountDown,
     };
   })(cookier);
 };

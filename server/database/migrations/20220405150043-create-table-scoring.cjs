@@ -28,7 +28,7 @@ module.exports = {
       },
       team_no: {
         type: DataTypes.INTEGER,
-        allowNull: false, 
+        allowNull: false,
       },
       chain: {
         type: DataTypes.STRING,
@@ -47,8 +47,8 @@ module.exports = {
           },
           key: "id",
         },
-        onDelete: "cascade"
-      }
+        onDelete: "cascade",
+      },
     });
   },
 
