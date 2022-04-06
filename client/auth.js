@@ -63,8 +63,15 @@ const ClientAuth = (io) => {
       loggedOutFn = fn;
     };
 
+    const hiServerCanIRegister = (credentials, chanRecv) => {
+      io.emit("request-register", credentials, ([createdUser, msg]) => {
+        chanRecv([createdUser, msg]);
+      });
+    };
+
     return {
       hasToken,
+      hiServerCanIRegister,
       setAuth,
       getAuthToken,
       getStatus,

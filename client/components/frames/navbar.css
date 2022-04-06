@@ -1,0 +1,33 @@
+.nav-bar-frame {
+  margin-top: 2px;
+  border-bottom: solid 1px black;
+}
+
+.logo-div {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+.nav-name-div {
+  font-style: italic;
+}
+
+.div-text-center {
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-bananas-frame {
+  margin-left: 12px;
+}
+
+.nav-logout-button {
+  margin-left: auto;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: 0;
+}
+
+.nav-logout-button:hover {
+  color: #d82148;
+}

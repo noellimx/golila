@@ -43,6 +43,12 @@ Custom scripts:
 
 # To Do
 
+## Glitch
+
+[ ] First keydown after game start does not emit to server.
+
+## Feat
+
 [ ] remove package CleanWebpackPlugin
 [ ] check if Sequelize accept heroku psql connection string
 [ ] how to host on heroku????
@@ -83,3 +89,12 @@ Custom scripts:
 [ ] Registration Page
 
 [ ] DEPLOYMENT
+
+### SPRINT VIEWS
+
+[ ] show room name instead of room id in the active room page
+[ ] show room name instead of room id in the participating room
+[ ] participating room staging : 1- tabular room, 2- hovering colors
+[ ] participating room playing : 1- spawning time flash, 2- coins img, 3
+[ ] participating room end of round : tally
+[ ] ERD update

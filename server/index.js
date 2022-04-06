@@ -7,7 +7,7 @@ import http from "http";
 import {
   createAndJoinRoom,
   joinRoom,
-  whichRoomIsUserIn,
+  whichRoomIdIsUserIn,
   getLineUp,
   leaveRoom,
   getAllRooms,
@@ -29,6 +29,7 @@ import {
   getTallyOfMostRecentRoundOfUser,
   getCreditOf,
   settleGame,
+  registerUser, whoIsCreatorOfRoom
 } from "./database/actions/game.js";
 import cookier from "cookie";
 import { seed } from "./database/api/seed.js";
@@ -107,12 +108,17 @@ const bindSocketEvents = (socket) => {
     const userId = _getDbUserIdOfSocket(socket);
 
     console.log(`[which-room] user of socket is ${userId}`);
+    const rId = await whichRoomIdIsUserIn(userId)
 
-    const roomId = await whichRoomIsUserIn(userId);
-
+    if (!rId){
+      return cb(null,null,null)
+    }
+    const { id: roomId, creatorName, name: roomName } = await getRoomData(rId);
     console.log(`[which-room] user of socket ${userId} is in room ${roomId}`);
+    console.log(`[which-room] creatorName ${creatorName}`);
 
-    cb(roomId);
+
+    cb(roomId, creatorName, roomName);
   });
 
   socket.on("create-join-room", async (roomName, cb) => {
@@ -198,9 +204,11 @@ const bindSocketEvents = (socket) => {
     console.log(`[Server on leave-room]`);
     console.table([removedRoomId, lineupIds, isRoomRemoved]);
 
-    isRoomRemoved && io.emit("room-deleted", removedRoomId);
+    isRoomRemoved
+      ? io.emit("room-deleted", removedRoomId)
+      : socket.emit("changed-room");
 
-    const roomId = await whichRoomIsUserIn(userId);
+    const roomId = await whichRoomIdIsUserIn(userId);
     roomId === null;
     const userSockets = await getSocketsOfUsers(lineupIds);
     console.log(`[Server on leave-room] ${JSON.stringify(userSockets)}`);
@@ -266,7 +274,7 @@ const bindSocketEvents = (socket) => {
       io.to(id).emit("game-started");
     });
 
-    const roomId = await whichRoomIsUserIn(userId);
+    const roomId = await whichRoomIdIsUserIn(userId);
     await initGameplay(userId);
 
     io.emit("room-started", roomId);
@@ -388,6 +396,11 @@ const bindSocketEvents = (socket) => {
   socket.on("my-banana-count-please", (chnSend) => {
     const userId = _getDbUserIdOfSocket(socket);
     getCreditOf(userId).then(chnSend);
+  });
+
+  socket.on("request-register", async (creds, chanSend) => {
+    const [createdUser, msg] = await registerUser(creds);
+    chanSend([createdUser, msg]);
   });
 }; //// End of socket binding
 

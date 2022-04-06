@@ -1,6 +1,7 @@
 import { newTextInput, newDivTag, newButton } from "../elements/index.js";
 import { NO_OP, ADD_CLASS, UPDATE_TEXT, DETACH } from "../helpers.js";
 
+import "./lobby.css";
 const getroomCreationFormRequestDiv = () => {
   const frame = newDivTag();
   ADD_CLASS(frame, "frame-room-create");
@@ -57,6 +58,15 @@ const getListLineUp = () => {
   const updateLineUp = (lineup) => {
     console.log(`[updateLineUp] `);
     console.log(lineup);
+
+    const bigdiv = newDivTag()
+    
+    const team1 = lineup.filter(({ teamNo }) => teamNo === 1 )
+
+    console.log(`team1`)
+    console.log(team1)
+
+
     const divs = lineup
       ? lineup.map(({ participantId, teamNo, participantName }) => {
           const pwrap = newDivTag();
@@ -80,7 +90,14 @@ const getLineUpDiv = (clientGame) => {
   let roomId;
   const frame = newDivTag();
 
-  const roomNumDiv = newDivTag();
+  ADD_CLASS(frame, "line-up-frame");
+
+  const roomDescDiv = newDivTag();
+  ADD_CLASS(roomDescDiv, "line-up-room-id");
+
+  const creatorDiv = newDivTag()
+  ADD_CLASS(creatorDiv, "line-up-creator");
+
   const list = getListLineUp();
 
   const leaveButton = newButton({ desc: "leave room" });
@@ -104,10 +121,17 @@ const getLineUpDiv = (clientGame) => {
     DETACH(changeTeamButton);
   });
 
-  const iAmInRoom = (id) => {
-    roomId = id;
-    UPDATE_TEXT(roomNumDiv, roomId);
-    frame.replaceChildren(roomNumDiv, list.frame, leaveButton);
+  
+
+  const iAmInRoom = (roomId,creatorName, roomName) => {
+    console.log(`[LineUp iAmInRoom] rId ${roomId} rN ${roomName
+} creatorName ${creatorName
+}  `)
+    const _rName = roomName ? roomName.length > 6 ? `${roomName.slice(0, 6)}...` : roomName : '';
+    UPDATE_TEXT(roomDescDiv, `#${roomId} (${_rName})`);
+    UPDATE_TEXT(creatorDiv, `Host: ${creatorName}`);
+
+    frame.replaceChildren(roomDescDiv, creatorDiv, list.frame, leaveButton);
 
     clientGame.amICreator(roomId, (isC) => {
       clientGame.isGameStarted((isGS) => {
@@ -123,7 +147,7 @@ const getLineUpDiv = (clientGame) => {
   clientGame.onGameEnd(() => {
     console.log(`[Line Up] onGameEnd`);
 
-    clientGame.whichRoomAmI().then(iAmInRoom);
+    clientGame.whichRoomAmI(iAmInRoom);
   });
 
   const lineUpIs = (lu) => {
@@ -134,11 +158,13 @@ const getLineUpDiv = (clientGame) => {
       const [_, lineup] = lu;
       list.updateLineUp(lineup);
     } else {
-      list.updateLineUp(null);
+      list.updateLineUp([]);
     }
   };
 
   const init = () => {
+    console.log(`[Line Up init] frame :=v `);
+    console.log(frame);
     clientGame.whenLineUpChanges(lineUpIs);
     clientGame.whatIsTheLineUp().then(lineUpIs);
   };
@@ -150,11 +176,15 @@ const getLineUpDiv = (clientGame) => {
     iAmInRoom,
     lineUpIs,
   };
-};
+}; // get line up div
 
 const getRoomDoor = (clientGame, { id, name, creatorName }) => {
   const frame = newDivTag();
   frame.style.border = "2px solid black";
+
+  if (name.length > 6) {
+    name = `${name.slice(0, 6)}...`;
+  }
   const divId = newDivTag(id);
   const divName = newDivTag(name);
   const divCreatorName = newDivTag(creatorName);
@@ -366,10 +396,17 @@ const getBoard = (clientGame) => {
   const frame = newDivTag();
   ADD_CLASS(frame, "board");
 
+
+
+
   const lineUpDiv = getLineUpDiv(clientGame);
 
-  const iAmInRoom = (roomId) => {
-    lineUpDiv.iAmInRoom(roomId);
+  const targetChain = getTargetChain();
+  const fieldChain = getFieldChain();
+  const iAmInRoom = (roomId, creatorName, roomName) => {
+    console.log(`[Board i am in room] := creator ${creatorName}`)
+    fieldChain.reset();
+    lineUpDiv.iAmInRoom(roomId, creatorName, roomName);
 
     if (!roomId) {
       DETACH(frame);
@@ -377,10 +414,6 @@ const getBoard = (clientGame) => {
     }
     refresh();
   };
-
-  const targetChain = getTargetChain();
-  const fieldChain = getFieldChain();
-
   const timer = getTimer();
 
   const oncdLn = (sec) => {
@@ -463,6 +496,8 @@ const getBoard = (clientGame) => {
     });
   };
   const init = () => {
+    console.log("[Board init] line up div :v");
+    console.log(lineUpDiv);
     frame.appendChild(lineUpDiv.frame);
     refresh();
     clientGame.onGameStarted(startedPlane);
@@ -483,10 +518,12 @@ const getLobbyPage = (clientGame) => {
   const activeRooms = getActiveRooms(clientGame);
   const board = getBoard(clientGame);
 
-  const iAmInRoom = (roomId) => {
+  const iAmInRoom = (roomId,creatorName,roomName) => {
+
+    console.log(`[Lobby iAmInRoom] cN ${creatorName}`)
     // tell room anyway
     if (roomId) {
-      board.iAmInRoom(roomId);
+      board.iAmInRoom(roomId, creatorName, roomName);
       // show room
       mainFrame.replaceChildren(board.frame);
     } else {
@@ -495,14 +532,14 @@ const getLobbyPage = (clientGame) => {
         activeRooms.frame
       );
     }
+
+    board.refresh();
+
+
   };
 
   const refresh = () =>
-    clientGame.whichRoomAmI().then((roomId) => {
-      console.log(`[Lobby] Server responded: ${roomId ?? ""}`);
-      iAmInRoom(roomId);
-      board.refresh();
-    });
+    clientGame.whichRoomAmI(iAmInRoom);
 
   clientGame.whenIchangeRoom(iAmInRoom);
   refresh();

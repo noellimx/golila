@@ -1,5 +1,5 @@
 import sequelize from "../../database/index.js";
-
+import { hashPassword } from "../../auth/crypt.js";
 const { user: User } = sequelize.models;
 
 const getUserByUsername = async (username) =>
@@ -11,4 +11,21 @@ const isUserExisting = async (id) => {
   console.log(`[isUserExisting] is? ${!!user}`);
   return user;
 };
-export { getUserByUsername, isUserExisting };
+
+const isUserExistingByUsername = async (username) =>
+  !!(await getUserByUsername(username));
+
+const createUser = async (username, password) => {
+  const user = await User.create({
+    username,
+    password: hashPassword(password),
+  });
+
+  return user;
+};
+export {
+  getUserByUsername,
+  isUserExisting,
+  isUserExistingByUsername,
+  createUser,
+};

@@ -10,7 +10,7 @@ const MODE_TEST = 1;
 
 const LENGTHS = {
   [MODE_EASY]: 10,
-  [MODE_TEST]: 1,
+  [MODE_TEST]: 2,
 };
 
 const COLOR_GREEN = ARROW_DOWN;

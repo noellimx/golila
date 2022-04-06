@@ -1,0 +1,15 @@
+.page-lobby {
+  margin-top: 10px;
+  width: 100%;
+  justify-content: center;
+}
+
+.board {
+  flex-direction: column;
+  align-items: center;
+}
+
+.line-up-frame {
+  flex-direction: column;
+  align-items: center;
+}

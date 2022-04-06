@@ -3,9 +3,12 @@ import "./root.css";
 import getLoginPage from "./components/pages/unauthenticated.js";
 import getLobbyPage from "./components/pages/lobby.js";
 import getNavBar from "./components/frames/navbar.js";
+
 import ClientAuth from "./auth.js";
 import ClientGame from "./game.js";
 import ClientUser from "./user.js";
+
+import { ADD_CLASS } from "./components/helpers.js";
 class Scene {
   serverValidatesCredential = (is) => {
     if (is) {
@@ -17,7 +20,7 @@ class Scene {
   };
   constructor(io) {
     this.root = document.getElementById("root");
-
+    ADD_CLASS(this.root, "root-frame");
     this.clientAuth = new ClientAuth(io);
     this.clientGame = new ClientGame(io);
     this.clientUser = new ClientUser(io);
@@ -38,6 +41,19 @@ class Scene {
         }
       );
     });
+
+    this.loginFrame.whenRegisterRequest((username, password, password2) => {
+      this.clientAuth.hiServerCanIRegister(
+        { username, password, password2 },
+        ([createdUser, msg]) => {
+          console.log(
+            `[loginFrame.whenRegisterRequest] := user ${createdUser}, ${msg}`
+          );
+          this.loginFrame.registrationResponse([createdUser, msg]);
+        }
+      );
+    });
+
     this.lobbyFrame = getLobbyPage(this.clientGame);
 
     this.lobbyFrame.whenCreateRoomRequest((roomName) => {

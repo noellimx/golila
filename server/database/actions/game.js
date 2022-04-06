@@ -11,6 +11,7 @@ import {
   stringToChain,
   valueOfChainString,
 } from "../../app/chain.js";
+import { isUserExistingByUsername, createUser } from "../api/user.js";
 
 const {
   room: Room,
@@ -39,13 +40,31 @@ const moveParticipantIntoRoom = async ({ participantId, teamNo, roomId }) => {
   return Participant.upsert({ participantId, teamNo, roomId });
 };
 
-const whichRoomIsUserIn = async (participantId) => {
+const whichRoomIdIsUserIn = async (participantId) => {
   const p = await Participant.findOne({
     where: { participantId },
     attributes: ["roomId"],
   });
   return p ? p.getDataValue("roomId") : null;
 };
+
+const whoIsCreatorOfRoom = async (roomId) => {
+  if (!roomId) {
+    return null;
+  }
+
+  const r = await Room.findOne({
+    where: {
+      id: roomId,
+    },
+  });
+
+  const uId = r ? r.getDataValue("creatorId") : null;
+
+  const uN = await getUsernameById(uId);
+  return uN
+};
+
 const getUsernameById = async (id) => {
   const u = await User.findOne({ where: { id } });
   if (!u) {
@@ -109,7 +128,7 @@ const joinRoom = async (userId, roomId) => {
       roomId,
     });
 
-    const participantIsInRoom = await whichRoomIsUserIn(participantId);
+    const participantIsInRoom = await whichRoomIdIsUserIn(participantId);
 
     console.log(`[joinRoom] := in room ${participantIsInRoom}`);
     return participantIsInRoom;
@@ -132,7 +151,7 @@ const createAndJoinRoom = async (userId, roomName) => {
       roomId,
     });
 
-    const participantIsInRoom = await whichRoomIsUserIn(participantId);
+    const participantIsInRoom = await whichRoomIdIsUserIn(participantId);
 
     console.log(`[createAndJoinRoom] := in room ${participantIsInRoom}`);
     return participantIsInRoom;
@@ -143,9 +162,9 @@ const createAndJoinRoom = async (userId, roomName) => {
 
 const getLineUp = async (id, conceal = true) => {
   console.log(`[getLineUp] ${id}`);
-  const roomId = await whichRoomIsUserIn(id);
+  const roomId = await whichRoomIdIsUserIn(id);
   if (!roomId) {
-    return null;
+    return [];
   }
   const lineup = await Participant.findAll({
     where: { roomId },
@@ -261,7 +280,7 @@ const changeTeam = async (participantId) => {
     p.update({ teamNo });
   });
 
-  const roomId = await whichRoomIsUserIn(participantId);
+  const roomId = await whichRoomIdIsUserIn(participantId);
   if (!roomId) {
     return [];
   }
@@ -277,20 +296,20 @@ const isUserSomeCreator = async (userId) => {
 };
 
 const isGameStarted = async (userId) => {
-  const roomId = await whichRoomIsUserIn(userId);
+  const roomId = await whichRoomIdIsUserIn(userId);
   const game = await Gameplay.findOne({ where: { roomId } });
   return game && game.getDataValue("isActive");
 };
 const isGameActive = isGameStarted;
 const getSocketsOfRoomByParticipatingUserId = async (userId) => {
-  const roomId = await whichRoomIsUserIn(userId);
+  const roomId = await whichRoomIdIsUserIn(userId);
   const lineupIds = await participantIdsOfRoom(roomId, false);
   const userSockets = await getSocketsOfUsers(lineupIds);
 
   return userSockets;
 };
 
-const OFFSET_SEC = 7;
+const OFFSET_SEC = 2;
 const OFFSET_MIN = 7;
 const getDateMinutesFromNow = (mins) => {
   const d = new Date();
@@ -301,7 +320,7 @@ const getDateMinutesFromNow = (mins) => {
 
 const gameplayEndsIn = async (userId) => {
   try {
-    const roomId = await whichRoomIsUserIn(userId);
+    const roomId = await whichRoomIdIsUserIn(userId);
     const game = await Gameplay.findOne({ where: { roomId } });
 
     const d = game.getDataValue("endDate");
@@ -352,7 +371,7 @@ const changeChainOfGameOfUser = async (userId) => {
 
 const initGameplay = async (userId) => {
   try {
-    const roomId = await whichRoomIsUserIn(userId);
+    const roomId = await whichRoomIdIsUserIn(userId);
     const later = getDateMinutesFromNow(1);
     const chain = chainToString(getRandomChain());
 
@@ -388,7 +407,7 @@ const initGameplay = async (userId) => {
 };
 
 const lockGameOfUser = async (userId) => {
-  const roomId = await whichRoomIsUserIn(userId);
+  const roomId = await whichRoomIdIsUserIn(userId);
 
   console.log(`[lockGameOfUser] locking gameplay of room ${roomId}`);
   await Gameplay.update(
@@ -444,7 +463,7 @@ const settleGame = async (userId) => {
 
 const getChainOfGameplayForUser = async (userId) => {
   try {
-    const roomId = await whichRoomIsUserIn(userId);
+    const roomId = await whichRoomIdIsUserIn(userId);
     const game = await Gameplay.findOne({ where: { roomId } });
 
     const isActive = game.getDataValue("isActive");
@@ -461,7 +480,7 @@ const getChainOfGameplayForUser = async (userId) => {
 };
 
 const getGameOfUser = async (userId) => {
-  const roomId = await whichRoomIsUserIn(userId);
+  const roomId = await whichRoomIdIsUserIn(userId);
   const game = await Gameplay.findOne({ where: { roomId } });
 
   return game;
@@ -579,9 +598,30 @@ const getCreditOf = async (userId) => {
   return user?.getDataValue("credit");
 };
 
+const registerUser = async ({ username, password, password2 }) => {
+  const is = await isUserExistingByUsername(username);
+  if (is) {
+    return [null, "Username taken :("];
+  }
+
+  if (password !== password2) {
+    return [null, "Confirmation password mismatch."];
+  }
+  if (!username) {
+    return [null, "Username must have at least 1 character"];
+  }
+  if (!password || !password2) {
+    return [null, "Password must have at least 1 character"];
+  }
+
+  const user = await createUser(username, password);
+
+  const usernameRetrieved = user.getDataValue("username");
+  return [usernameRetrieved, `Registration Success: ${usernameRetrieved} `];
+};
 export {
   createAndJoinRoom,
-  whichRoomIsUserIn,
+  whichRoomIdIsUserIn,
   getLineUp,
   leaveRoom,
   getAllRooms,
@@ -604,4 +644,6 @@ export {
   isGameActive,
   getCreditOf,
   settleGame,
+  registerUser,
+  whoIsCreatorOfRoom,
 };

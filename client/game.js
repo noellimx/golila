@@ -4,18 +4,17 @@ const cookier = Cookies.default;
 
 const ClientGame = (io) => {
   return ((Cookies) => {
-    const whichRoomCb = (resolve) => {
-      io.emit("which-room", (roomId) => {
-        console.log(`[whichRoomCb] I am in ${roomId}`);
+    const whichRoomCb = (chanRecv) => {
+      io.emit("which-room", (roomId, creatorName, roomName) => {
+        console.log(`[whichRoomCb] <- roomId ${roomId}`);
+        console.log(`[whichRoomCb] <- creatorName ${creatorName
+          }`); console.log(`[whichRoomCb] <- creatorName ${roomName
+            }`);
 
-        resolve(roomId);
+        chanRecv(roomId, creatorName, roomName);
       });
     };
-    const whichRoomAmI = () => {
-      console.log(`[whichRoomAmI]`);
-
-      return new Promise(whichRoomCb);
-    };
+    const whichRoomAmI = whichRoomCb
 
     const whenIchangeRoom = (fn) => {
       console.log(`whenIchangeRoom`);
@@ -57,7 +56,7 @@ const ClientGame = (io) => {
     };
     const whenLineUpChanges = (fn) => {
       io.on("line-up", () => {
-        whatIsTheLineUp().then((lineup) => fn(lineup));
+        whatIsTheLineUp().then(fn);
       });
     };
 
