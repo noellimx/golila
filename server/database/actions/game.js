@@ -480,10 +480,10 @@ const submitChain = async (chain, userId) => {
   } else {
     result.success = false;
   }
-  if (result.success) {
-    if (await isOvertime(userId)) {
-      result.overtime = true;
-    }
+  const isOT = await isOvertime(userId);
+
+  if (isOT && result.success) {
+    result.overtime = true;
   }
   return result;
 };

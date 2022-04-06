@@ -349,11 +349,16 @@ const getTimer = (clientGame) => {
   const detach = () => {
     DETACH(frame);
   };
+
+  const reset = () => {
+    UPDATE_TEXT(desc, "");
+  };
   frame.appendChild(desc);
   return {
     frame,
     update,
     detach,
+    reset,
   };
 };
 
@@ -410,7 +415,7 @@ const getBoard = (clientGame) => {
     clientGame.onCountDown(oncdLn);
     clientGame.onNewChain(onnewchainLn);
     clientGame.onChainScored(onchainscoredLn);
-    console.log(`[Board ] adding listener`)
+    console.log(`[Board ] adding listener`);
     document.addEventListener("keydown", keydownLn);
     clientGame.whatIsMyChain().then(onnewchainLn);
 
@@ -441,6 +446,7 @@ const getBoard = (clientGame) => {
     // clientGame.removeOnChainScored(onchainscoredLn)
     // asdfasdf;
     targetChain.reset();
+    timer.reset();
 
     document.removeEventListener("keydown", keydownLn);
   };

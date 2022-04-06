@@ -293,18 +293,22 @@ const bindSocketEvents = (socket) => {
     })();
   });
 
+  const lockGameAndBroadcast = async (userId) => {
+    await lockGameOfUser(userId);
+    getSocketsOfRoomByParticipatingUserId(userId).then((sockets) => {
+      sockets.forEach(({ id }) => {
+        io.to(id).emit("game-ended");
+      });
+    });
+  };
+
   socket.on("submit-chain", async (chainString) => {
     console.log(`[Server on submit-chain] ?= ${chainString}`);
     const userId = _getDbUserIdOfSocket(socket);
     const res = await submitChain(chainString, userId);
 
     if (res.overtime) {
-      await lockGameOfUser(userId);
-      getSocketsOfRoomByParticipatingUserId(userId).then((sockets) => {
-        sockets.forEach(({ id }) => {
-          io.to(id).emit("game-ended");
-        });
-      });
+      await lockGameAndBroadcast(userId);
     }
     if (res.success) {
       console.log(
@@ -349,6 +353,10 @@ const bindSocketEvents = (socket) => {
   socket.on("how-long-more", async (fn) => {
     const userId = _getDbUserIdOfSocket(socket);
     const ms = await howLongMoreMs(userId);
+    // HACK
+    if (ms < -5000) {
+      await lockGameAndBroadcast(userId);
+    }
     fn(ms);
   });
 
