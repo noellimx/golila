@@ -5,6 +5,7 @@ import getLobbyPage from "./components/pages/lobby.js";
 import getNavBar from "./components/frames/navbar.js";
 import ClientAuth from "./auth.js";
 import ClientGame from "./game.js";
+import ClientUser from "./user.js";
 class Scene {
   serverValidatesCredential = (is) => {
     if (is) {
@@ -19,8 +20,11 @@ class Scene {
 
     this.clientAuth = new ClientAuth(io);
     this.clientGame = new ClientGame(io);
+    this.clientUser = new ClientUser(io);
 
     this.loginFrame = getLoginPage();
+
+    this.navbar = getNavBar(this.clientAuth, this.clientUser);
 
     this.loginFrame.whenLoginRequest((username, password) => {
       this.clientAuth.hiServerIsMyCredentialsValid(
@@ -43,8 +47,6 @@ class Scene {
         this.commence();
       });
     });
-
-    this.navbar = getNavBar(this.clientAuth);
 
     this.clientAuth.whenLoggedOut(() => {
       window.location.reload(); // IMPORTANT. new HTTP connection to tompang cookies.;;

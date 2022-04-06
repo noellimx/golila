@@ -512,6 +512,9 @@ const getTallyOfMostRecentRoundOfUser = async (userId) => {
 
   return scoring;
 };
+
+const getCreditOf = async () => 1;
+
 export {
   createAndJoinRoom,
   whichRoomIsUserIn,
@@ -535,4 +538,5 @@ export {
   getUsernameById,
   getTallyOfMostRecentRoundOfUser,
   isGameActive,
+  getCreditOf,
 };

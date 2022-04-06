@@ -27,6 +27,7 @@ import {
   isGameActive,
   getUsernameById,
   getTallyOfMostRecentRoundOfUser,
+  getCreditOf,
 } from "./database/actions/game.js";
 import cookier from "cookie";
 import { seed } from "./database/api/seed.js";
@@ -362,9 +363,18 @@ const bindSocketEvents = (socket) => {
 
   socket.on("can-i-have-tally", async (chnSend) => {
     const userId = _getDbUserIdOfSocket(socket);
-
     const tally = await getTallyOfMostRecentRoundOfUser(userId);
     chnSend(tally);
+  });
+
+  socket.on("my-name-please", (chnSend) => {
+    const userId = _getDbUserIdOfSocket(socket);
+    getUsernameById(userId).then(chnSend);
+  });
+
+  socket.on("my-banana-count-please", (chnSend) => {
+    const userId = _getDbUserIdOfSocket(socket);
+    getCreditOf(userId).then(chnSend);
   });
 }; //// End of socket binding
 
