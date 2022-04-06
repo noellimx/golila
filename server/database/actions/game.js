@@ -290,10 +290,12 @@ const getSocketsOfRoomByParticipatingUserId = async (userId) => {
   return userSockets;
 };
 
+const OFFSET_SEC = 7;
+const OFFSET_MIN = 7;
 const getDateMinutesFromNow = (mins) => {
   const d = new Date();
-  // d.setMinutes(d.getMinutes() + mins);
-  d.setSeconds(d.getSeconds() + 20);
+  // d.setMinutes(d.getMinutes() + OFFSET_MIN);
+  d.setSeconds(d.getSeconds() + OFFSET_SEC);
   return d;
 };
 
@@ -399,6 +401,47 @@ const lockGameOfUser = async (userId) => {
   );
 };
 
+const bumpBanana = async (userId, credit) => {
+  if (credit <= 0) {
+    return;
+  }
+  await User.increment("credit", { by: credit, where: { id: userId } });
+};
+// returns userIds of settled
+const settleGame = async (userId) => {
+  const scorings = await getTallyOfMostRecentRoundOfUser(userId, false);
+
+  console.log(`[settleGame] := v`);
+  console.log(scorings);
+  const pot = scorings.reduce((acc, { scorerId, credit }) => {
+    if (!acc[scorerId]) {
+      acc[scorerId] = 0;
+    }
+    return {
+      ...acc,
+      [scorerId]: acc[scorerId] + credit,
+    };
+  }, {});
+
+  console.log(pot);
+
+  const updatedIds = await Object.entries(pot).reduce(
+    async (ids, [scorerId, credit]) => {
+      try {
+        await bumpBanana(scorerId, credit);
+        return [...ids, scorerId];
+      } catch (err) {
+        console.log(`[settleGame] Error`);
+        console.log(err);
+        return [...ids];
+      }
+    },
+    []
+  );
+  console.log(`[setteGame] := ids ${JSON.stringify(updatedIds)}`);
+  return updatedIds;
+};
+
 const getChainOfGameplayForUser = async (userId) => {
   try {
     const roomId = await whichRoomIsUserIn(userId);
@@ -488,7 +531,7 @@ const submitChain = async (chain, userId) => {
   return result;
 };
 
-const getTallyOfMostRecentRoundOfUser = async (userId) => {
+const getTallyOfMostRecentRoundOfUser = async (userId, conceal = true) => {
   console.log(`[getTallyOfMostRecentRoundOfUser] ?= ${userId}`);
   // get the round and user by game
   const game = await getGameOfUser(userId);
@@ -501,19 +544,40 @@ const getTallyOfMostRecentRoundOfUser = async (userId) => {
   console.log(`[getTallyOfMostRecentRoundOfUser] Getting scores`);
 
   // get scores of active participants
-  const scoringRaw = await Scoring.findAll({
+  const scoringsRaw = await Scoring.findAll({
     where: {
       roundId,
       scorerId: pids,
     },
+    include: User,
   });
 
-  const scoring = scoringRaw.map(({ dataValues }) => dataValues);
+  const scorings = scoringsRaw.map((scoring) => {
+    const teamNo = scoring.getDataValue("teamNo");
+    const chain = scoring.getDataValue("chain");
+    const credit = scoring.getDataValue("credit");
+    const user = scoring.getDataValue("user");
+    const scorerId = scoring.getDataValue("scorerId");
 
-  return scoring;
+    const scorerName = user.getDataValue("username");
+
+    return {
+      teamNo,
+      chain,
+      credit,
+      scorerName,
+      scorerId,
+    };
+  });
+
+  return scorings;
 };
 
-const getCreditOf = async () => 1;
+const getCreditOf = async (userId) => {
+  const user = await User.findOne({ where: { id: userId } });
+
+  return user?.getDataValue("credit");
+};
 
 export {
   createAndJoinRoom,
@@ -539,4 +603,5 @@ export {
   getTallyOfMostRecentRoundOfUser,
   isGameActive,
   getCreditOf,
+  settleGame,
 };

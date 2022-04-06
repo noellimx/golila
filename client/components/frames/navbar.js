@@ -2,7 +2,7 @@ import { newButton, newDivTag } from "../elements/index.js";
 import { ADD_CLASS, UPDATE_TEXT } from "../helpers.js";
 
 const newBananaFlash = (count) => {
-  return newDivTag(count ?? "?");
+  return newDivTag(`${count}` ?? "?");
 };
 const getBanana = (clientUser) => {
   const frame = newDivTag();
@@ -18,7 +18,7 @@ const getBanana = (clientUser) => {
 
   const init = () => {
     clientUser.howYellowAmI().then(flashBanana);
-    clientUser.onMoreBanana(flashBanana);
+    clientUser.onMoreBanana(() => clientUser.howYellowAmI().then(flashBanana));
   };
 
   init();

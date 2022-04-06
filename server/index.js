@@ -28,6 +28,7 @@ import {
   getUsernameById,
   getTallyOfMostRecentRoundOfUser,
   getCreditOf,
+  settleGame,
 } from "./database/actions/game.js";
 import cookier from "cookie";
 import { seed } from "./database/api/seed.js";
@@ -294,11 +295,23 @@ const bindSocketEvents = (socket) => {
     })();
   });
 
-  const lockGameAndBroadcast = async (userId) => {
+  const lockGameAndBroadcast_ThisIsEndOfRound = async (userId) => {
+    const isGA = await isGameActive(userId);
+    if (!isGA) {
+      return; // sanity check that if already NOT GA so we down broadcast twice.
+    }
     await lockGameOfUser(userId);
+
+    const settledIds = await settleGame(userId);
     getSocketsOfRoomByParticipatingUserId(userId).then((sockets) => {
       sockets.forEach(({ id }) => {
         io.to(id).emit("game-ended");
+      });
+    });
+
+    getSocketsOfUsers(settledIds).then((sockets) => {
+      sockets.forEach(({ id }) => {
+        io.to(id).emit("notify-new-bananas-excited");
       });
     });
   };
@@ -309,7 +322,7 @@ const bindSocketEvents = (socket) => {
     const res = await submitChain(chainString, userId);
 
     if (res.overtime) {
-      await lockGameAndBroadcast(userId);
+      await lockGameAndBroadcast_ThisIsEndOfRound(userId);
     }
     if (res.success) {
       console.log(
@@ -356,7 +369,7 @@ const bindSocketEvents = (socket) => {
     const ms = await howLongMoreMs(userId);
     // HACK
     if (ms < -5000) {
-      await lockGameAndBroadcast(userId);
+      await lockGameAndBroadcast_ThisIsEndOfRound(userId);
     }
     fn(ms);
   });

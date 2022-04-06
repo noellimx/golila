@@ -12,6 +12,8 @@ const initModels = (db) => {
   const Gameplay = initModeGameplay(db);
   const Scoring = initModelScoring(db);
   Participant.belongsTo(User, { foreignKey: "participantId" });
+
+  Scoring.belongsTo(User, { foreignKey: "scorerId" });
 };
 
 export default initModels;

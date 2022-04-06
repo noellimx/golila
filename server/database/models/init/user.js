@@ -35,6 +35,12 @@ export default (sequelize) => {
         allowNull: false,
         field: "password",
       },
+      credit: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+        field: "credit",
+      },
     },
     {
       underscored: true,

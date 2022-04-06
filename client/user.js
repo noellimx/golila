@@ -17,7 +17,7 @@ const ClientUser = (io) => {
     };
 
     const onMoreBanana = (chanRecv) => {
-      io.on("my-banana-count-please", chanRecv);
+      io.on("notify-new-bananas-excited", chanRecv);
     };
 
     return {
