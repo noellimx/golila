@@ -52,41 +52,73 @@ const getroomCreationFormRequestDiv = () => {
   };
 };
 
+
+const _getRollCall = (teamNo) => {
+  const frame = newDivTag()
+
+  ADD_CLASS(frame,"roll-call-frame")
+  const headerDiv = newDivTag(teamNo)
+  ADD_CLASS(headerDiv, `roll-call-team-no-${teamNo}`)
+
+  const update = (lineup) => {
+
+      const _lineup = [...lineup]
+
+    _lineup.sort((a,b) => a?.participantName.localeCompare(b?.participantName))
+
+    const divs = _lineup
+      ? lineup.map(({ participantName }) => {
+        const divPID = newDivTag(participantName);
+        ADD_CLASS(divPID, `roll-call-team-${teamNo}`)
+
+        return divPID;
+      })
+      : [];
+
+    frame.replaceChildren(headerDiv, ...divs)
+  }
+
+  return {
+    frame, update
+  }
+}
+
 const getListLineUp = () => {
   const frame = newDivTag();
+
+  ADD_CLASS(frame,"list-line-up")
+  const bigdiv = newDivTag()
+  // HACK
+  const team1div = _getRollCall(1)
+  const team2div = _getRollCall(2)
 
   const updateLineUp = (lineup) => {
     console.log(`[updateLineUp] `);
     console.log(lineup);
 
-    const bigdiv = newDivTag()
-    
-    const team1 = lineup.filter(({ teamNo }) => teamNo === 1 )
 
-    console.log(`team1`)
-    console.log(team1)
+    // HACK
+    const _team1 = lineup ? lineup.filter(({ teamNo }) => teamNo === 1) : []
+    const _team2 = lineup ? lineup.filter(({ teamNo }) => teamNo === 2) : []
 
+    // HACK
+    team1div.update(_team1)
+    team2div.update(_team2)
 
-    const divs = lineup
-      ? lineup.map(({ participantId, teamNo, participantName }) => {
-          const pwrap = newDivTag();
-          const divPID = newDivTag(participantName);
-          const divTeamNo = newDivTag(teamNo);
-          pwrap.replaceChildren(divPID, divTeamNo);
-
-          return pwrap;
-        })
-      : [];
-
-    frame.replaceChildren(...divs);
+    frame.replaceChildren(team1div.frame,team2div.frame);
   };
+
+  const detach = () => {
+    DETACH(frame)
+  }
+
   return {
     frame,
-    updateLineUp,
+    updateLineUp,detach
   };
 };
 
-const getLineUpDiv = (clientGame) => {
+const getLineUp = (clientGame) => {
   let roomId;
   const frame = newDivTag();
 
@@ -102,6 +134,7 @@ const getLineUpDiv = (clientGame) => {
 
   const leaveButton = newButton({ desc: "leave room" });
 
+
   leaveButton.addEventListener("click", () => {
     clientGame.iWantToLeaveRoom();
   });
@@ -116,6 +149,10 @@ const getLineUpDiv = (clientGame) => {
     clientGame.startGame();
   });
 
+  [leaveButton,startGameButton,changeTeamButton].forEach(e => ADD_CLASS(e,"line-up-btn"));
+  [changeTeamButton, startGameButton].forEach(e => ADD_CLASS(e,"line-up-btn-in"))
+
+  ADD_CLASS(leaveButton,"line-up-btn-out")
   clientGame.onGameStarted(() => {
     DETACH(startGameButton);
     DETACH(changeTeamButton);
@@ -131,15 +168,20 @@ const getLineUpDiv = (clientGame) => {
     UPDATE_TEXT(roomDescDiv, `#${roomId} (${_rName})`);
     UPDATE_TEXT(creatorDiv, `Host: ${creatorName}`);
 
-    frame.replaceChildren(roomDescDiv, creatorDiv, list.frame, leaveButton);
+    frame.replaceChildren(roomDescDiv, creatorDiv, list.frame);
 
     clientGame.amICreator(roomId, (isC) => {
       clientGame.isGameStarted((isGS) => {
         console.log(
           `[LineUp iAmInRoom] ${roomId} amIcreator ${isC} isGameStarted ${isGS} `
         );
+
+        list.detach();
+        DETACH(leaveButton);
         isC && !isGS && frame.appendChild(startGameButton);
         !isGS && frame.appendChild(changeTeamButton);
+        frame.appendChild(leaveButton)
+        frame.appendChild(list.frame)
       });
     });
   };
@@ -163,8 +205,7 @@ const getLineUpDiv = (clientGame) => {
   };
 
   const init = () => {
-    console.log(`[Line Up init] frame :=v `);
-    console.log(frame);
+
     clientGame.whenLineUpChanges(lineUpIs);
     clientGame.whatIsTheLineUp().then(lineUpIs);
   };
@@ -399,7 +440,7 @@ const getBoard = (clientGame) => {
 
 
 
-  const lineUpDiv = getLineUpDiv(clientGame);
+  const lineUpDiv = getLineUp(clientGame);
 
   const targetChain = getTargetChain();
   const fieldChain = getFieldChain();

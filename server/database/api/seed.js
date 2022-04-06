@@ -39,7 +39,7 @@ const seed = async () => {
   const idUser1 = user.getDataValue("id");
 
   const room1 = await Room.create({
-    name: "room-abc" + crypto.randomUUID(),
+    name: "seed-room-abc-" + crypto.randomUUID(),
     creatorId: idUser1,
   });
 
@@ -51,6 +51,8 @@ const seed = async () => {
     teamNo: 1,
   });
 };
+
+// This function tears down the connection.
 const seedTest = async () => {
   try {
     await wipe();

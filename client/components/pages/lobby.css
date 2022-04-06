@@ -12,4 +12,67 @@
 .line-up-frame {
   flex-direction: column;
   align-items: center;
+  min-width: 70%;
+}
+
+.line-up-room-id{
+  text-align: center;
+}
+.roll-call-frame{
+    flex-direction: column;
+    align-items: center;
+}
+
+.list-line-up{
+  margin-top: 12px;
+  justify-content: space-evenly;
+  width: 100%;
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+}
+
+.roll-call-team-no-1{
+  margin-bottom: 4px;
+  color: #D82148;
+}
+
+.roll-call-team-1 {
+  padding-left: 5px;
+  padding-right: 5px;
+  border-left: solid 2px #D82148;
+}
+
+
+.roll-call-team-no-2 {
+  margin-bottom: 4px;
+  color: #FB7299;
+}
+
+
+.roll-call-team-2 {
+
+  padding-left: 5px;padding-right: 5px;
+  border-left: solid 2px #FB7299;
+}
+
+.line-up-creator{
+
+  margin-bottom: 12px;
+}
+
+
+.line-up-btn{
+  margin-bottom: 3px;
+  border: 0;
+  color: white;
+}
+
+
+.line-up-btn-in:hover {
+  color: #6EBF8B;
+}
+
+.line-up-btn-out:hover {
+  color: #D82148;
 }

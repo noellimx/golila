@@ -1,8 +1,10 @@
 import { ADD_CLASS } from "../helpers.js";
 
+
+import "./index.css"
 const newTag = (tag) => {
   const ele = document.createElement(tag);
-  ele.style.display = "flex";
+  ADD_CLASS(ele,"default-new-tag")
   return ele;
 };
 const newDivTag = (desc) => {
