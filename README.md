@@ -94,7 +94,9 @@ Custom scripts:
 
 [ ] show room name instead of room id in the active room page
 [ ] show room name instead of room id in the participating room
+[ ] joinable rooms as nice cards
 [ ] participating room staging : 1- tabular room, 2- hovering colors
 [ ] participating room playing : 1- spawning time flash, 2- coins img, 3 someone hit flash
 [ ] participating room end of round : tally
 [ ] ERD update
+[ ] clear fields on registration request submission

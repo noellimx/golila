@@ -2,6 +2,17 @@
   margin-top: 10px;
   width: 100%;
   justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.create-and-join-btn {
+  border: 0px;
+  color:white;
+}
+
+.create-and-join-btn:hover {
+  color: #6EBF8B;
 }
 
 .board {
@@ -16,6 +27,8 @@
 }
 
 .line-up-room-id{
+  color : #6EBF8B;
+  opacity: 0.8;
   text-align: center;
 }
 .roll-call-frame{
@@ -34,13 +47,13 @@
 
 .roll-call-team-no-1{
   margin-bottom: 4px;
-  color: #D82148;
+  color: #6ac2d9;
 }
 
 .roll-call-team-1 {
   padding-left: 5px;
   padding-right: 5px;
-  border-left: solid 2px #D82148;
+  border-left: solid 2px #6ac2d9;
 }
 
 
@@ -75,4 +88,81 @@
 
 .line-up-btn-out:hover {
   color: #D82148;
+}
+.line-up-btn-mid:hover{
+
+  color: #EC6A37;
+}
+
+.desc-room-creation-form{
+  position: absolute;
+      top: 50%;
+      left: 50%;
+      padding: 5px;
+      border-radius: 3px;
+      transform: translate(-50%, -50%);
+}
+
+.desc-room-creation-form{
+  color: transparent;
+}
+.invert-swiss-error{
+  background-color: white;
+  color: #D82148;
+}
+
+.swiss-error{
+  color: white;
+  background-color: #D82148;
+}
+
+.joinable-rooms{
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+  flex-direction: column;
+}
+
+.door-element-user{
+  white-space: nowrap;
+}
+
+.door-element-heading{
+ font-size: 1.125rem;
+  width: 100%;
+  color: #6EBF8B;
+  white-space: normal;
+}
+.door-element-rid {
+  text-align: right;
+  margin-left: auto;
+  width: fit-content;
+}
+
+.door-element-content-wrap{
+
+
+  width: 100%;
+
+}
+.door-element-content {
+  font-size: 0.875rem;
+
+}
+
+
+.door-frame{
+width: 100%;
+max-width: 80%;
+  flex-direction: column;
+  border-bottom: 4px dashed white;
+  border-top: 4px solid transparent;
+  border-radius: 3px;
+
+  padding: 8px 10px 8px 10px;
+  
+}
+
+.door-frame:hover {
+  border: 4px dashed #6EBF8B;
 }

@@ -1,5 +1,5 @@
 import { newTextInput, newDivTag, newButton } from "../elements/index.js";
-import { NO_OP, ADD_CLASS, UPDATE_TEXT, DETACH } from "../helpers.js";
+import { NO_OP, ADD_CLASS, UPDATE_TEXT, DETACH, REMOVE_CLASS } from "../helpers.js";
 
 import "./lobby.css";
 const getroomCreationFormRequestDiv = () => {
@@ -11,12 +11,13 @@ const getroomCreationFormRequestDiv = () => {
 
   // ELEMENT - button
 
-  const button = newButton();
+  const createAndJoinRoomButton = newButton();
+  ADD_CLASS(createAndJoinRoomButton, "create-and-join-btn");
 
-  UPDATE_TEXT(button, "+ and -> Room");
+  UPDATE_TEXT(createAndJoinRoomButton, "+ and -> Room");
 
   let onCreateRoomRequest = NO_OP;
-  button.addEventListener("click", () => {
+  createAndJoinRoomButton.addEventListener("click", () => {
     console.log(`[button create room onclick] `);
     const roomName = fieldRoomName.value;
     onCreateRoomRequest(roomName);
@@ -25,10 +26,59 @@ const getroomCreationFormRequestDiv = () => {
   // ELEMENT - descript
 
   const descDiv = newDivTag();
+  ADD_CLASS(descDiv, "desc-room-creation-form")
 
   const whenCreateRoomRequest = (fn) => {
     onCreateRoomRequest = fn;
   };
+
+
+  let interv;
+
+  const clearIntervalAndReset = () => {
+    clearInterval(interv)
+    UPDATE_TEXT(descDiv, "");
+    REMOVE_CLASS(descDiv, "swiss-error")
+
+    REMOVE_CLASS(descDiv, "invert-swiss-error")
+
+  }
+
+  const flash = (msg) => {
+
+
+    clearIntervalAndReset()
+
+    let flip = false;
+
+    let count = 6
+    
+    UPDATE_TEXT(descDiv, `${msg}`);
+    interv = setInterval(
+      () => {
+
+        if(flip){
+          REMOVE_CLASS(descDiv,"invert-swiss-error")
+
+          ADD_CLASS(descDiv,"swiss-error")
+        }else{
+          REMOVE_CLASS(descDiv, "swiss-error")
+          ADD_CLASS(descDiv, "invert-swiss-error")
+
+
+        }
+        count -= 1;
+        if (count < 0){
+          clearIntervalAndReset()
+        }
+        flip = !flip;
+
+      }
+
+      , 500
+    )
+
+  }
 
   const roomCreationResponse = (result) => {
     console.log(
@@ -38,12 +88,13 @@ const getroomCreationFormRequestDiv = () => {
     );
     const { roomId, msg } = result;
     if (roomId) {
-      UPDATE_TEXT(descDiv, "");
+
+      clearIntervalAndReset()
     } else {
-      UPDATE_TEXT(descDiv, `${msg}`);
+      flash(msg)
     }
   };
-  frame.replaceChildren(fieldRoomName, button, descDiv);
+  frame.replaceChildren(fieldRoomName, createAndJoinRoomButton, descDiv);
 
   return {
     frame,
@@ -150,8 +201,9 @@ const getLineUp = (clientGame) => {
   });
 
   [leaveButton,startGameButton,changeTeamButton].forEach(e => ADD_CLASS(e,"line-up-btn"));
-  [changeTeamButton, startGameButton].forEach(e => ADD_CLASS(e,"line-up-btn-in"))
+  [ startGameButton].forEach(e => ADD_CLASS(e,"line-up-btn-in"))
 
+  ADD_CLASS(changeTeamButton,"line-up-btn-mid")
   ADD_CLASS(leaveButton,"line-up-btn-out")
   clientGame.onGameStarted(() => {
     DETACH(startGameButton);
@@ -164,7 +216,8 @@ const getLineUp = (clientGame) => {
     console.log(`[LineUp iAmInRoom] rId ${roomId} rN ${roomName
 } creatorName ${creatorName
 }  `)
-    const _rName = roomName ? roomName.length > 6 ? `${roomName.slice(0, 6)}...` : roomName : '';
+    // const _rName = roomName ? roomName.length > 6 ? `${roomName.slice(0, 6)}...` : roomName : '';
+    const _rName = roomName;
     UPDATE_TEXT(roomDescDiv, `#${roomId} (${_rName})`);
     UPDATE_TEXT(creatorDiv, `Host: ${creatorName}`);
 
@@ -221,17 +274,23 @@ const getLineUp = (clientGame) => {
 
 const getRoomDoor = (clientGame, { id, name, creatorName }) => {
   const frame = newDivTag();
-  frame.style.border = "2px solid black";
+  ADD_CLASS(frame, "door-frame");
 
-  if (name.length > 6) {
-    name = `${name.slice(0, 6)}...`;
-  }
-  const divId = newDivTag(id);
+  
+  const divrId = newDivTag(`#${id}`);
   const divName = newDivTag(name);
-  const divCreatorName = newDivTag(creatorName);
-  [divId, divName, divCreatorName].forEach(
-    (ele) => (ele.style.border = "1px solid black")
+  const divCreatorName = newDivTag(`Owner : ${creatorName}`);
+  [divrId, divName, divCreatorName].forEach(
+    (ele) => ADD_CLASS(ele,"door-element")
   );
+
+  ADD_CLASS(divName, "door-element-heading");
+  ADD_CLASS(divrId, "door-element-rid");
+  ADD_CLASS(divrId, "door-element-heading");
+  ADD_CLASS(divCreatorName,"door-element-user")
+
+
+
 
   const detach = () => {
     console.log(`[RoomDoor] Detaching room ${id}`);
@@ -241,17 +300,27 @@ const getRoomDoor = (clientGame, { id, name, creatorName }) => {
   frame.addEventListener("click", () => {
     clientGame.iWantToJoinRoom(id);
   });
-  frame.replaceChildren(divId, divName, divCreatorName);
+
+
+  const contentwrap = newDivTag()
+  ADD_CLASS(contentwrap, "door-element-content-wrap");
+
+
+  contentwrap.replaceChildren(divCreatorName,divrId)
+  frame.replaceChildren(divName, contentwrap);
+
+
   return {
     frame,
     detach,
 
     getId: () => id,
   };
-};
+};// END OF ROOM DOOR
 
 const getJoinableRooms = (clientGame) => {
   const frame = newDivTag();
+  ADD_CLASS(frame, "joinable-rooms");
 
   const rooms = {};
 
@@ -570,9 +639,12 @@ const getBoard = (clientGame) => {
 const getLobbyPage = (clientGame) => {
   const mainFrame = newDivTag();
   ADD_CLASS(mainFrame, "page-lobby");
-
+  
   const roomCreationFormRequestDiv = getroomCreationFormRequestDiv();
-  const activeRooms = getJoinableRooms(clientGame);
+  const joinableRooms = getJoinableRooms(clientGame);
+
+
+
   const board = getBoard(clientGame);
 
   const iAmInRoom = (roomId,creatorName,roomName) => {
@@ -586,7 +658,7 @@ const getLobbyPage = (clientGame) => {
     } else {
       mainFrame.replaceChildren(
         roomCreationFormRequestDiv.frame,
-        activeRooms.frame
+        joinableRooms.frame
       );
     }
 
