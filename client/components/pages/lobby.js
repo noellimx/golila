@@ -103,12 +103,79 @@ const getroomCreationFormRequestDiv = () => {
   };
 };
 
+const fleetingDiamonds = (banana, bench) => {
+  const frame = newDivTag(`+ ${banana}`);
+  ADD_CLASS(frame, "fleeting-diamonds");
+
+  bench.frame.appendChild(frame);
+
+  const detach = () => {
+    DETACH(frame);
+  };
+
+  setTimeout(detach, 5000);
+  return {
+    frame,
+  };
+};
+
+const BONUS_SEE_SERVER = 50;
+
+const newmembersBag = () => {
+  const bag = {};
+
+  return {
+    set: (userId, bench) => {
+      bag[userId] = bench;
+      console.log(`adding ${userId}`);
+      console.log(`bench v`);
+      console.log(bench);
+    },
+    view: () => {
+      console.log(`BAG`);
+      console.log(bag);
+    },
+    showDiamonds: (tally) => {
+      const { individuals, winningIndividuals } = tally;
+
+      for (const { scorerId, credit } of individuals) {
+        console.log(`fleeting ind ${scorerId} ${bag[scorerId]}`);
+        // HACK
+
+        bag[scorerId] && fleetingDiamonds(credit, bag[scorerId]);
+      }
+
+      for (const id of winningIndividuals) {
+        console.log(`fleeting  winning ind ${id} ${bag[id]}`);
+
+        // HACK
+
+        bag[id] && fleetingDiamonds(BONUS_SEE_SERVER, bag[id]);
+      }
+    },
+  };
+};
+
+const newBench = (pN, teamNo) => {
+  const frame = newDivTag();
+
+  ADD_CLASS(frame, `roll-call-team-${teamNo}`);
+
+  const divPID = newDivTag(pN);
+  // ADD_CLASS(divPID, `roll-call-team-${teamNo}`);
+  frame.appendChild(divPID);
+
+  return { frame };
+};
+
 const _getRollCall = (teamNo) => {
   const frame = newDivTag();
 
   ADD_CLASS(frame, "roll-call-frame");
   const headerDiv = newDivTag(teamNo);
   ADD_CLASS(headerDiv, `roll-call-team-no-${teamNo}`);
+
+  const bag = newmembersBag();
 
   const update = (lineup) => {
     const _lineup = [...lineup];
@@ -118,22 +185,29 @@ const _getRollCall = (teamNo) => {
     );
 
     const divs = _lineup
-      ? lineup.map(({ participantName }) => {
-          const divPID = newDivTag(participantName);
-          ADD_CLASS(divPID, `roll-call-team-${teamNo}`);
+      ? lineup.map(({ participantName, participantId }) => {
+          const bench = newBench(participantName, teamNo);
 
-          return divPID;
+          bag.set(participantId, bench);
+          return bench.frame;
         })
       : [];
 
     frame.replaceChildren(headerDiv, ...divs);
+
+    bag.view();
+  };
+
+  const flashTally = (tally) => {
+    bag.showDiamonds(tally);
   };
 
   return {
     frame,
     update,
+    flashTally,
   };
-};
+}; // END OF ROLL CALL
 
 const getListLineUp = () => {
   const frame = newDivTag();
@@ -163,12 +237,18 @@ const getListLineUp = () => {
     DETACH(frame);
   };
 
+  const flashTally = (tally) => {
+    team1div.flashTally(tally);
+    team2div.flashTally(tally);
+  };
+
   return {
     frame,
     updateLineUp,
+    flashTally,
     detach,
   };
-};
+}; // END OF LIST LINE UP
 
 const getLineUp = (clientGame) => {
   let roomId;
@@ -260,6 +340,10 @@ const getLineUp = (clientGame) => {
     }
   };
 
+  const flashTally = (tally) => {
+    list.flashTally(tally);
+  };
+
   const init = () => {
     clientGame.whenLineUpChanges(lineUpIs);
     clientGame.whatIsTheLineUp().then(lineUpIs);
@@ -271,6 +355,7 @@ const getLineUp = (clientGame) => {
     frame,
     iAmInRoom,
     lineUpIs,
+    flashTally,
     onMyTeamChange,
   };
 }; // get line up div
@@ -393,11 +478,11 @@ const getFieldChain = () => {
 
   const myTeamChanged = (teamNo) => {
     if (teamNo === 1) {
-      frame.style.border = `1px solid #6ac2d9`;
+      frame.style.borderBottom = `1px solid #6ac2d9`;
     } else if (teamNo === 2) {
-      frame.style.border = `1px solid #fb7299`;
+      frame.style.borderBottom = `1px solid #fb7299`;
     } else {
-      frame.style.border = `1px solid red`;
+      frame.style.borderBottom = `1px solid red`;
     }
   };
   const chainContainer = [];
@@ -495,6 +580,7 @@ const KEYCODE_TO_TOKEN = (keycode) => {
 
 const getTimer = (clientGame) => {
   const frame = newDivTag();
+  ADD_CLASS(frame, "timer-frame");
 
   const desc = newDivTag();
   ADD_CLASS(desc, "timer");
@@ -502,7 +588,7 @@ const getTimer = (clientGame) => {
     //  HACK
     console.log(`[Timer] update text $= ${ms}`);
     if (ms) {
-      UPDATE_TEXT(desc, ms);
+      UPDATE_TEXT(desc, Math.floor(ms / 1000));
     } else {
       UPDATE_TEXT(desc, "");
     }
@@ -524,6 +610,45 @@ const getTimer = (clientGame) => {
   };
 };
 
+const newpopModal = () => {
+  const frame = newDivTag();
+  ADD_CLASS(frame, "model-scorer-pop");
+
+  const show = (username) => {
+    UPDATE_TEXT(frame, `💎  ${username} Scored  💎`);
+    frame.style.display = "flex";
+    ADD_CLASS(frame, "pop-scorer-fade-out");
+  };
+  const hide = () => {
+    frame.style.display = "";
+    REMOVE_CLASS(frame, "pop-scorer-fade-out");
+  };
+  return {
+    frame,
+    hide,
+    show,
+  };
+};
+
+const newcdModal = () => {
+  const frame = newDivTag();
+  ADD_CLASS(frame, "model-scorer-pop");
+
+  const show = (sec) => {
+    UPDATE_TEXT(frame, `Spawning in  ${sec} seconds!!`);
+    frame.style.display = "flex";
+    ADD_CLASS(frame, "pop-scorer-fade-out");
+  };
+  const hide = () => {
+    frame.style.display = "";
+    REMOVE_CLASS(frame, "pop-scorer-fade-out");
+  };
+  return {
+    frame,
+    hide,
+    show,
+  };
+};
 const getBoard = (clientGame) => {
   const frame = newDivTag();
   ADD_CLASS(frame, "board");
@@ -548,11 +673,47 @@ const getBoard = (clientGame) => {
   };
   const timer = getTimer();
 
+  const cdpop = newcdModal();
+
+  let cdInterv;
+
+  const resetCdInterv = () => {
+    clearInterval(cdInterv);
+    cdpop.hide();
+  };
+  // HACK
   const oncdLn = (sec) => {
     console.log(`[Board onCountDown] ${sec}`);
+
+    resetCdInterv();
+
+    if (sec - 1 === 0) return;
+    cdpop.show(sec - 1);
+
+    cdInterv = setTimeout(() => {
+      resetCdInterv();
+    }, 1100);
   };
+
+  const scorerpop = newpopModal();
+
+  let modalInterv;
+
+  const resetModalInterv = () => {
+    clearInterval(modalInterv);
+    scorerpop.hide();
+  };
+
   const onchainscoredLn = (scorer) => {
     console.log(`[onChainScored] ${scorer} scored!`);
+
+    resetModalInterv();
+
+    scorerpop.show(scorer);
+
+    modalInterv = setTimeout(() => {
+      resetModalInterv();
+    }, 1500);
   };
   const keydownLn = ({ code }) => {
     const token = KEYCODE_TO_TOKEN(code);
@@ -581,6 +742,21 @@ const getBoard = (clientGame) => {
     timer.detach();
     timer.reset();
   };
+
+  const ongameendRcv = () => {
+    console.log(`[Board] onGameEnd`);
+    clearIntervalAndResetTimer();
+    targetChain.reset();
+    fieldChain.reset();
+    // TODO
+    clientGame.canIHaveTally().then((tally) => {
+      console.log(`[canIHaveTally] <-v `);
+      console.log(tally);
+      lineUpDiv.flashTally(tally);
+    });
+    clientGame.removeOnGameEnd(ongameendRcv);
+  }
+
   const startedPlane = () => {
     console.log(`[startedPlane] `);
     clientGame.onCountDown(oncdLn);
@@ -598,24 +774,17 @@ const getBoard = (clientGame) => {
         timer.update(ms);
       });
     }, 1000);
-    clientGame.onGameEnd(() => {
-      console.log(`[Board] onGameEnd`);
-      clearIntervalAndResetTimer();
-      targetChain.reset();
-      fieldChain.reset();
-      // TODO
-      clientGame.canIHaveTally().then((tally) => {
-        console.log(`[canIHaveTally] <-v `);
-        console.table(tally);
-      });
-    });
+    clientGame.onGameEnd(ongameendRcv);
   };
   const dormantPlane = () => {
     console.log(`[dormantPlane]`);
     clearInterval(interv);
+  
 
     // TODO Client side tear down if game is not in progress.
     clientGame.removeCountDown(oncdLn);
+
+
     // clientGame.removeOnNewChain(onnewchainLn);
     // clientGame.removeOnChainScored(onchainscoredLn)
     // asdfasdf;
@@ -639,7 +808,7 @@ const getBoard = (clientGame) => {
   const init = () => {
     console.log("[Board init] line up div :v");
     console.log(lineUpDiv);
-    frame.appendChild(lineUpDiv.frame);
+    frame.replaceChildren(scorerpop.frame, cdpop.frame, lineUpDiv.frame);
     refresh();
     clientGame.onGameStarted(startedPlane);
   };

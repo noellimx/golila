@@ -101,4 +101,10 @@ Custom scripts:
 [ ] ERD update
 [x] clear fields on registration request submission
 [ ] bonus points for winning team
-[ ]
+[ ] Optimise settle game by database calls
+
+
+
+### Ponderings
+
+- How to ensure an event attaches a function once?

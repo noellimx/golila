@@ -183,6 +183,11 @@ const ClientGame = (io) => {
       io.on("game-ended", fn);
     };
 
+
+    const removeOnGameEnd = (fn) => {
+      io.off("game-ended", fn);
+    };
+
     const canIHaveTally = () => {
       return new Promise((resolve) => {
         io.emit("can-i-have-tally", (tally) => {
@@ -239,7 +244,7 @@ const ClientGame = (io) => {
       submitTry,
       whatIsMyChain,
       canIHaveTally,
-      submitChain,
+      submitChain, removeOnGameEnd,
       removeCountDown,
       onRoomNotStarted,
     };

@@ -357,7 +357,7 @@ const getSocketsOfRoomByParticipatingUserId = async (userId) => {
   return userSockets;
 };
 
-const OFFSET_SEC = 2;
+const OFFSET_SEC = 5;
 const OFFSET_MIN = 7;
 const getDateMinutesFromNow = (mins) => {
   const d = new Date();
@@ -468,19 +468,8 @@ const lockGameOfUser = async (userId) => {
   );
 };
 
-const bumpBanana = async (userId, credit) => {
-  if (credit <= 0) {
-    return;
-  }
-  await User.increment("credit", { by: credit, where: { id: userId } });
-};
-// returns userIds of settled
-const settleGame = async (userId) => {
-  const scorings = await getTallyOfMostRecentRoundOfUser(userId, false);
-
-  console.log(`[settleGame] := v`);
-  console.log(scorings);
-  const pot = scorings.reduce((acc, { scorerId, credit }) => {
+const aggrScoresPerUser = (scorings) => {
+  return scorings.reduce((acc, { scorerId, credit }) => {
     if (!acc[scorerId]) {
       acc[scorerId] = 0;
     }
@@ -489,6 +478,39 @@ const settleGame = async (userId) => {
       [scorerId]: acc[scorerId] + credit,
     };
   }, {});
+};
+
+// HACK why not use db??
+const aggrScoresPerTeam = (scorings) => {
+  const agg = scorings.reduce((acc, { teamNo, scorerId, credit }) => {
+    if (!acc[teamNo]) {
+      acc[teamNo] = 0;
+    }
+    return {
+      ...acc,
+      [teamNo]: acc[teamNo] + credit,
+    };
+  }, {});
+  return agg;
+};
+
+const bumpBanana = async (userId, credit) => {
+  if (credit <= 0) {
+    return;
+  }
+  await User.increment("credit", { by: credit, where: { id: userId } });
+};
+// returns userIds of settled
+const settleGame = async (userId) => {
+  const {
+    individuals: scorings,
+    winningTeams,
+    winningIndividuals,
+  } = await getTallyOfMostRecentRoundOfUser(userId, false);
+
+  console.log(`[settleGame] := v`);
+  console.log(scorings);
+  const pot = aggrScoresPerUser(scorings);
 
   console.log(pot);
 
@@ -505,6 +527,12 @@ const settleGame = async (userId) => {
     },
     []
   );
+
+  // hack
+  const BONUS = 50;
+  for await (const wuID of winningIndividuals) {
+    await bumpBanana(wuID, BONUS);
+  }
   console.log(`[setteGame] := ids ${JSON.stringify(updatedIds)}`);
   return updatedIds;
 };
@@ -633,11 +661,41 @@ const getTallyOfMostRecentRoundOfUser = async (userId, conceal = true) => {
       chain,
       credit,
       scorerName,
-      scorerId,
+      scorerId: conceal ? UserDoor.conceal(scorerId) : scorerId,
     };
   });
 
-  return scorings;
+  const teams = aggrScoresPerTeam(scorings);
+
+  const teamsArr = Object.entries(teams);
+
+  const winningTeams = teamsArr
+    .reduce((acc, team) => {
+      const thisAmd = team[1];
+      if (acc.length === 0) {
+        return thisAmd > 0 ? [team] : [];
+      }
+      const currentMax = acc[0][1];
+      if (currentMax === thisAmd) {
+        return [...acc, team];
+      } else if (currentMax < thisAmd) {
+        return [team];
+      }
+      return [...acc];
+    }, [])
+    .map(([teamNo]) => Number(teamNo));
+
+  const winningIndividuals = scorings
+    .filter(({ teamNo }) => {
+      return winningTeams.includes(teamNo);
+    })
+    .map(({ scorerId }) => scorerId);
+
+  return {
+    individuals: scorings,
+    winningTeams,
+    winningIndividuals,
+  };
 };
 
 const getCreditOf = async (userId) => {
