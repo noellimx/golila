@@ -5,7 +5,7 @@ import {
   newButton,
   newPasswordInput,
 } from "../elements/index.js";
-import { NO_OP, ADD_CLASS, DETACH } from "../helpers.js";
+import { NO_OP, ADD_CLASS, DETACH, UPDATE_TEXT } from "../helpers.js";
 
 const getLoginForm = () => {
   const frame = newDivTag();
@@ -101,9 +101,22 @@ const getRegistrationForm = () => {
   const detach = () => {
     DETACH(frame);
   };
+
+  const succeed = () => {
+    console.log("succeed");
+    username.value = "";
+    password.value = "";
+    password2.value = "";
+  };
+  const notSucceed = () => {
+    password.value = "";
+    password2.value = "";
+  };
   return {
     frame,
     detach,
+    notSucceed,
+    succeed,
 
     whenRegisterRequest: (fn) => {
       onregisterrequest = fn;
@@ -180,8 +193,10 @@ const getLoginPage = () => {
   const loginFailed = flashingDesc;
   const registrationResponse = ([createdUser, msg]) => {
     if (!createdUser) {
+      registrationForm.notSucceed();
       flashingDesc(msg);
     } else {
+      registrationForm.succeed();
       flashingDesc(msg, 1, 5000, "green");
     }
   };

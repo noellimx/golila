@@ -13,7 +13,7 @@ const initModels = (db) => {
   const Scoring = initModelScoring(db);
   Participant.belongsTo(User, { foreignKey: "participantId" });
 
-  Gameplay.belongsTo(Room, {foreignKey: "roomId"})  
+  Gameplay.belongsTo(Room, { foreignKey: "roomId" });
   Scoring.belongsTo(User, { foreignKey: "scorerId" });
 };
 

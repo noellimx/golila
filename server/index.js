@@ -28,7 +28,9 @@ import {
   getTallyOfMostRecentRoundOfUser,
   getCreditOf,
   settleGame,
-  registerUser, whoIsCreatorOfRoom
+  registerUser,
+  whoIsCreatorOfRoom,
+  getMyTeam,
 } from "./database/actions/game.js";
 import cookier from "cookie";
 import { seed } from "./database/api/seed.js";
@@ -107,15 +109,14 @@ const bindSocketEvents = (socket) => {
     const userId = _getDbUserIdOfSocket(socket);
 
     console.log(`[which-room] user of socket is ${userId}`);
-    const rId = await whichRoomIdIsUserIn(userId)
+    const rId = await whichRoomIdIsUserIn(userId);
 
-    if (!rId){
-      return cb(null,null,null)
+    if (!rId) {
+      return cb(null, null, null);
     }
     const { id: roomId, creatorName, name: roomName } = await getRoomData(rId);
     console.log(`[which-room] user of socket ${userId} is in room ${roomId}`);
     console.log(`[which-room] creatorName ${creatorName}`);
-
 
     cb(roomId, creatorName, roomName);
   });
@@ -196,6 +197,12 @@ const bindSocketEvents = (socket) => {
     const userId = _getDbUserIdOfSocket(socket);
     const retrieved = await getLineUp(userId);
     cb(retrieved);
+  });
+
+  socket.on("my-team-is", async (cb) => {
+    const userId = _getDbUserIdOfSocket(socket);
+    const teamNo = await getMyTeam(userId);
+    cb(teamNo);
   });
 
   socket.on("leave-room", async () => {
@@ -304,11 +311,9 @@ const bindSocketEvents = (socket) => {
   });
 
   const lockGameAndBroadcast_ThisIsEndOfRound = async (userId) => {
-
-    whichRoomIdIsUserIn(userId).then(rId => {
-
-      io.emit("room-not-started", rId)
-    })
+    whichRoomIdIsUserIn(userId).then((rId) => {
+      io.emit("room-not-started", rId);
+    });
     const isGA = await isGameActive(userId);
     if (!isGA) {
       return; // sanity check that if already NOT GA so we down broadcast twice.

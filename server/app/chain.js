@@ -10,7 +10,7 @@ const MODE_TEST = 1;
 
 const LENGTHS = {
   [MODE_EASY]: 10,
-  [MODE_TEST]: 1
+  [MODE_TEST]: 4,
 };
 
 const COLOR_GREEN = ARROW_DOWN;
@@ -39,7 +39,7 @@ const shuffleChain = (_chain) => {
   return chain;
 };
 
-const VARIANCE = 2
+const VARIANCE = 5;
 
 const getRandomChain = (difficulty = MODE_TEST, variance = VARIANCE) => {
   console.log(`[getRandomChain]`);
@@ -48,29 +48,26 @@ const getRandomChain = (difficulty = MODE_TEST, variance = VARIANCE) => {
 
   const length = min + range;
 
-
   const cutoffs = [getRandomInt(length), getRandomInt(length)];
   cutoffs.sort();
   console.log(`[getRandomChain] cut ${cutoffs}`);
 
-
   // HACK
-  const [_,neatchain] = cutoffs.reduceRight(([remainingL,queue],here,idx) => {
-    console.log(` - - - - - - - `)
-    console.log([remainingL,queue]);
-    const q = [...queue];
-    while (remainingL > here){
-     q.push(ARROWS[idx])
+  const [_, neatchain] = cutoffs.reduceRight(
+    ([remainingL, queue], here, idx) => {
+      console.log(` - - - - - - - `);
+      console.log([remainingL, queue]);
+      const q = [...queue];
+      while (remainingL > here) {
+        q.push(ARROWS[idx]);
 
-     remainingL -= 1;
-   }
+        remainingL -= 1;
+      }
 
-    return [remainingL, [...q]]
-
-
-
- },[length, []])
-
+      return [remainingL, [...q]];
+    },
+    [length, []]
+  );
 
   const randomchain = shuffleChain(neatchain);
 

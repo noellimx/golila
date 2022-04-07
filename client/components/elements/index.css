@@ -1,3 +1,8 @@
-.default-new-tag{
+.default-new-tag {
   display: flex;
+}
+.token--- {
+  height: 15vh;
+  margin-left: 5px;
+  margin-right: 5px;
 }

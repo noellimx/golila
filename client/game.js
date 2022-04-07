@@ -7,14 +7,13 @@ const ClientGame = (io) => {
     const whichRoomCb = (chanRecv) => {
       io.emit("which-room", (roomId, creatorName, roomName) => {
         console.log(`[whichRoomCb] <- roomId ${roomId}`);
-        console.log(`[whichRoomCb] <- creatorName ${creatorName
-          }`); console.log(`[whichRoomCb] <- creatorName ${roomName
-            }`);
+        console.log(`[whichRoomCb] <- creatorName ${creatorName}`);
+        console.log(`[whichRoomCb] <- creatorName ${roomName}`);
 
         chanRecv(roomId, creatorName, roomName);
       });
     };
-    const whichRoomAmI = whichRoomCb
+    const whichRoomAmI = whichRoomCb;
 
     const whenIchangeRoom = (fn) => {
       console.log(`whenIchangeRoom`);
@@ -51,6 +50,17 @@ const ClientGame = (io) => {
           console.log(`[whatIsTheLineUp] := ${JSON.stringify(response)}`);
           console.log(response);
           resolve(response);
+        });
+      });
+    };
+
+    const whatIsMyTeam = () => {
+      console.log(`[whatIsMyTeam]`);
+      return new Promise((resolve) => {
+        io.emit("my-team-is", (teamNo) => {
+          console.log(`[whatIsMyTeam] := ${JSON.stringify(teamNo)}`);
+          console.log(teamNo);
+          resolve(teamNo);
         });
       });
     };
@@ -105,7 +115,6 @@ const ClientGame = (io) => {
       onroomcreatedfn(id);
     });
 
-
     let onroomnotstartedLn = NO_OP;
 
     const onRoomNotStarted = (fn) => {
@@ -116,8 +125,6 @@ const ClientGame = (io) => {
       console.log(`[room-not-started] room ${id}`);
       onroomnotstartedLn(id);
     });
-
-
 
     let onroomdeletefn = NO_OP;
     const onRoomDeleted = (fn) => {
@@ -211,6 +218,7 @@ const ClientGame = (io) => {
       howLongMoreMs,
       onChainScored,
       whatIsTheLineUp,
+      whatIsMyTeam,
       whenLineUpChanges,
       whenIchangeRoom,
       iWantToLeaveRoom,
@@ -232,7 +240,8 @@ const ClientGame = (io) => {
       whatIsMyChain,
       canIHaveTally,
       submitChain,
-      removeCountDown, onRoomNotStarted
+      removeCountDown,
+      onRoomNotStarted,
     };
   })(cookier);
 };

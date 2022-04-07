@@ -99,4 +99,6 @@ Custom scripts:
 [ ] participating room playing : 1- spawning time flash, 2- coins img, 3 someone hit flash
 [ ] participating room end of round : tally
 [ ] ERD update
-[ ] clear fields on registration request submission
+[x] clear fields on registration request submission
+[ ] bonus points for winning team
+[ ]
