@@ -72,50 +72,51 @@ heroku addons must have postgres.
 - tally with gameplay.chain
 - first tally will register score, one row per chain (chain, round , team, score)
 
-[ ] Game #1244: set timer
+[x] Game #1244: set timer
 
 - [Moment Game End] timer runs out is triggered and game will be locked on first successful submission after gameplay end time.
 
 - Server: On game ends, notify client game ends
 
-[ ] Game #1245: Scoring
+[x] Game #1245: Scoring
 
 - Create table scoring
 - Client: On notify game ends, ask whats the tally
 
-[ ] Scoring: _Only players staying until the end can claim money_
+[x] Scoring: _Only players staying until the end can claim money_
 
 - transaction should occur at [Moment Game End]. See Game #1244
 - payout for each player is total of the team.
 
-[ ] User Display: Credit System (navbar + emit)
+[x] User Display: Credit System (navbar + emit)
 
-[ ] Board.dormantPlane tear down if game is not active
+[x] Board.dormantPlane tear down if game is not active
 
-[ ] CSS
+[x] CSS
 
 - Spawn time
 - general arrangement
 
-[ ] Registration Page
+[x] Registration Page
 
 [ ] DEPLOYMENT
 
+[ ] Optimise settle game by storing information and call database
+
+
 ### SPRINT VIEWS
 
-[ ] show room name instead of room id in the active room page
-[ ] show room name instead of room id in the participating room
-[ ] joinable rooms as nice cards
-[ ] participating room staging : 1- tabular room, 2- hovering colors
-[ ] participating room playing : 1- spawning time flash, 2- coins img, 3 someone hit flash
-[ ] participating room end of round : tally
+[x] show room name instead of room id in the active room page
+[x] show room name instead of room id in the participating room
+[x] joinable rooms as nice cards
+[x] participating room staging : 1- tabular room, 2- hovering colors
+[x] participating room playing : 1- spawning time flash, 2- coins img, 3 someone hit flash
+[x] participating room end of round : tally
 [ ] ERD update
 [x] clear fields on registration request submission
-[ ] bonus points for winning team
-[ ] Optimise settle game by database calls
-
-
+[x] bonus points for winning team
 
 ### Ponderings
 
 - How to ensure an event attaches a callback once?
+- What are the asynchronous strategies for filters and loops? When do I need to use them?
