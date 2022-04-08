@@ -81,11 +81,11 @@ Heroku Postgres does not allow dropping of tables. Before clean migration, reset
 
 ## Feat
 
-[x] remove package CleanWebpackPlugin
-[x] check if Sequelize accept heroku psql connection string
-[x] how to host on heroku????
+[x] remove package CleanWebpackPlugin \
+[x] check if Sequelize accept heroku psql connection string \
 
-[x] not all users in room receive game-start event
+[x] how to host on heroku???? \
+[x] not all users in room receive game-start event \
 [ ] need to tear down previous room events
 
 [x] Game: submit chain (See #1244, #1245)
@@ -126,17 +126,17 @@ Heroku Postgres does not allow dropping of tables. Before clean migration, reset
 
 ### SPRINT VIEWS
 
-[x] show room name instead of room id in the active room page
-[x] show room name instead of room id in the participating room
-[x] joinable rooms as nice cards
-[x] participating room staging : 1- tabular room, 2- hovering colors
-[x] participating room playing : 1- spawning time flash, 2- coins img, 3 someone hit flash
-[x] participating room end of round : tally
-[ ] ERD update
-[ ] Organise npm dependencies
-[ ] Organise npm scripts
-[x] clear fields on registration request submission
-[x] bonus points for winning team
+[x] show room name instead of room id in the active room page \
+[x] show room name instead of room id in the participating room \
+[x] joinable rooms as nice cards \
+[x] participating room staging : 1- tabular room, 2- hovering colors \
+[x] participating room playing : 1- spawning time flash, 2- coins img, 3 someone hit flash \
+[x] participating room end of round : tally \
+[ ] ERD update \
+[ ] Organise npm dependencies \
+[ ] Organise npm scripts \
+[x] clear fields on registration request submission \
+[x] bonus points for winning team \
 
 ### Ponderings
 
