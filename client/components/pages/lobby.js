@@ -755,7 +755,7 @@ const getBoard = (clientGame) => {
       lineUpDiv.flashTally(tally);
     });
     clientGame.removeOnGameEnd(ongameendRcv);
-  }
+  };
 
   const startedPlane = () => {
     console.log(`[startedPlane] `);
@@ -779,11 +779,9 @@ const getBoard = (clientGame) => {
   const dormantPlane = () => {
     console.log(`[dormantPlane]`);
     clearInterval(interv);
-  
 
     // TODO Client side tear down if game is not in progress.
     clientGame.removeCountDown(oncdLn);
-
 
     // clientGame.removeOnNewChain(onnewchainLn);
     // clientGame.removeOnChainScored(onchainscoredLn)

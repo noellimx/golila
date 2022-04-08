@@ -183,7 +183,6 @@ const ClientGame = (io) => {
       io.on("game-ended", fn);
     };
 
-
     const removeOnGameEnd = (fn) => {
       io.off("game-ended", fn);
     };
@@ -244,7 +243,8 @@ const ClientGame = (io) => {
       submitTry,
       whatIsMyChain,
       canIHaveTally,
-      submitChain, removeOnGameEnd,
+      submitChain,
+      removeOnGameEnd,
       removeCountDown,
       onRoomNotStarted,
     };

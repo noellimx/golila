@@ -514,12 +514,11 @@ const settleGame = async (userId) => {
 
   console.log(pot);
 
-  console.log(scorings)
-  console.log(Object.entries(pot))
+  console.log(scorings);
+  console.log(Object.entries(pot));
   const updatedIds = await Object.entries(pot).reduce(
     async (ids, [scorerId, credit]) => {
-
-      ids  = await ids;
+      ids = await ids;
       try {
         await bumpBanana(scorerId, credit);
         return [...ids, scorerId];
@@ -528,7 +527,6 @@ const settleGame = async (userId) => {
         console.log(err);
         return [...ids];
       }
-
     },
     []
   );
@@ -536,9 +534,9 @@ const settleGame = async (userId) => {
   // hack
   const BONUS = 50;
 
-  console.log(`w in`)
+  console.log(`w in`);
 
-  console.log(winningIndividuals)
+  console.log(winningIndividuals);
   for await (const wuID of winningIndividuals) {
     await bumpBanana(wuID, BONUS);
   }

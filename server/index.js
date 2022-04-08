@@ -50,8 +50,6 @@ app.use(cookieParser());
 
 // await seed();
 
-
-
 bindRoutes(app);
 
 const _getCookies = (socket) => socket.handshake.headers.cookie;

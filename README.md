@@ -49,9 +49,6 @@ https://git.heroku.com/golila.git
 
 heroku addons must have postgres.
 
-
-
-
 # To Do
 
 ## Glitch
@@ -102,7 +99,6 @@ heroku addons must have postgres.
 [ ] DEPLOYMENT
 
 [ ] Optimise settle game by storing information and call database
-
 
 ### SPRINT VIEWS
 
