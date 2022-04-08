@@ -13,6 +13,7 @@ export default merge(common, {
     new HtmlWebpackPlugin({
       cache: false,
       filename: "main.html",
+      inject: true,
       template: path.resolve(__dirname, "..", "client", "main.html"),
     }),
   ],
