@@ -71,7 +71,7 @@ heroku addons must have postgres.
 ## Notes 
 
 2022 APR 8: See ```start``` npm script for deployment steps. heroku will run ```npm run start``` on dyno restart. \
-Heroku Postgres does not allow dropping of tables. Before clean migration, reset the add-on instead.
+Heroku Postgres does not allow dropping of database. Before clean migration, reset the add-on instead.
 
 # To Do
 
