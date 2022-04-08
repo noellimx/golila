@@ -41,6 +41,17 @@ Custom scripts:
 
 `npm run client-dev` build client hot
 
+# Deployment (Heroku)
+
+Deployment method via Git.
+
+https://git.heroku.com/golila.git
+
+heroku addons must have postgres.
+
+
+
+
 # To Do
 
 ## Glitch
@@ -107,4 +118,4 @@ Custom scripts:
 
 ### Ponderings
 
-- How to ensure an event attaches a function once?
+- How to ensure an event attaches a callback once?

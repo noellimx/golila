@@ -1,5 +1,4 @@
 import HtmlWebpackPlugin from "html-webpack-plugin";
-import { CleanWebpackPlugin } from "clean-webpack-plugin";
 import { merge } from "webpack-merge";
 
 import common from "./webpack.common.js";

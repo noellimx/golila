@@ -1,25 +1,26 @@
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const path = require("path");
-const { merge } = require("webpack-merge");
-const common = require("./webpack.common.js");
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import { merge } from "webpack-merge";
 
-module.exports = merge(common, {
+import common from "./webpack.common.js";
+
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+export default merge(common, {
   mode: "production",
   plugins: [
     new HtmlWebpackPlugin({
-      // name this file main, so that it does not get automatically requested as a static file
+      cache: false,
       filename: "main.html",
-      inject: true,
-      template: path.resolve(__dirname, "..", "src", "main.html"),
-      // a favicon can be included in the head. use this config to point to it
-      // favicon: resolve(__dirname, '..', 'src', 'favicon.png'),
-      alwaysWriteToDisk: true,
+      template: path.resolve(__dirname, "..", "client", "main.html"),
     }),
   ],
   module: {
     rules: [
       {
-        test: /\.(js|mjs|jsx)$/, // regex to see which files to run babel on
+        test: /\.(js|mjs|jsx)$/,
+        exclude: /node_modules/,
         use: {
           loader: "babel-loader",
           options: {

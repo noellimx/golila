@@ -1,37 +1,43 @@
 import { Sequelize } from "sequelize";
-import configs from "../config/config.js";
+import CONFIGS from "../config/config.js";
 
-const getDbCredentials = (env, configs) => {
+
+const ENVIRONMENT = process.env.NODE_ENV || "development";
+
+console.log(`ENVIRONMENT is ${ENVIRONMENT}`)
+
+
+const newSequelize = (env, configs) => {
   const config = configs[env];
 
   if (env === "production") {
     // Break apart the Heroku database url and rebuild the configs we need
-    const { DATABASE_URL } = process.env;
-    const dbUrl = URL(DATABASE_URL);
-    const username = dbUrl.auth.slice(0, dbUrl.auth.indexOf(":"));
-    const password = dbUrl.auth.slice(
-      dbUrl.auth.indexOf(":") + 1,
-      dbUrl.auth.length
-    );
-    const dbName = dbUrl.path.slice(1);
-    const host = dbUrl.hostname;
-    const { port } = dbUrl;
-    config.host = host;
-    config.port = port;
-    return [dbName, username, password, config];
+    console.log(`[Get Db Credentials] production ?=`)
+    console.log(config)
+
+    const {opts} = config;
+    const { DATABASE_URL} = process.env;
+    return new Sequelize(DATABASE_URL, opts);
   }
 
-  // If env is not production, retrieve DB auth details from the config
-  else {
-    return [config.database, config.username, config.password, config];
+  else if (env === "development"){
+    const { database, username, password, host
+ ,dialect} = config;
+
+    const opts = {
+      host,
+        dialect ,
+    }
+
+    return new Sequelize(database, username, password, opts);
   }
+
+  throw new Error(`[getDbCredentials] Environment not recognised`)
 };
-const env = process.env.NODE_ENV || "development";
 
-const dbCredentials = getDbCredentials(env, configs);
 
 console.log("Creating sequelize");
-const sequelize = new Sequelize(...dbCredentials);
+const sequelize = newSequelize(ENVIRONMENT,CONFIGS)
 
 console.log(`Connected. Database Name: ${sequelize.getDatabaseName()}`);
 
