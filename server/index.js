@@ -40,7 +40,7 @@ import {
   updateSession,
   removeSession,
 } from "./database/api/session.js";
-const SERVER_LISTENING_PORT = 3004;
+const SERVER_LISTENING_PORT = process.env.PORT || 3004;
 const app = express(); // framework
 const server = http.createServer(app); // communications
 const io = new Server(server); // upgrade / mounting
