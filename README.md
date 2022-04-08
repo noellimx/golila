@@ -8,6 +8,15 @@ Owner of room starts the game and match the sequence of crypto coins.
 
 ## This is a mono repo.
 
+### Without hot reloading
+```./full-stack-local-server-local-db.sh``` Run without hot reloading.
+
+### With hot reloading
+
+Run two processes.
+```./dev.sh``` Initialize database and run with server hot reloading.
+```npm run client-dev``` Run client hot reloading.
+
 ## Server
 
 Please note no production build.
@@ -54,6 +63,9 @@ Deployment method via Git.
 https://git.heroku.com/golila.git
 
 heroku addons must have postgres.
+
+2022 APR 8: See ```start``` npm script for deployment steps. heroku will run ```npm run start``` on dyno restart.
+
 
 # To Do
 
