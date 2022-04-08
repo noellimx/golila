@@ -109,6 +109,7 @@ heroku addons must have postgres.
 [x] participating room playing : 1- spawning time flash, 2- coins img, 3 someone hit flash
 [x] participating room end of round : tally
 [ ] ERD update
+[ ] Organise npm dependencies
 [x] clear fields on registration request submission
 [x] bonus points for winning team
 

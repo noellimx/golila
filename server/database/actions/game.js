@@ -692,11 +692,15 @@ const getTallyOfMostRecentRoundOfUser = async (userId, conceal = true) => {
     }, [])
     .map(([teamNo]) => Number(teamNo));
 
-  const winningIndividuals = scorings
-    .filter(({ teamNo }) => {
-      return winningTeams.includes(teamNo);
-    })
-    .map(({ scorerId }) => scorerId);
+  const winningIndividuals = [
+    ...new Set(
+      scorings
+        .filter(({ teamNo }) => {
+          return winningTeams.includes(teamNo);
+        })
+        .map(({ scorerId }) => scorerId)
+    ),
+  ];
 
   return {
     individuals: scorings,

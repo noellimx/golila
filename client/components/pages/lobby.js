@@ -121,6 +121,19 @@ const fleetingDiamonds = (banana, bench) => {
 
 const BONUS_SEE_SERVER = 50;
 
+// this is a VIEW LOGIC. the same function is a CONTROLLER LOGIC.
+const aggrScoresPerUser = (scorings) => {
+  return scorings.reduce((acc, { scorerId, credit }) => {
+    if (!acc[scorerId]) {
+      acc[scorerId] = 0;
+    }
+    return {
+      ...acc,
+      [scorerId]: acc[scorerId] + credit,
+    };
+  }, {});
+};
+
 const newmembersBag = () => {
   const bag = {};
 
@@ -137,8 +150,9 @@ const newmembersBag = () => {
     },
     showDiamonds: (tally) => {
       const { individuals, winningIndividuals } = tally;
+      const pot = aggrScoresPerUser(individuals);
 
-      for (const { scorerId, credit } of individuals) {
+      for (const [scorerId, credit] of Object.entries(pot)) {
         console.log(`fleeting ind ${scorerId} ${bag[scorerId]}`);
         // HACK
 
