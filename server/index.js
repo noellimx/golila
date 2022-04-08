@@ -48,7 +48,9 @@ const io = new Server(server); // upgrade / mounting
 app.use(express.static("dist"));
 app.use(cookieParser());
 
-await seed();
+// await seed();
+
+
 
 bindRoutes(app);
 

@@ -15,7 +15,7 @@ const newSequelize = (env, configs) => {
     console.log(`[Get Db Credentials] production ?=`)
     console.log(config)
 
-    const {opts} = config;
+    const opts = config;
     const { DATABASE_URL} = process.env;
     return new Sequelize(DATABASE_URL, opts);
   }

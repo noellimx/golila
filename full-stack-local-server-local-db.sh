@@ -5,6 +5,10 @@
 # npm i 
 
 
+
 npm run db:drop
 npm run db:create
 npm run db:migrate
+npm run client-build
+npm run server-prod-local-db
+
