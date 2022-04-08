@@ -67,6 +67,10 @@ heroku addons must have postgres.
 
 2022 APR 8: See ```start``` npm script for deployment steps. heroku will run ```npm run start``` on dyno restart.
 
+## Notes 
+
+2022 APR 8: See ```start``` npm script for deployment steps. heroku will run ```npm run start``` on dyno restart. \
+Heroku Postgres does not allow dropping of tables. Before clean migration, reset the add-on instead.
 
 # To Do
 
@@ -76,14 +80,14 @@ heroku addons must have postgres.
 
 ## Feat
 
-[ ] remove package CleanWebpackPlugin
-[ ] check if Sequelize accept heroku psql connection string
-[ ] how to host on heroku????
+[x] remove package CleanWebpackPlugin
+[x] check if Sequelize accept heroku psql connection string
+[x] how to host on heroku????
 
 [x] not all users in room receive game-start event
 [ ] need to tear down previous room events
 
-[ ] Game: submit chain (See #1244, #1245)
+[x] Game: submit chain (See #1244, #1245)
 
 - tally with gameplay.chain
 - first tally will register score, one row per chain (chain, round , team, score)
@@ -115,7 +119,7 @@ heroku addons must have postgres.
 
 [x] Registration Page
 
-[ ] DEPLOYMENT
+[x] DEPLOYMENT
 
 [ ] Optimise settle game by storing information and call database
 
