@@ -1,3 +1,9 @@
+
+## Game play
+
+Join a room, choose your team and wait for game to start.
+Owner of room starts the game and match the sequence of crypto coins.
+
 # Development Notes
 
 ## This is a mono repo.
