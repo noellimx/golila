@@ -357,7 +357,7 @@ const getSocketsOfRoomByParticipatingUserId = async (userId) => {
   return userSockets;
 };
 
-const OFFSET_SEC = 10;
+const OFFSET_SEC = 70;
 const OFFSET_MIN = 7;
 const getDateMinutesFromNow = (mins) => {
   const d = new Date();

@@ -117,3 +117,4 @@ heroku addons must have postgres.
 
 - How to ensure an event attaches a callback once?
 - What are the asynchronous strategies for filters and loops? When do I need to use them?
+- What is inject:true in HtmlWebpackPlugin Config?
