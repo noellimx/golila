@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Project 3",
   "scripts": {
-    "start" : "node hi.js && --env production",
+    "start" : "./full-stack-heroku.sh",
     "db:create": "sequelize db:create",
     "db:migrate": "sequelize db:migrate",
     "db:drop": "sequelize db:drop",
