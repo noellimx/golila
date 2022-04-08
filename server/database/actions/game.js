@@ -357,7 +357,7 @@ const getSocketsOfRoomByParticipatingUserId = async (userId) => {
   return userSockets;
 };
 
-const OFFSET_SEC = 90;
+const OFFSET_SEC = 10;
 const OFFSET_MIN = 7;
 const getDateMinutesFromNow = (mins) => {
   const d = new Date();
@@ -514,8 +514,12 @@ const settleGame = async (userId) => {
 
   console.log(pot);
 
+  console.log(scorings)
+  console.log(Object.entries(pot))
   const updatedIds = await Object.entries(pot).reduce(
     async (ids, [scorerId, credit]) => {
+
+      ids  = await ids;
       try {
         await bumpBanana(scorerId, credit);
         return [...ids, scorerId];
@@ -524,12 +528,17 @@ const settleGame = async (userId) => {
         console.log(err);
         return [...ids];
       }
+
     },
     []
   );
 
   // hack
   const BONUS = 50;
+
+  console.log(`w in`)
+
+  console.log(winningIndividuals)
   for await (const wuID of winningIndividuals) {
     await bumpBanana(wuID, BONUS);
   }
