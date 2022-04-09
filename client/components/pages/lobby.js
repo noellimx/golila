@@ -14,6 +14,13 @@ import {
 } from "../helpers.js";
 
 import "./lobby.css";
+import ImgCoinBack from "../../static/back.jpeg";
+
+import ImgCoin40 from "../../static/40.png";
+import ImgCoin38 from "../../static/38.png";
+import ImgCoin39 from "../../static/39.png";
+
+
 
 const getroomCreationFormRequestDiv = () => {
   const frame = newDivTag();
@@ -663,6 +670,36 @@ const newcdModal = () => {
     show,
   };
 };
+
+
+const touchPressLnGn = (code,fn) => () => fn({code})
+
+
+
+
+
+const getTouchPresssModal = (fn) => {
+  const jtouchln = touchPressLnGn("KeyJ",fn)
+  const ktouchln = touchPressLnGn("KeyK",fn)
+  const ltouchln = touchPressLnGn("KeyL",fn)
+  const bckspacetouchln = touchPressLnGn("-",fn)
+  const frame= newDivTag()
+  ADD_CLASS(frame,"touch-modal")
+  const jImg = newImg(ImgCoin38)
+  jImg.addEventListener("click", jtouchln)
+  const kImg = newImg(ImgCoin39)
+  kImg.addEventListener("click",ktouchln)
+
+  const lImg = newImg( ImgCoin40)
+  lImg.addEventListener("click",ltouchln)
+
+  const backImg = newImg(ImgCoinBack)
+  backImg.style.width = "80px"
+  backImg.addEventListener("click",bckspacetouchln)
+
+  frame.replaceChildren(jImg,kImg,lImg,backImg)
+  return {frame}
+}
 const getBoard = (clientGame) => {
   const frame = newDivTag();
   ADD_CLASS(frame, "board");
@@ -738,6 +775,7 @@ const getBoard = (clientGame) => {
 
     fieldChain.onChainChange(clientGame.submitChain);
   };
+ 
 
   const onnewchainLn = (chain) => {
     console.log(`[Board onNewChain] ${chain}`);
@@ -770,6 +808,8 @@ const getBoard = (clientGame) => {
     });
     clientGame.removeOnGameEnd(ongameendRcv);
   };
+
+  const touchModal = getTouchPresssModal(keydownLn)
 
   const startedPlane = () => {
     console.log(`[startedPlane] `);
@@ -820,7 +860,7 @@ const getBoard = (clientGame) => {
   const init = () => {
     console.log("[Board init] line up div :v");
     console.log(lineUpDiv);
-    frame.replaceChildren(scorerpop.frame, cdpop.frame, lineUpDiv.frame);
+    frame.replaceChildren(touchModal.frame,scorerpop.frame, cdpop.frame, lineUpDiv.frame);
     refresh();
     clientGame.onGameStarted(startedPlane);
   };
