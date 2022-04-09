@@ -1,12 +1,11 @@
 import crypto from "crypto";
 
-import { ENVIRONMENT } from "../config.js";
 
 const hashPassword = (plain) =>
   crypto.createHmac("sha256", "password").update(plain).digest("hex");
 
 
-const KEY_USER_DOOR = "d6F3Efeq" + ENVIRONMENT === "production" ? `${Math.floor(Math.random() * 89080)}` : '';
+const KEY_USER_DOOR = "d6F3Efeq" ;
 const ALGO_USER_DOOR = "aes-256-cbc";
 const IV_USER_DOOR = "692e44dbbea073fc1a8d1c37ea68dffa";
 const getUserDoor = (algo, key, iv) => {
