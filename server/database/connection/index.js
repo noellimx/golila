@@ -1,9 +1,7 @@
 import { Sequelize } from "sequelize";
 import CONFIGS from "../config/config.js";
 
-const ENVIRONMENT = process.env.NODE_ENV || "development";
-
-console.log(`ENVIRONMENT is ${ENVIRONMENT}`);
+import {ENVIRONMENT} from "../../config.js"
 
 const newSequelize = (env, configs) => {
   const config = configs[env];

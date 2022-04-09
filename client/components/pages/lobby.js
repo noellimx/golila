@@ -682,7 +682,7 @@ const getTouchPresssModal = (fn) => {
   const jtouchln = touchPressLnGn("KeyJ",fn)
   const ktouchln = touchPressLnGn("KeyK",fn)
   const ltouchln = touchPressLnGn("KeyL",fn)
-  const bckspacetouchln = touchPressLnGn("-",fn)
+  const bckspacetouchln = touchPressLnGn("Backspace",fn)
   const frame= newDivTag()
   ADD_CLASS(frame,"touch-modal")
   const jImg = newImg(ImgCoin38)
