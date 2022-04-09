@@ -83,6 +83,7 @@ Heroku Postgres does not allow dropping of database. Before clean migration, res
 ## Glitch
 
 [ ] First keydown after game start does not emit to server.
+[ ] On heroku, start game spawns crytochain immediately instead of waiting for 5 seconds.
 
 ## Feat
 
