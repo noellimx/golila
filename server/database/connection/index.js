@@ -1,7 +1,7 @@
 import { Sequelize } from "sequelize";
 import CONFIGS from "../config/config.js";
 
-import {ENVIRONMENT} from "../../config.js"
+import { ENVIRONMENT } from "../../config.js";
 
 const newSequelize = (env, configs) => {
   const config = configs[env];

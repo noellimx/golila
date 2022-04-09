@@ -1,5 +1,5 @@
-
 # Golila
+
 https://golila.herokuapp.com/
 
 ## Game play
@@ -8,7 +8,6 @@ Join a room, choose your team and wait for game to start.
 Owner of room starts the game and match the sequence of crypto coins.
 Game runs for 60 seconds and bonus points for winning team!
 
-
 ![alt text](keys.png)
 
 # Development Notes
@@ -16,13 +15,14 @@ Game runs for 60 seconds and bonus points for winning team!
 ## This is a mono repo.
 
 ### Without hot reloading
-```./full-stack-local-server-local-db.sh``` Run without hot reloading.
+
+`./full-stack-local-server-local-db.sh` Run without hot reloading.
 
 ### With hot reloading
 
 Run two processes.
-```./dev.sh``` Initialize database and run with server hot reloading.
-```npm run client-dev``` Run client hot reloading.
+`./dev.sh` Initialize database and run with server hot reloading.
+`npm run client-dev` Run client hot reloading.
 
 ## Server
 
@@ -71,11 +71,11 @@ https://git.heroku.com/golila.git
 
 heroku addons must have postgres.
 
-2022 APR 8: See ```start``` npm script for deployment steps. heroku will run ```npm run start``` on dyno restart.
+2022 APR 8: See `start` npm script for deployment steps. heroku will run `npm run start` on dyno restart.
 
-## Notes 
+## Notes
 
-2022 APR 8: See ```start``` npm script for deployment steps. heroku will run ```npm run start``` on dyno restart. \
+2022 APR 8: See `start` npm script for deployment steps. heroku will run `npm run start` on dyno restart. \
 Heroku Postgres does not allow dropping of database. Before clean migration, reset the add-on instead.
 
 # To Do

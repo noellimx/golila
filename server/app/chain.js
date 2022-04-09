@@ -48,7 +48,11 @@ const getRandomChain = (difficulty = MODE_TEST, variance = VARIANCE) => {
 
   const length = min + range;
 
-  const cutoffs = [getRandomInt(length), getRandomInt(length)];
+  const cutoffs = [
+    getRandomInt(length),
+    getRandomInt(length),
+    getRandomInt(length),
+  ];
   cutoffs.sort();
   console.log(`[getRandomChain] cut ${cutoffs}`);
 

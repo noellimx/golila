@@ -20,8 +20,6 @@ import ImgCoin40 from "../../static/40.png";
 import ImgCoin38 from "../../static/38.png";
 import ImgCoin39 from "../../static/39.png";
 
-
-
 const getroomCreationFormRequestDiv = () => {
   const frame = newDivTag();
   ADD_CLASS(frame, "frame-room-create");
@@ -671,35 +669,45 @@ const newcdModal = () => {
   };
 };
 
-
-const touchPressLnGn = (code,fn) => () => fn({code})
-
-
-
-
+const touchPressLnGn = (code, fn) => () => fn({ code });
 
 const getTouchPresssModal = (fn) => {
-  const jtouchln = touchPressLnGn("KeyJ",fn)
-  const ktouchln = touchPressLnGn("KeyK",fn)
-  const ltouchln = touchPressLnGn("KeyL",fn)
-  const bckspacetouchln = touchPressLnGn("Backspace",fn)
-  const frame= newDivTag()
-  ADD_CLASS(frame,"touch-modal")
-  const jImg = newImg(ImgCoin38)
-  jImg.addEventListener("click", jtouchln)
-  const kImg = newImg(ImgCoin39)
-  kImg.addEventListener("click",ktouchln)
+  const frame = newDivTag();
+  ADD_CLASS(frame, "touch-modal");
 
-  const lImg = newImg( ImgCoin40)
-  lImg.addEventListener("click",ltouchln)
+  const jtouchln = touchPressLnGn("KeyJ", fn);
+  const ktouchln = touchPressLnGn("KeyK", fn);
+  const ltouchln = touchPressLnGn("KeyL", fn);
+  const bckspacetouchln = touchPressLnGn("Backspace", fn);
 
-  const backImg = newImg(ImgCoinBack)
-  backImg.style.width = "80px"
-  backImg.addEventListener("click",bckspacetouchln)
+  const wrapJ = newDivTag();
+  const wrapK = newDivTag();
+  const wrapL = newDivTag();
+  const descJ = newDivTag("J");
+  const descK = newDivTag("K");
+  const descL = newDivTag("L");
 
-  frame.replaceChildren(jImg,kImg,lImg,backImg)
-  return {frame}
-}
+  [descJ, descJ, descL].forEach((ele) => (ele.style.justifyContent = "center"));
+
+  const jImg = newImg(ImgCoin38);
+  jImg.addEventListener("click", jtouchln);
+  const kImg = newImg(ImgCoin39);
+  kImg.addEventListener("click", ktouchln);
+
+  const lImg = newImg(ImgCoin40);
+  lImg.addEventListener("click", ltouchln);
+
+  const backImg = newImg(ImgCoinBack);
+  backImg.style.width = "80px";
+  backImg.addEventListener("click", bckspacetouchln);
+
+  wrapJ.replaceChildren(jImg, descJ);
+  wrapK.replaceChildren(kImg, descK);
+  wrapL.replaceChildren(lImg, descL);
+
+  frame.replaceChildren(wrapJ, wrapK, wrapL, backImg);
+  return { frame };
+};
 const getBoard = (clientGame) => {
   const frame = newDivTag();
   ADD_CLASS(frame, "board");
@@ -775,7 +783,6 @@ const getBoard = (clientGame) => {
 
     fieldChain.onChainChange(clientGame.submitChain);
   };
- 
 
   const onnewchainLn = (chain) => {
     console.log(`[Board onNewChain] ${chain}`);
@@ -809,7 +816,7 @@ const getBoard = (clientGame) => {
     clientGame.removeOnGameEnd(ongameendRcv);
   };
 
-  const touchModal = getTouchPresssModal(keydownLn)
+  const touchModal = getTouchPresssModal(keydownLn);
 
   const startedPlane = () => {
     console.log(`[startedPlane] `);
@@ -860,7 +867,12 @@ const getBoard = (clientGame) => {
   const init = () => {
     console.log("[Board init] line up div :v");
     console.log(lineUpDiv);
-    frame.replaceChildren(touchModal.frame,scorerpop.frame, cdpop.frame, lineUpDiv.frame);
+    frame.replaceChildren(
+      touchModal.frame,
+      scorerpop.frame,
+      cdpop.frame,
+      lineUpDiv.frame
+    );
     refresh();
     clientGame.onGameStarted(startedPlane);
   };
