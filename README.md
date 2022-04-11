@@ -46,9 +46,7 @@ using PostgreSQL with Sequelize
 
 Go to custom scripts if existing database is used (update to latest migration only).
 
-- `./dev.sh` Ensure psql local or remote service has been started.
-
-Recreate an empty database, migrate and seed data.
+- `./dev.sh` Ensure psql local or remote service has been started. Recreates an empty database, migrate and seed data.
 
 Custom scripts:
 
@@ -76,8 +74,6 @@ https://git.heroku.com/golila.git
 
 heroku addons must have postgres.
 
-2022 APR 8: See `start` npm script for deployment steps. heroku will run `npm run start` on dyno restart.
-
 ## Notes
 
 2022 APR 8: See `start` npm script for deployment steps. heroku will run `npm run start` on dyno restart. \
@@ -97,7 +93,7 @@ Heroku Postgres does not allow dropping of database. Before clean migration, res
 
 [x] how to host on heroku???? \
 [x] not all users in room receive game-start event \
-[ ] need to tear down previous room events
+[ ] need to tear down previous room events on client side.
 
 [x] Game: submit chain (See #1244, #1245)
 
@@ -133,7 +129,7 @@ Heroku Postgres does not allow dropping of database. Before clean migration, res
 
 [x] DEPLOYMENT
 
-[ ] Optimise settle game by storing information and call database
+[ ] Optimise settle game statistics by storing information and call database
 
 ### SPRINT VIEWS
 
