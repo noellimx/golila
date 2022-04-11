@@ -5,8 +5,13 @@ https://golila.herokuapp.com/
 ## Game play
 
 Join a room, choose your team and wait for game to start.
-Owner of room starts the game and match the sequence of crypto coins.
-Game runs for 60 seconds and bonus points for winning team!
+Owner of room starts the game. Match the sequence of cryptochains by keypress.
+
+
+### Scoring
+
+Each matching cryptochain will give you 1 point per coin.
+Game runs for 70 + 5 seconds and bonus points for winning team!
 
 ![alt text](keys.png)
 
