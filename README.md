@@ -138,7 +138,7 @@ Heroku Postgres does not allow dropping of database. Before clean migration, res
 [x] participating room staging : 1- tabular room, 2- hovering colors \
 [x] participating room playing : 1- spawning time flash, 2- coins img, 3 someone hit flash \
 [x] participating room end of round : tally \
-[ ] ERD update \
+[x] ERD update \
 [ ] Organise npm dependencies \
 [ ] Organise npm scripts \
 [x] clear fields on registration request submission \
@@ -149,3 +149,4 @@ Heroku Postgres does not allow dropping of database. Before clean migration, res
 - How to ensure an event attaches a callback once?
 - What are the asynchronous strategies for filters and loops? When do I need to use them?
 - What is inject:true in HtmlWebpackPlugin Config?
+- How to improve latency, 1) reducing the network traffic and 2) reducing database calls?
