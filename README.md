@@ -150,3 +150,4 @@ Heroku Postgres does not allow dropping of database. Before clean migration, res
 - What are the asynchronous strategies for filters and loops? When do I need to use them?
 - What is inject:true in HtmlWebpackPlugin Config?
 - How to improve latency, 1) reducing the network traffic and 2) reducing database calls?
+- Since the game is to match answer to question and question has to be exposed to the client, how to secure it?
