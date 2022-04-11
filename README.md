@@ -133,6 +133,8 @@ Heroku Postgres does not allow dropping of database. Before clean migration, res
 
 [ ] Production Database #1246: Resetting, migration and seeding. 
 
+[ ] Expiry for user id tokens.
+
 ### SPRINT VIEWS
 
 [x] show room name instead of room id in the active room page \
